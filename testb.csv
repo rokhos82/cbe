@@ -1,0 +1,260 @@
+KSE,1st Fleet,75,259,416,259,0,0,0,0,0,,
+You Want A Piece Of This?,9,9,2,2,8,8,12,12,0,0,0,[9 target 30][8 mis0041 target 15 ammo 3 long] DEFENSE 15 RESIST 5 RESERVE 99
+Bad Behavior,9,9,2,2,8,8,12,12,0,0,0,[9 target 30][8 mis0041 target 15 ammo 3 long] DEFENSE 15 RESIST 5
+Will Do Sketchy Things,9,9,2,2,9,9,14,14,0,0,0,[9 target 30][9 mis0041 target 15 ammo 3 long] DEFENSE 15 RESIST 5
+S0002 (Fleet Carrier Mk 1),0,0,1,1,0,0,6,6,0,0,0,DEFENSE 15 RESIST 5 CARRIER RESERVE 99
+S0001 (Fleet Carrier Mk 1),0,0,1,1,0,0,6,6,0,0,0,DEFENSE 15 RESIST 5 CARRIER RESERVE 99
+S0116 (Fleet Carrier Mk 1),0,0,1,1,0,0,6,6,0,0,0,DEFENSE 15 RESIST 5 CARRIER RESERVE 99
+S0092 (Fleet Carrier Mk 1),0,0,1,1,0,0,6,6,0,0,0,DEFENSE 15 RESIST 5 CARRIER RESERVE 99
+S0091 (Fleet Carrier Mk 1),0,0,1,1,0,0,6,6,0,0,0,DEFENSE 15 RESIST 5 CARRIER RESERVE 99
+S01010 (Garrison Corvette Mk 1),4,4,1,1,0,0,6,6,0,0,0,[4 target 5] DEFENSE -15 RESIST 5
+S0108 (Garrison Corvette Mk 1),4,4,1,1,0,0,6,6,0,0,0,[4 target 5] DEFENSE -15 RESIST 5
+S0102 (Fleet Carrier Mk 1),0,0,1,1,0,0,6,6,0,0,0,DEFENSE 15 RESIST 5 CARRIER RESERVE 99
+F4001 (Fighter Mk 1),0,0,0,0,6,6,1,1,0,0,0,[1 mis0041 ammo 3 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F4009 (Fighter Mk 1),0,0,0,0,6,6,1,1,0,0,0,[1 mis0041 ammo 3 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F4015 (Fighter Mk 1),0,0,0,0,6,6,1,1,0,0,0,[1 mis0041 ammo 3 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F4023 (Fighter Mk 1),0,0,0,0,6,6,1,1,0,0,0,[1 mis0041 ammo 3 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F4028 (Fighter Mk 1),0,0,0,0,6,6,1,1,0,0,0,[1 mis0041 ammo 3 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F4030 (Fighter Mk 1),0,0,0,0,6,6,1,1,0,0,0,[1 mis0041 ammo 3 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F4033 (Fighter Mk 1),0,0,0,0,6,6,1,1,0,0,0,[1 mis0041 ammo 3 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F4034 (Fighter Mk 1),0,0,0,0,6,6,1,1,0,0,0,[1 mis0041 ammo 3 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F4035 (Fighter Mk 1),0,0,0,0,6,6,1,1,0,0,0,[1 mis0041 ammo 3 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F4036 (Fighter Mk 1),0,0,0,0,6,6,1,1,0,0,0,[1 mis0041 ammo 3 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F4040 (Fighter Mk 1),0,0,0,0,6,6,1,1,0,0,0,[1 mis0041 ammo 3 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F4041 (Fighter Mk 1),0,0,0,0,6,6,1,1,0,0,0,[1 mis0041 ammo 3 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F4052 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F4059 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F4060 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F4069 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F4075 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F4091 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F4093 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F4096 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F4097 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F4120 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F4121 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F4128 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F4156 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F4158 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1001 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1002 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1003 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1004 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1005 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1006 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1007 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1008 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1009 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1010 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1011 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1012 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1013 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1014 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1015 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1016 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1017 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1018 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1019 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1020 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1021 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1022 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1023 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1024 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1025 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1026 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1027 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1028 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1029 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1030 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1031 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1032 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1033 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1034 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1035 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1036 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1037 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1038 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1039 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1040 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1041 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1042 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1043 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1044 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1045 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1046 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1047 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1048 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1049 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1050 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1051 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1052 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1053 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1054 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1055 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1056 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1057 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1058 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1059 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1060 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1061 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1062 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1063 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1064 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1065 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1066 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1067 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1068 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1069 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1070 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1071 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1072 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1073 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1074 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1075 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1076 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1077 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1078 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1079 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1080 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1081 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1082 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1083 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1084 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1085 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1086 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1087 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1088 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1089 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1090 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1091 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1092 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1093 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1094 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1095 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1096 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1097 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1098 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1099 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1100 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1101 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1102 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1103 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1104 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1105 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1106 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1107 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1108 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1109 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1110 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1111 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1112 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1113 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1114 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1115 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1116 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1117 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1118 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1119 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1120 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1121 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1122 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1123 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1124 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1125 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1126 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1127 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1128 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1129 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1130 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1131 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1132 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1133 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1134 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1135 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1136 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1137 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1138 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1139 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1140 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1141 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1142 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1143 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1144 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1145 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1146 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1147 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1148 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1149 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1150 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1151 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1152 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1153 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1154 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1155 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1156 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1157 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1158 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1159 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1160 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1161 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1162 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1163 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1164 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1165 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1166 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1167 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1168 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1169 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1170 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1171 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1172 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1173 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1174 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1175 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1176 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1177 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1178 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1179 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1180 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1181 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1182 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1183 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1184 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1185 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1186 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1187 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1188 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1189 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1190 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1191 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1192 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1193 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1194 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1195 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1196 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1197 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1198 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1199 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+F1200 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 1 target 15][1 mis0001] DEFENSE 15 FIGHTER
+S1001 (Fleet Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5
+S1002 (Fleet Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5
+S1003 (Fleet Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5
+S1004 (Fleet Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5
+S1005 (Fleet Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5
+S1006 (Fleet Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5
+S1007 (Fleet Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5
+S1008 (Fleet Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5
+S1009 (Fleet Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5
+S1010 (Fleet Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5
+S1011 (Fleet Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5
+S1012 (Fleet Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5
+S1013 (Fleet Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5
+S1014 (Fleet Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5
+S1015 (Fleet Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5
+S1016 (Fleet Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5
+S1017 (Fleet Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5
+S1018 (Fleet Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5
+S1019 (Fleet Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5
+S1020 (Fleet Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5
+SM1 (Fleet Missile Destroyer Mk 1),0,0,1,1,16,16,12,12,0,0,0,[16 mis0041 target 20 ammo 7] DEFENSE 20 RESIST 5
+SM2 (Fleet Missile Destroyer Mk 1),0,0,1,1,16,16,12,12,0,0,0,[16 mis0041 target 20 ammo 7] DEFENSE 20 RESIST 5
