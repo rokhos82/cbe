@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 
+//#include "structs.h"
 #include "cbe_lib.h"
 
 using namespace std;
@@ -136,4 +137,25 @@ BE::FleetInfo parseFleetHeader(string header) {
     return info;
 }
 
-void debugPrintUnits() {}
+void debugPrintUnits() {
+    cout << "Number of attacking units: " << BE::AttShipsLeft << endl;
+    for(int i = 0;i < BE::AttShipsLeft;i++) {
+        cout << "Att Unit: " << attShipStr(i) << endl;
+    }
+    cout << "Number of defending units: " << BE::DefShipsLeft << endl;
+    for(int i = 0;i < BE::DefShipsLeft;i++) {
+        cout << "Def Unit: " << defShipStr(i) << endl;
+    }
+}
+
+string attShipStr(int i) {
+    stringstream strm;
+    strm << BE::AttShipStr[i] << "," << BE::MaxBeamA[i] << "," << BE::CurBeamA[i] << "," << BE::MaxShieldA[i] << "," << BE::CurShieldA[i];
+    return strm.str();
+}
+
+string defShipStr(int i) {
+    stringstream strm;
+    strm << BE::DefShipStr[i] << "," << BE::MaxBeamB[i];
+    return strm.str();
+}

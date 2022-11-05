@@ -11,135 +11,133 @@
 #include "structs.h"
 #include "cbe_lib.h"
 #include "cbe.h"
-
+ 
 using namespace std;
 
-// Global Variables
-namespace BE {
-    string AttFleetStr = "", AttRaceName = "", AttFleetName = "";
-    string AttBattleStr = "", AttDamageStr = "", AttRetreatStr = "";
-    string DefFleetStr = "", DefRaceName = "", DefFleetName = "";
-    string DefBattleStr = "", DefDamageStr = "", DefRetreatStr = "";
+string BE::AttFleetStr = "", BE::AttRaceName = "", BE::AttFleetName = "";
+string BE::AttBattleStr = "", BE::AttDamageStr = "", BE::AttRetreatStr = "";
+string BE::DefFleetStr = "", BE::DefRaceName = "", BE::DefFleetName = "";
+string BE::DefBattleStr = "", BE::DefDamageStr = "", BE::DefRetreatStr = "";
 
-    long AttShipsTotal = 0, DefShipsTotal = 0;
-    long AttBreakOff = 0, AttTargetBonus = 0;
-    long DefBreakOff = 0, DefTargetBonus = 0;
-    long AttShipsLeft = 0, AttFleetStrength = 0;
-    long AttTargetPriority = 0, AttIsCloaked = 0; 
-    long AttIsMixed = 0;
-    long AttSurprised = 0, AttReserve = 0;
-    long DefShipsLeft = 0, DefFleetStrength = 0;
-    long DefTargetPriority = 0, DefIsCloaked = 0;
-    long DefIsMixed = 0;
-    long DefSurprised = 0, DefReserve = 0;
+long BE::AttShipsTotal = 0, BE::DefShipsTotal = 0;
+long BE::AttBreakOff = 0, BE::AttTargetBonus = 0;
+long BE::DefBreakOff = 0, BE::DefTargetBonus = 0;
+long BE::AttShipsLeft = 0, BE::AttFleetStrength = 0;
+long BE::AttTargetPriority = 0, BE::AttIsCloaked = 0; 
+long BE::AttIsMixed = 0;
+long BE::AttSurprised = 0, BE::AttReserve = 0;
+long BE::DefShipsLeft = 0, BE::DefFleetStrength = 0;
+long BE::DefTargetPriority = 0, BE::DefIsCloaked = 0;
+long BE::DefIsMixed = 0;
+long BE::DefSurprised = 0, BE::DefReserve = 0;
 
-    long CombatRound = 0, RetreatFlag = 0, AttFledFlag = 0, DefFledFlag = 0, ReactorBreachFlag = 0, CritCount = 0, firepower = 0;
+long BE::CombatRound = 0, BE::RetreatFlag = 0, BE::AttFledFlag = 0, BE::DefFledFlag = 0, BE::ReactorBreachFlag = 0, BE::CritCount = 0, BE::firepower = 0;
 
-    double DM_ToHitA = 0.0, DM_ToHitB = 0.0;
+double BE::DM_ToHitA = 0.0, BE::DM_ToHitB = 0.0;
 
-    long A = 0, B = 0, C = 0, D = 0, E = 0, L = 0, X = 0, Y = 0, aa = 0, bb = 0;
+long BE::A = 0, BE::B = 0, BE::C = 0, BE::D = 0, BE::E = 0, BE::L = 0, BE::X = 0, BE::Y = 0, BE::aa = 0, BE::bb = 0;
 
-    long Target1 = 0, Target2 = 0;
-    long dice1 = 0, dice2 = 0, dice3 = 0;
-    long Damage1 = 0, Damage2 = 0, Damage3 = 0, Scope = 0;
-    long Crits = 0, Shields = 0, Hull = 0, DamageLevel = 0;
-    long AttHasFighters = 0, DefHasFighters = 0;
-    long CritDamageFlag = 0, CritSpecialFlag = 0;
+long BE::Target1 = 0, BE::Target2 = 0;
+long BE::dice1 = 0, BE::dice2 = 0, BE::dice3 = 0;
+long BE::Damage1 = 0, BE::Damage2 = 0, BE::Damage3 = 0, BE::Scope = 0;
+long BE::Crits = 0, BE::Shields = 0, BE::Hull = 0, BE::DamageLevel = 0;
+long BE::AttHasFighters = 0, BE::DefHasFighters = 0;
+long BE::CritDamageFlag = 0, BE::CritSpecialFlag = 0;
 
-    long BO_AttackTotal = 0, BO_AttackPercent = 0, BO_Att = 0;
-    long BO_DefenseTotal = 0, BO_DefensePercent = 0, BO_Def = 0;
+long BE::BO_AttackTotal = 0, BE::BO_AttackPercent = 0, BE::BO_Att = 0;
+long BE::BO_DefenseTotal = 0, BE::BO_DefensePercent = 0, BE::BO_Def = 0;
 
-    long MissileB = 0, MissileS = 0, MissileT = 0, MissileH = 0;
+long BE::MissileB = 0, BE::MissileS = 0, BE::MissileT = 0, BE::MissileH = 0;
 
-    double ShieldsPercent = 0.0, HullPercent = 0.0;
+double BE::ShieldsPercent = 0.0, BE::HullPercent = 0.0;
 
-    string AttFile = "", DefFile = "", TempAFile = "", TempBFile = "";
-    string ActiveFile = "", TempStr = "", ShipCritStr = "";
-    string CriticalStr = "", RaceStr = "";
+string BE::AttFile = "", BE::DefFile = "", BE::TempAFile = "", BE::TempBFile = "";
+string BE::ActiveFile = "", BE::TempStr = "", BE::ShipCritStr = "";
+string BE::CriticalStr = "", BE::RaceStr = "";
 
-    long MaximumDamage = 0, AttacksMax = 0, AttacksIndex = 0;
-    AttackInfo Attacks[20000];
-    SalvoInfo Salvos[200];
+long BE::MaximumDamage = 0, BE::AttacksMax = 0, BE::AttacksIndex = 0;
 
-    string AttShipStr[9999];
-    string DefShipStr[9999];
-    string AttCritStr[9999];
-    string DefCritStr[9999];
+BE::AttackInfo BE::Attacks[20000];
+BE::SalvoInfo BE::Salvos[200];
 
-    long CurBeamA[9999];
-    long CurShieldA[9999];
-    long CurTorpA[9999];
-    long CurHullA[9999];
-    long HitsA[9999];
-    long PenHitsA[9999];
-    long StatusA[9999];
-    long AmmoA[9999];
-    long MaxBeamA[9999];
-    long MaxShieldA[9999];
-    long MaxTorpA[9999];
-    long MaxHullA[9999];
-    long CurDamA[9999];
-    string SpecialA[9999];
-    long BPAttackCritA[9999];
-    
-    long CurBeamB[9999];
-    long CurShieldB[9999];
-    long CurTorpB[9999];
-    long CurHullB[9999];
-    long HitsB[9999];
-    long PenHitsB[9999];
-    long StatusB[9999];
-    long AmmoB[9999];
-    long MaxBeamB[9999];
-    long MaxShieldB[9999];
-    long MaxTorpB[9999];
-    long MaxHullB[9999];
-    long CurDamB[9999];
-    string SpecialB[9999];
-    long BPAttackCritB[9999];
+string BE::AttShipStr[9999];
+string BE::DefShipStr[9999];
+string BE::AttCritStr[9999];
+string BE::DefCritStr[9999];
 
-    string TempAttCritStr[9999];
-    string TempDefCritStr[9999];
+long BE::CurBeamA[9999];
+long BE::CurShieldA[9999];
+long BE::CurTorpA[9999];
+long BE::CurHullA[9999];
+long BE::HitsA[9999];
+long BE::PenHitsA[9999];
+long BE::StatusA[9999];
+long BE::AmmoA[9999];
+long BE::MaxBeamA[9999];
+long BE::MaxShieldA[9999];
+long BE::MaxTorpA[9999];
+long BE::MaxHullA[9999];
+long BE::CurDamA[9999];
+string BE::SpecialA[9999];
+long BE::BPAttackCritA[9999];
 
-    long TempCurBeamA[9999];
-    long TempCurShieldA[9999];
-    long TempCurTorpA[9999];
-    long TempCurHullA[9999];
-    long TempHitsA[9999];
-    long TempPenHitsA[9999];
-    long TempStatusA[9999];
-    long TempCurDamA[9999];
-    string TempSpecialA[9999];
+long BE::CurBeamB[9999];
+long BE::CurShieldB[9999];
+long BE::CurTorpB[9999];
+long BE::CurHullB[9999];
+long BE::HitsB[9999];
+long BE::PenHitsB[9999];
+long BE::StatusB[9999];
+long BE::AmmoB[9999];
+long BE::MaxBeamB[9999];
+long BE::MaxShieldB[9999];
+long BE::MaxTorpB[9999];
+long BE::MaxHullB[9999];
+long BE::CurDamB[9999];
+string BE::SpecialB[9999];
+long BE::BPAttackCritB[9999];
 
-    long TempCurBeamB[9999];
-    long TempCurShieldB[9999];
-    long TempCurTorpB[9999];
-    long TempCurHullB[9999];
-    long TempHitsB[9999];
-    long TempPenHitsB[9999];
-    long TempStatusB[9999];
-    long TempCurDamB[9999];
-    string TempSpecialB[9999];
+string BE::TempAttCritStr[9999];
+string BE::TempDefCritStr[9999];
 
-    string terrain[7];
-    long terrain_def[7];
-    string terrain_special[7];
+long BE::TempCurBeamA[9999];
+long BE::TempCurShieldA[9999];
+long BE::TempCurTorpA[9999];
+long BE::TempCurHullA[9999];
+long BE::TempHitsA[9999];
+long BE::TempPenHitsA[9999];
+long BE::TempStatusA[9999];
+long BE::TempCurDamA[9999];
+string BE::TempSpecialA[9999];
 
-    long LocationA[9999];
-    long LocationB[9999];
-    long OrdersA[9999];
-    long OrdersB[9999];
+long BE::TempCurBeamB[9999];
+long BE::TempCurShieldB[9999];
+long BE::TempCurTorpB[9999];
+long BE::TempCurHullB[9999];
+long BE::TempHitsB[9999];
+long BE::TempPenHitsB[9999];
+long BE::TempStatusB[9999];
+long BE::TempCurDamB[9999];
+string BE::TempSpecialB[9999];
 
-    long CRIT_DIS = 0, CRIT_HEAT = 0, CRIT_MESON = 0;
-    long CRIT_VIBRO = 0, CRIT_BP = 0, CRIT_SPECIAL = 0;
+string BE::terrain[7];
+long BE::terrain_def[7];
+string BE::terrain_special[7];
 
-    long dice = 0;
-    long ret = 0;
+long BE::LocationA[9999];
+long BE::LocationB[9999];
+long BE::OrdersA[9999];
+long BE::OrdersB[9999];
 
-    bool LoadA_ready = false, LoadD_ready = false;
-    bool AttHasLongRange = false, DefHasLongRange = false;
-    string GroupName = "Fleets", UnitName = "Ships";
-}
+long BE::CRIT_DIS = 0, BE::CRIT_HEAT = 0, BE::CRIT_MESON = 0;
+long BE::CRIT_VIBRO = 0, BE::CRIT_BP = 0, BE::CRIT_SPECIAL = 0;
+
+long BE::dice = 0;
+long BE::ret = 0;
+
+bool BE::LoadA_ready = false, BE::LoadD_ready = false;
+bool BE::AttHasLongRange = false, BE::DefHasLongRange = false;
+string BE::GroupName = "Fleets", BE::UnitName = "Ships";
 
 void loadAttackingFleet(string fname) {
     cout << "Loading attacking fleet from: " << fname << endl;
@@ -186,6 +184,7 @@ void loadAttackingFleet(string fname) {
 
         attFile.close();
 
+        cout << BE::AttShipsLeft << " units loeaded." << endl;
         CBE::attackerLoaded = true;
     }
 }
@@ -200,15 +199,15 @@ void loadDefendingFleet(string fname) {
         string line = "";
         getline(defFile,line,'\n');
         BE::FleetInfo fleet = parseFleetHeader(line);
-        BE::AttRaceName = fleet.RaceName;
-        BE::AttFleetName = fleet.FleetName;
-        BE::AttBreakOff = fleet.BreakOff;
-        BE::AttShipsTotal = fleet.ShipsTotal;
-        BE::AttFleetStrength = fleet.FleetStrength;
-        BE::AttShipsLeft = fleet.ShipsLeft;
-        BE::AttTargetBonus = fleet.TargetBonus;
-        BE::AttTargetPriority = fleet.TargetPriority;
-        BE::AttReserve = fleet.Reserve;
+        BE::DefRaceName = fleet.RaceName;
+        BE::DefFleetName = fleet.FleetName;
+        BE::DefBreakOff = fleet.BreakOff;
+        BE::DefShipsTotal = fleet.ShipsTotal;
+        BE::DefFleetStrength = fleet.FleetStrength;
+        BE::DefShipsLeft = fleet.ShipsLeft;
+        BE::DefTargetBonus = fleet.TargetBonus;
+        BE::DefTargetPriority = fleet.TargetPriority;
+        BE::DefReserve = fleet.Reserve;
 
         long numUnits = 0;
         while(getline(defFile,line,'\n')) {
@@ -236,6 +235,7 @@ void loadDefendingFleet(string fname) {
         defFile.close();
 
         CBE::defenderLoaded = true;
+        cout << BE::DefShipsLeft << " units loaded." << endl;
     }
 }
 
@@ -333,6 +333,7 @@ void writeTempFiles() {
             // IF the current ships hull is less than 1 OR the ship is fled OR (the ships is a missile AND the combat round is greater than 0)
             if(BE::CurHullA[i] < 1 || IsFled(BE::SpecialA[i]) || (IsMissile(BE::SpecialA[i]) && BE::CombatRound > 0)) {
                 // Do nothing as this ship is either dead, fled, or a missile
+                cerr << BE::AttShipStr[i] << " is dead/fled/msl" << endl;
             }
             else {
                 // Write this ship to the TempAFile csv
@@ -397,7 +398,7 @@ void writeTempFiles() {
 void readTempA() {
     // Open tempA file for reading
     ifstream tempA;
-    cout << "Opening " << BE::TempAFile << " as tempA";
+    cout << "Opening " << BE::TempAFile << " as tempA" << endl;
     tempA.open(BE::TempAFile,ios::binary);
     // Read in the fleet header line
     if(tempA.is_open()) {
@@ -476,6 +477,9 @@ void be_main() {
     AttackLoop = 1; // set to zero to end combat | TODO: This can be moved to variable declaration
     BE::AttacksMax = 20000; // TODO: This can be moved to the variable declaration
     BE::AttacksIndex = 0;
+
+    BE::TempAFile = "tempa.csv";
+    BE::TempBFile = "tempb.csv";
 
     BE::DM_ToHitA = 0;
     BE::DM_ToHitB = 0;
@@ -570,6 +574,7 @@ int main(int argc, char *argv[]) {
         cout << "\t3: Update Settings" << endl;
         cout << "\t4: One Turn" << endl;
         cout << "\t5: Fight!" << endl;
+        cout << "\t6: Debug Output" << endl;
         cout << "\t0: Exit" << endl;
         cout << "Selection: ";
 
@@ -597,6 +602,9 @@ int main(int argc, char *argv[]) {
                 // Do the thing!
                 cout << "Starting combat" << endl;
                 be_main();
+                break;
+            case 6:
+                debugPrintUnits();
                 break;
             default:
                 done = true;
