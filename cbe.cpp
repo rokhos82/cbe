@@ -14,6 +14,9 @@
  
 using namespace std;
 
+ofstream CBE::debugFile;
+CBE::debugFile.open("debug.txt",ios::write);
+
 string BE::AttFleetStr = "", BE::AttRaceName = "", BE::AttFleetName = "";
 string BE::AttBattleStr = "", BE::AttDamageStr = "", BE::AttRetreatStr = "";
 string BE::DefFleetStr = "", BE::DefRaceName = "", BE::DefFleetName = "";
@@ -330,6 +333,19 @@ void writeTempFiles() {
     tempAFile << BE::AttRaceName << "," << BE::AttFleetName << "," << BE::AttBreakOff << "," << BE::AttShipsTotal << "," << BE::AttFleetStrength << "," << BE::AttShipsLeft << "," << BE::AttTargetBonus << "," << BE::AttTargetPriority << "," << BE::AttReserve << "\n";
     if(BE::AttShipsLeft > 0) {
         for(int i = 0;i < old_AttShipsLeft;i++) {
+            CBE::debugFile << BE::AttShipStr[i] << "," 
+                          << BE::MaxBeamA[i] << "," 
+                          << BE::CurBeamA[i] << "," 
+                          << BE::MaxShieldA[i] << "," 
+                          << BE::CurShieldA[i] << "," 
+                          << BE::MaxTorpA[i] << "," 
+                          << BE::CurTorpA[i] << "," 
+                          << BE::MaxHullA[i] << "," 
+                          << BE::CurHullA[i] << "," 
+                          << BE::CurDamA[i] << "," 
+                          << BE::StatusA[i] << "," 
+                          << BE::AmmoA[i] << "," 
+                          << BE::SpecialA[i] << "\n";
             // IF the current ships hull is less than 1 OR the ship is fled OR (the ships is a missile AND the combat round is greater than 0)
             if(BE::CurHullA[i] < 1 || IsFled(BE::SpecialA[i]) || (IsMissile(BE::SpecialA[i]) && BE::CombatRound > 0)) {
                 // Do nothing as this ship is either dead, fled, or a missile
@@ -337,7 +353,19 @@ void writeTempFiles() {
             }
             else {
                 // Write this ship to the TempAFile csv
-                tempAFile << BE::AttShipStr[i] << "," << BE::MaxBeamA[i] << "," << BE::CurBeamA[i] << "," << BE::MaxShieldA[i] << "," << BE::CurShieldA[i] << "," << BE::MaxTorpA[i] << "," << BE::CurTorpA[i] << "," << BE::MaxHullA[i] << "," << BE::CurHullA[i] << "," << BE::CurDamA[i] << "," << BE::StatusA[i] << "," << BE::AmmoA[i] << "," << BE::SpecialA[i] << "\n";
+                tempAFile << BE::AttShipStr[i] << "," 
+                          << BE::MaxBeamA[i] << "," 
+                          << BE::CurBeamA[i] << "," 
+                          << BE::MaxShieldA[i] << "," 
+                          << BE::CurShieldA[i] << "," 
+                          << BE::MaxTorpA[i] << "," 
+                          << BE::CurTorpA[i] << "," 
+                          << BE::MaxHullA[i] << "," 
+                          << BE::CurHullA[i] << "," 
+                          << BE::CurDamA[i] << "," 
+                          << BE::StatusA[i] << "," 
+                          << BE::AmmoA[i] << "," 
+                          << BE::SpecialA[i] << "\n";
             }
         }
     }
