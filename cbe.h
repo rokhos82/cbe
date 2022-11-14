@@ -6,5 +6,5 @@ namespace CBE {
     bool attackerLoaded = false;
     bool defenderLoaded = false;
     float baseAccuracy = 50.1;
-    extern std::ofstream debugFile;
+    extern std::fstream debugFile;
 }

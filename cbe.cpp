@@ -14,8 +14,8 @@
  
 using namespace std;
 
-ofstream CBE::debugFile;
-CBE::debugFile.open("debug.txt",ios::write);
+fstream CBE::debugFile = fstream("debug.txt",ios::out | ios::binary);
+//CBE::debugFile.open("debug.txt",ios::write);
 
 string BE::AttFleetStr = "", BE::AttRaceName = "", BE::AttFleetName = "";
 string BE::AttBattleStr = "", BE::AttDamageStr = "", BE::AttRetreatStr = "";
@@ -144,6 +144,7 @@ string BE::GroupName = "Fleets", BE::UnitName = "Ships";
 
 void loadAttackingFleet(string fname) {
     cout << "Loading attacking fleet from: " << fname << endl;
+    CBE::debugFile << "Loading attacking fleet from: " << fname << endl;
     BE::AttFleetStr = fname;
 
     fstream attFile;
@@ -180,10 +181,26 @@ void loadAttackingFleet(string fname) {
             BE::AmmoA[numUnits] = unit.Ammo;
             BE::SpecialA[numUnits] = unit.Special;
 
+            CBE::debugFile << unit.UnitName << ","
+                           << unit.MaxBeam << ","
+                           << unit.CurBeam << ","
+                           << unit.MaxShield << ","
+                           << unit.CurShield << ","
+                           << unit.MaxTorp << ","
+                           << unit.CurTorp << ","
+                           << unit.MaxHull << ","
+                           << unit.CurHull << ","
+                           << unit.CurDam << ","
+                           << unit.Status << ","
+                           << unit.Ammo << ","
+                           << unit.Special << endl;
+
             numUnits++;
         }
 
         BE::AttShipsLeft = numUnits;
+
+        CBE::debugFile << "Attacking Units Loaded: " << BE::AttShipsLeft << endl;
 
         attFile.close();
 
@@ -194,6 +211,7 @@ void loadAttackingFleet(string fname) {
 
 void loadDefendingFleet(string fname) {
     cout << "Loading defending fleet from: " << fname << endl;
+    CBE::debugFile << "Loading defending fleet from: " << fname << endl;
     BE::DefFleetStr = fname;
 
     fstream defFile;
@@ -230,10 +248,26 @@ void loadDefendingFleet(string fname) {
             BE::AmmoB[numUnits] = unit.Ammo;
             BE::SpecialB[numUnits] = unit.Special;
 
+            CBE::debugFile << unit.UnitName << ","
+                           << unit.MaxBeam << ","
+                           << unit.CurBeam << ","
+                           << unit.MaxShield << ","
+                           << unit.CurShield << ","
+                           << unit.MaxTorp << ","
+                           << unit.CurTorp << ","
+                           << unit.MaxHull << ","
+                           << unit.CurHull << ","
+                           << unit.CurDam << ","
+                           << unit.Status << ","
+                           << unit.Ammo << ","
+                           << unit.Special << endl;
+
             numUnits++;
         }
 
         BE::DefShipsLeft = numUnits;
+
+        CBE::debugFile << "Defending Units Loaded: " << BE::DefShipsLeft << endl;
 
         defFile.close();
 
