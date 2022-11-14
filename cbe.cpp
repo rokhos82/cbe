@@ -15,7 +15,6 @@
 using namespace std;
 
 fstream CBE::debugFile = fstream("debug.txt",ios::out | ios::binary);
-//CBE::debugFile.open("debug.txt",ios::write);
 
 string BE::AttFleetStr = "", BE::AttRaceName = "", BE::AttFleetName = "";
 string BE::AttBattleStr = "", BE::AttDamageStr = "", BE::AttRetreatStr = "";
@@ -327,6 +326,7 @@ bool IsFled(const string & special) {
 void writeTempFiles() {
     long old_AttShipsLeft = 0;
     long old_DefShipsLeft = 0;
+    CBE::debugFile << "# WRITE TEMP FILES #" << endl;
 
     old_AttShipsLeft = BE::AttShipsLeft; // TODO: Move to variable declaration.
     old_DefShipsLeft = BE::DefShipsLeft; // TODO: Move to variable declaration.
@@ -351,7 +351,19 @@ void writeTempFiles() {
                 // Units that have been marked as fled but are captured or cripple never get considered fled.
                 if(IsFled(BE::SpecialA[i])) {
                     BE::AttShipsLeft = BE::AttShipsLeft - 1;
-                    attFledFile << BE::AttShipStr[i] << "," << BE::MaxBeamA[i] << "," << BE::CurBeamA[i] << "," << BE::MaxShieldA[i] << "," << BE::CurShieldA[i] << "," << BE::MaxTorpA[i] << "," << BE::CurTorpA[i] << "," << BE::MaxHullA[i] << "," << BE::CurHullA[i] << "," << BE::CurDamA[i] << "," << BE::StatusA[i] << "," << BE::AmmoA[i] << "," << BE::SpecialA[i] << "\n";
+                    attFledFile << BE::AttShipStr[i] << "," 
+                                << BE::MaxBeamA[i] << "," 
+                                << BE::CurBeamA[i] << "," 
+                                << BE::MaxShieldA[i] << "," 
+                                << BE::CurShieldA[i] << "," 
+                                << BE::MaxTorpA[i] << "," 
+                                << BE::CurTorpA[i] << "," 
+                                << BE::MaxHullA[i] << "," 
+                                << BE::CurHullA[i] << "," 
+                                << BE::CurDamA[i] << "," 
+                                << BE::StatusA[i] << "," 
+                                << BE::AmmoA[i] << "," 
+                                << BE::SpecialA[i] << "\n";
                 }
             }
         }
@@ -585,6 +597,7 @@ void be_main() {
 * -u <string> - the unit name for this simulation (default is Ships)
 */
 int main(int argc, char *argv[]) {
+    CBE::debugFile << "### DEBUG ###" << endl;
     int i = 1;
     string fname = "";
     while(i < argc) {
@@ -674,6 +687,9 @@ int main(int argc, char *argv[]) {
     }
 
     cout << "Goodbye!" << endl;
+
+    // Close the debug file
+    CBE::debugFile.close();
 
     // Return a clean run
     return 0;
