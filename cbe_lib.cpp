@@ -80,7 +80,7 @@ vector<string> loadCSVFileRows(string filename) {
 vector<string> parseCSVRow(string row) {
     vector<string> parts;
     parts.clear();
-    cout << "Row: " << row << endl;
+    //cout << "Row: " << row << endl;
 
     // Convert the line to a stringstream
     stringstream ss(row);

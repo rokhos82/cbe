@@ -207,7 +207,7 @@ void loadAttackingFleet(string fname) {
 
         attFile.close();
 
-        cout << BE::AttShipsLeft << " units loeaded." << endl;
+        cout << BE::AttShipsLeft << " units loaded." << endl;
         CBE::attackerLoaded = true;
     }
 }
@@ -341,7 +341,7 @@ void writeTempFiles() {
     old_DefShipsLeft = BE::DefShipsLeft; // TODO: Move to variable declaration.
 
     #ifdef CBE_DEBUG
-    CBE::debugFile << "### WRITE TEMP FILES ###" << endl;
+    CBE::debugFile << "########## WRITE TEMP FILES ##########" << endl;
     CBE::debugFile << "    CombatRound: " << BE::CombatRound << endl;
     CBE::debugFile << "    Attackers: " << old_AttShipsLeft << endl;
     CBE::debugFile << "    Defenders: " << old_DefShipsLeft << endl;
@@ -476,8 +476,25 @@ void writeTempFiles() {
                 // Units that have been marked as fled but are captured or cripple never get considered fled.
                 if(IsFled(BE::SpecialB[i])) {
                     BE::DefShipsLeft = BE::DefShipsLeft - 1;
-                    defFledFile << BE::DefShipStr[i] << "," << BE::MaxBeamB[i] << "," << BE::CurBeamB[i] << "," << BE::MaxShieldB[i] << "," << BE::CurShieldB[i] << "," << BE::MaxTorpB[i] << "," << BE::CurTorpB[i] << "," << BE::MaxHullB[i] << "," << BE::CurHullB[i] << "," << BE::CurDamB[i] << "," << BE::StatusB[i] << "," << BE::AmmoB[i] << "," << BE::SpecialB[i] << "\n";
+                    defFledFile << BE::DefShipStr[i] << "," 
+                                << BE::MaxBeamB[i] << "," 
+                                << BE::CurBeamB[i] << "," 
+                                << BE::MaxShieldB[i] << "," 
+                                << BE::CurShieldB[i] << "," 
+                                << BE::MaxTorpB[i] << "," 
+                                << BE::CurTorpB[i] << "," 
+                                << BE::MaxHullB[i] << "," 
+                                << BE::CurHullB[i] << "," 
+                                << BE::CurDamB[i] << "," 
+                                << BE::StatusB[i] << "," 
+                                << BE::AmmoB[i] << "," 
+                                << BE::SpecialB[i] << "\n";
                 }
+            }
+            else {
+                #ifdef CBE_DEBUG
+                CBE::debugFile << "CAPTURE/CRIPPLE: " << BE::DefShipStr[i] << endl;
+                #endif
             }
         }
     }
@@ -495,13 +512,43 @@ void writeTempFiles() {
     tempBFile << BE::DefRaceName << "," << BE::DefFleetName << "," << BE::DefBreakOff << "," << BE::DefShipsTotal << "," << BE::DefFleetStrength << "," << BE::DefShipsLeft << "," << BE::DefTargetBonus << "," << BE::DefTargetPriority << "," << BE::DefReserve << "\n";
     if(BE::DefShipsLeft > 0) {
         for(int i = 0;i < old_DefShipsLeft;i++) {
+             #ifdef CBE_DEBUG
+            CBE::debugFile << BE::DefShipStr[i] << "," 
+                          << BE::MaxBeamB[i] << "," 
+                          << BE::CurBeamB[i] << "," 
+                          << BE::MaxShieldB[i] << "," 
+                          << BE::CurShieldB[i] << "," 
+                          << BE::MaxTorpB[i] << "," 
+                          << BE::CurTorpB[i] << "," 
+                          << BE::MaxHullB[i] << "," 
+                          << BE::CurHullB[i] << "," 
+                          << BE::CurDamB[i] << "," 
+                          << BE::StatusB[i] << "," 
+                          << BE::AmmoB[i] << "," 
+                          << BE::SpecialB[i] << "\n";
+            #endif
             // IF the current ships hull is less than 1 OR the ship is fled OR (the ships is a missile AND the combat round is greater than 0)
             if(BE::CurHullB[i] < 1 || IsFled(BE::SpecialB[i]) || (IsMissile(BE::SpecialB[i]) && BE::CombatRound > 0)) {
                 // Do nothing as this ship is either dead, fled, or a missile
+                #ifdef CBE_DEBUG
+                CBE::debugFile << "DEAD/FLED/MSL: " << BE::DefShipStr[i] << endl;
+                #endif
             }
             else {
                 // Write this ship to the TempAFile csv
-                tempBFile << BE::DefShipStr[i] << "," << BE::MaxBeamB[i] << "," << BE::CurBeamB[i] << "," << BE::MaxShieldB[i] << "," << BE::CurShieldB[i] << "," << BE::MaxTorpB[i] << "," << BE::CurTorpB[i] << "," << BE::MaxHullB[i] << "," << BE::CurHullB[i] << "," << BE::CurDamB[i] << "," << BE::StatusB[i] << "," << BE::AmmoB[i] << "," << BE::SpecialB[i] << "\n";
+                tempBFile << BE::DefShipStr[i] << "," 
+                          << BE::MaxBeamB[i] << "," 
+                          << BE::CurBeamB[i] << "," 
+                          << BE::MaxShieldB[i] << "," 
+                          << BE::CurShieldB[i] << "," 
+                          << BE::MaxTorpB[i] << "," 
+                          << BE::CurTorpB[i] << "," 
+                          << BE::MaxHullB[i] << "," 
+                          << BE::CurHullB[i] << "," 
+                          << BE::CurDamB[i] << "," 
+                          << BE::StatusB[i] << "," 
+                          << BE::AmmoB[i] << "," 
+                          << BE::SpecialB[i] << "\n";
             }
         }
     }
@@ -512,19 +559,68 @@ void writeTempFiles() {
 void readTempA() {
     // Open tempA file for reading
     ifstream tempA;
-    cout << "Opening " << BE::TempAFile << " as tempA" << endl;
-    tempA.open(BE::TempAFile,ios::binary);
+    #ifdef CBE_DEBUG
+        cout << "Opening " << BE::TempAFile << " as tempA" << endl;
+        CBE::debugFile << "Opening " << BE::TempAFile << " as tempA" << endl;
+    #endif
+    tempA.open(BE::TempAFile,ios::binary | ios::in);
     // Read in the fleet header line
     if(tempA.is_open()) {
         // Read the first line
         string header = "";
         getline(tempA,header,'\n');
         BE::FleetInfo info = parseFleetHeader(header);
+        #ifdef CBE_DEBUG
         cout << info.RaceName << " - " << info.FleetName << endl;
+        CBE::debugFile << info.RaceName << " - " << info.FleetName << endl;
+        #endif
         BE::AttRaceName = info.RaceName;
         BE::AttFleetName = info.FleetName;
 
         // Read the unit lines
+        long numUnits = 0;
+        string line = "";
+        while(getline(tempA,line,'\n')) {
+            // Now break it back out to the individual arrays...because...BASIC
+            BE::UnitInfo unit = parseUnit(line);
+            BE::AttShipStr[numUnits] = unit.UnitName;
+            BE::MaxBeamA[numUnits] = unit.MaxBeam;
+            BE::CurBeamA[numUnits] = unit.CurBeam;
+            BE::MaxShieldA[numUnits] = unit.MaxShield;
+            BE::CurShieldA[numUnits] = unit.CurShield;
+            BE::MaxTorpA[numUnits] = unit.MaxTorp;
+            BE::CurTorpA[numUnits] = unit.CurTorp;
+            BE::MaxHullA[numUnits] = unit.MaxHull;
+            BE::CurHullA[numUnits] = unit.CurHull;
+            BE::CurDamA[numUnits] = unit.CurDam;
+            BE::StatusA[numUnits] = unit.Status;
+            BE::AmmoA[numUnits] = unit.Ammo;
+            BE::SpecialA[numUnits] = unit.Special;
+
+            #ifdef CBE_DEBUG
+            CBE::debugFile << unit.UnitName << ","
+                           << unit.MaxBeam << ","
+                           << unit.CurBeam << ","
+                           << unit.MaxShield << ","
+                           << unit.CurShield << ","
+                           << unit.MaxTorp << ","
+                           << unit.CurTorp << ","
+                           << unit.MaxHull << ","
+                           << unit.CurHull << ","
+                           << unit.CurDam << ","
+                           << unit.Status << ","
+                           << unit.Ammo << ","
+                           << unit.Special << endl;
+            #endif
+
+            numUnits++;
+        }
+
+        BE::AttShipsLeft = numUnits;
+
+        #ifdef CBE_DEBUG
+        CBE::debugFile << "Attacking Units Loaded: " << BE::AttShipsLeft << endl;
+        #endif
 
         // Close the file
         tempA.close();
@@ -534,7 +630,80 @@ void readTempA() {
     }
 }
 
-void readTempB() {}
+void readTempB() {
+    // Open tempA file for reading
+    ifstream tempB;
+    #ifdef CBE_DEBUG
+        cout << "Opening " << BE::TempBFile << " as tempB" << endl;
+        CBE::debugFile << "Opening " << BE::TempBFile << " as tempB" << endl;
+    #endif
+    tempB.open(BE::TempBFile,ios::binary | ios::in);
+    // Read in the fleet header line
+    if(tempB.is_open()) {
+        // Read the first line
+        string header = "";
+        getline(tempB,header,'\n');
+        BE::FleetInfo info = parseFleetHeader(header);
+        #ifdef CBE_DEBUG
+        cout << info.RaceName << " - " << info.FleetName << endl;
+        CBE::debugFile << info.RaceName << " - " << info.FleetName << endl;
+        #endif
+        BE::DefRaceName = info.RaceName;
+        BE::DefFleetName = info.FleetName;
+
+        // Read the unit lines
+        long numUnits = 0;
+        string line = "";
+        while(getline(tempB,line,'\n')) {
+            // Now break it back out to the individual arrays...because...BASIC
+            BE::UnitInfo unit = parseUnit(line);
+
+            BE::DefShipStr[numUnits] = unit.UnitName;
+            BE::MaxBeamB[numUnits] = unit.MaxBeam;
+            BE::CurBeamB[numUnits] = unit.CurBeam;
+            BE::MaxShieldB[numUnits] = unit.MaxShield;
+            BE::CurShieldB[numUnits] = unit.CurShield;
+            BE::MaxTorpB[numUnits] = unit.MaxTorp;
+            BE::CurTorpB[numUnits] = unit.CurTorp;
+            BE::MaxHullB[numUnits] = unit.MaxHull;
+            BE::CurHullB[numUnits] = unit.CurHull;
+            BE::CurDamB[numUnits] = unit.CurDam;
+            BE::StatusB[numUnits] = unit.Status;
+            BE::AmmoB[numUnits] = unit.Ammo;
+            BE::SpecialB[numUnits] = unit.Special;
+
+            #ifdef CBE_DEBUG
+            CBE::debugFile << unit.UnitName << ","
+                           << unit.MaxBeam << ","
+                           << unit.CurBeam << ","
+                           << unit.MaxShield << ","
+                           << unit.CurShield << ","
+                           << unit.MaxTorp << ","
+                           << unit.CurTorp << ","
+                           << unit.MaxHull << ","
+                           << unit.CurHull << ","
+                           << unit.CurDam << ","
+                           << unit.Status << ","
+                           << unit.Ammo << ","
+                           << unit.Special << endl;
+            #endif
+
+            numUnits++;
+        }
+
+        BE::DefShipsLeft = numUnits;
+
+        #ifdef CBE_DEBUG
+        CBE::debugFile << "Defending Units Loaded: " << BE::DefShipsLeft << endl;
+        #endif
+
+        // Close the file
+        tempB.close();
+    }
+    else {
+        cout << "Unable to open: " << BE::TempBFile << endl;
+    }
+}
 
 /*
 * Main BattleEngine Loop
@@ -625,6 +794,7 @@ void be_main() {
 
         // Trip the Round counter
         BE::CombatRound = BE::CombatRound + 1;
+        cout << "Beginning Round: " << BE::CombatRound << endl;
 
         // END OF ROUND!!!!
         writeTempFiles();
@@ -640,7 +810,9 @@ void be_main() {
 * -u <string> - the unit name for this simulation (default is Ships)
 */
 int main(int argc, char *argv[]) {
-    CBE::debugFile << "### DEBUG ###" << endl;
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "########## DEBUG ##########" << endl;
+    #endif
     int i = 1;
     string fname = "";
     while(i < argc) {
