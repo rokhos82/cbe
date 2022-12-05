@@ -2,6 +2,8 @@
 
 #include <fstream>
 
+#define CBE_DEBUG
+
 namespace CBE {
     bool attackerLoaded = false;
     bool defenderLoaded = false;
