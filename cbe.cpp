@@ -774,7 +774,11 @@ void be_main() {
     BE::BO_Def = 0; // TODO: This can be moved to the variable declaration.
     BaseAccuracy = CBE::baseAccuracy; // TODO: Need to setup a command line arg and a interface for this.  | TODO: Move to variable declaration. | TODO: Move to BE namespace
 
-    // TODO: Open the battle_report and damage_report files here for output
+    // Open the battle_report and damage_report files here for output
+    ofstream reportFile("battle_r.txt",ios::out | ios::trunc | ios::binary); // This is #3 in basic
+    ofstream damageFile("damage_r.txt",ios::out | ios::trunc | ios::binary); // This is #4 in basic
+
+    // TODO: Do file checks to see if they openned
 
     // NEW: Set TempAFile and TempBFile to tempa.csv and tempb.csv for initial temp file writes.
 
@@ -794,10 +798,77 @@ void be_main() {
 
         // Trip the Round counter
         BE::CombatRound = BE::CombatRound + 1;
-        cout << "Beginning Round: " << BE::CombatRound << endl;
+        
+        // Battle finally commences!
+        cout << "Battle Round: " << BE::CombatRound << endl;
+        reportFile << "Battle Round: " << BE::CombatRound << "\n";
+
+        // Write the attackers to the report file
+        reportFile << "Attackers are the " << BE::AttRaceName << ", " << BE::AttFleetName << " " << BE::GroupName << ".\n";
+        reportFile << "Current group Break-off level is " << BE::AttBreakOff << "%\n";
+        reportFile << "The " << BE::UnitName << " are currently listed as:\n";
+
+        for(int x = 0;x < BE::AttShipsLeft;x++) {
+            reportFile << BE::AttShipStr[x] << " Bm=" << BE::CurBeamA[x] << " Sh=" << BE::CurShieldA[x] << " Tp=" << BE::CurTorpA[x] << " Hl=" << BE::CurHullA[x] << " \"" << BE::SpecialA[x] << "\"\n";
+        }
+        
+
+        // Write the defenders to the report file
+        reportFile << "Defenders are the " << BE::DefRaceName << ", " << BE::DefFleetName << " " << BE::GroupName << ".\n";
+        reportFile << "Current group Break-off level is " << BE::DefBreakOff << "%\n";
+        reportFile << "The " << BE::UnitName << " are currently listed as:\n";
+
+        for(int x = 0;x < BE::DefShipsLeft;x++) {
+            reportFile << BE::DefShipStr[x] << " Bm=" << BE::CurBeamB[x] << " Sh=" << BE::CurShieldB[x] << " Tp=" << BE::CurTorpB[x] << " Hl=" << BE::CurHullB[x] << " \"" << BE::SpecialB[x] << "\"\n";
+        }
+
+        // Ok, battle actually commences NOW
+        reportFile << "\nBattle Results Commence:\n";
+
+        // Clear the old damage array values
+        // TODO: Change this to max array size not just ships left
+        for(int a = 0;a < BE::AttShipsLeft;a++) {
+            BE::HitsA[a] = 0; BE::PenHitsA[a] = 0; BE::BPAttackCritA[a] = 0;
+        }
+        // TODO: Change this to max array size not just ships left
+        for(int b = 0;b < BE::DefShipsLeft;b++) {
+            BE::HitsB[b] = 0; BE::PenHitsB[b] = 0; BE::BPAttackCritB[b] = 0;
+        }
+
+        // Cloak and missiles affect the battle order
+        // Fighters, suprise and reserve affect individual ships
+
+        BE::AttIsCloaked = 0;
+        BE::AttIsMixed = 0;
+        BE::AttHasLongRange = 0;
+        BE::AttHasFighters = 0;
+
+        BE::DefIsCloaked = 0;
+        BE::DefIsMixed = 0;
+        BE::DefHasLongRange = 0;
+        BE::DefHasFighters = 0;
+
+        if(BE::CombatRound == 0) {
+            // Several special things can happen in turn one.
+            // cloaked ships can get a first strike
+            // long range weapons can get a first strike if the targets are not cloaked
+            // And, we need to determine if FLAK equiped ships have targets
+
+            // Check the attacking fleet
+            for(int a = 0;a < BE::AttShipsLeft;a++) {
+                // Count the number of units that are cloaked
+                // Count if the unit has a long range tag
+                // This checks all weapon tags since we pass it all weapon tags
+                // Check if a fighter and not in reserve
+            }
+        }
 
         // END OF ROUND!!!!
         writeTempFiles();
+        
+        reportFile << "\n";
+        reportFile.flush();
+        damageFile.flush();
     } while (BE::CombatRound < 100/* condition | TODO: replace true with variable.  Perhaps AttackLoop? */);
     
 }
