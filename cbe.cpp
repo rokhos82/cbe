@@ -285,6 +285,52 @@ void loadDefendingFleet(string fname) {
     }
 }
 
+bool HasLong(const string & special) {
+    bool res = false;
+
+    // IF the position of "LONG" is NOT npos (no position)
+    if(special.find("LONG") != string::npos) {
+        // The it must be a long range weapons
+        res = true;
+    }
+
+    return res;
+}
+
+bool HasLongWT(const string & special) {
+    bool res = false;
+
+    // IF the position of "long" is NOT npos (no position)
+    if(special.find("long") != string::npos) {
+        // Then it must have a long range weapon bracket
+        res = true;
+    }
+
+    return res;
+}
+
+int HasReserve(const string & special) {
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "INFO: HasReserve(" << special << ")" << endl;
+    #endif
+    int res = -1;
+
+    // Look for the starting position of "RESERVE"
+    int start = special.find("RESERVE");
+    if(start != string::npos) {
+        int middle = special.find(" ",start);
+        int end = special.find(" ",middle+1);
+        int len = end - middle;
+        string reserve = special.substr(middle,len);
+        #ifdef CBE_DEBUG
+        CBE::debugFile << "INFO: HasReserve(\"" << special << "\") => " << reserve << endl;
+        #endif
+        res = stoi(reserve);
+    }
+
+    return res;
+}
+
 bool IsMissile(const string & special) {
     bool res = false;
 
@@ -309,12 +355,39 @@ bool IsCaptured(const string & special) {
     return res;
 }
 
+bool IsCloak(const string & special) {
+    bool res = false;
+
+    // IF the position of "CLOAK" is NOT npos (no position)
+    if(special.find("CLOAK") != string::npos) {
+        // The it must be cloaked
+        res = true;
+    }
+
+    return res;
+}
+
 bool IsCrippled(const string & special) {
     bool res = false;
 
     // IF the position of "CRIPPLE" is NOT npos (no position)
     if(special.find("CRIPPLE") != string::npos) {
         // Then it must be crippled
+        res = true;
+    }
+
+    return res;
+}
+
+bool IsFighter(const string & special) {
+    bool res = false;
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "INFO: IsFighter(" << special << ")" << endl;
+    #endif
+
+    // IF the position of "FIGHTER" is NOT npos (no position)
+    if(special.find("FIGHTER") != string::npos) {
+        // Then it must be a fighter
         res = true;
     }
 
@@ -848,18 +921,34 @@ void be_main() {
         BE::DefHasLongRange = 0;
         BE::DefHasFighters = 0;
 
-        if(BE::CombatRound == 0) {
+        if(BE::CombatRound == 1) {
             // Several special things can happen in turn one.
             // cloaked ships can get a first strike
             // long range weapons can get a first strike if the targets are not cloaked
             // And, we need to determine if FLAK equiped ships have targets
 
+            #ifdef CBE_DEBUG
+            CBE::debugFile << "INFO: Doing Combat Round 0 Special Checks" << endl;
+            #endif
+
             // Check the attacking fleet
             for(int a = 0;a < BE::AttShipsLeft;a++) {
                 // Count the number of units that are cloaked
+                if(IsCloak(BE::SpecialA[a])) {
+                    BE::AttIsCloaked = BE::AttIsCloaked + 1;
+                }
                 // Count if the unit has a long range tag
+                if(HasLong(BE::SpecialA[a])) {
+                    BE::AttHasLongRange = true;
+                }
                 // This checks all weapon tags since we pass it all weapon tags
+                if(HasLongWT(BE::SpecialA[a])) {
+                    BE::AttHasLongRange = true;
+                }
                 // Check if a fighter and not in reserve
+                if(IsFighter(BE::SpecialA[a]) && HasReserve(BE::SpecialA[a]) < 0) {
+                    BE::AttHasFighters = 1;
+                }
             }
         }
 
