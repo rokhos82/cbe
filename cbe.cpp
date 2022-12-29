@@ -285,6 +285,25 @@ void loadDefendingFleet(string fname) {
     }
 }
 
+int HasDelay(const string & special) {
+    int start = 0;
+    int res = -1;
+
+    start = special.find("DELAY");
+    if(start != string::npos) {
+        int middle = special.find(" ",start);
+        int end = special.find(" ",middle+1);
+        int len = end - middle;
+        string delay = special.substr(middle,len);
+        #ifdef CBE_DEBUG
+        CBE::debugFile << "INFO: HasDelay(\"" << special << "\") => " << delay << endl;
+        #endif
+        res = stoi(delay);
+    }
+
+    return res;
+}
+
 bool HasLong(const string & special) {
     bool res = false;
 
@@ -404,6 +423,18 @@ bool IsFled(const string & special) {
     }
 
     return res;
+}
+
+string RemoveTag(const string & source,const string & target,int num_fields) {
+    // Remove the `target` tag from the `source` string and return a new string
+
+    int A = 0, start = 0, end_tag = 0, tag1 = 0, tag2 = 0;
+
+    start = source.find(target);
+    if(start != string::npos) {
+        end_tag = source.find(" ",start + 1);
+        if(end_tag == string::npos) {}
+    }
 }
 
 void writeTempFiles() {
@@ -938,6 +969,7 @@ void be_main() {
                     BE::AttIsCloaked = BE::AttIsCloaked + 1;
                 }
                 // Count if the unit has a long range tag
+                // TODO: Add a check for DefHasLongRange so that once it is true the checking can stop
                 if(HasLong(BE::SpecialA[a])) {
                     BE::AttHasLongRange = true;
                 }
@@ -946,8 +978,65 @@ void be_main() {
                     BE::AttHasLongRange = true;
                 }
                 // Check if a fighter and not in reserve
+                // TODO: Add a check for DefHasFighters to stop the checking early
                 if(IsFighter(BE::SpecialA[a]) && HasReserve(BE::SpecialA[a]) < 0) {
                     BE::AttHasFighters = 1;
+                }
+            }
+
+            // Determine if all the attackers are cloaked, if none are, or if some are cloked.
+            // TODO: Seperate AttIsCloaked from the counting above
+            if(BE::AttIsCloaked > 0) {
+                if(BE::AttIsCloaked == BE::AttShipsLeft) {
+                    BE::AttIsCloaked = 1;
+                }
+                else {
+                    BE::AttIsCloaked = 0;
+                    BE::AttIsMixed = 1;
+                }
+            }
+
+            // Check the defending fleet
+            for(int a = 0;a < BE::DefShipsLeft;a++) {
+                // Count the numbe of units that are cloaked
+                if(IsCloak(BE::SpecialB[a])) {
+                    BE::DefIsCloaked = BE::DefIsCloaked + 1;
+                }
+                // Count if the unit has a long rangew tag
+                // TODO: Add a check for DefHasLongRange so that once it is true the checking can stop
+                if(HasLong(BE::SpecialB[a])) {
+                    BE::DefHasLongRange = true;
+                }
+                // This checks all weapon tags since we pass it all weapon tags
+                if(HasLongWT(BE::SpecialB[a])) {
+                    BE::DefHasLongRange = true;
+                }
+                // Check if a fighter and not in reserve
+                // TODO: Add a check for DefHasFighters to stop the checking early
+                if(IsFighter(BE::SpecialB[a]) && HasReserve(BE::SpecialB[a]) < 0) {
+                    BE::DefHasFighters = 1;
+                }
+            }
+
+            // Determine if all the defenders are cloaked, if none are, or if some are cloked.
+            // TODO: Seperate DefIsCloaked from the counting above
+            if(BE::DefIsCloaked > 0) {
+                if(BE::DefIsCloaked == BE::DefShipsLeft) {
+                    BE::DefIsCloaked = 1;
+                }
+                else {
+                    BE::DefIsCloaked = 0;
+                    BE::DefIsMixed = 1;
+                }
+            }
+        }
+        else {
+            // Remove reserve tags from delayed units
+            for(int a = 0;a < BE::AttShipsLeft;a++) {
+                int delay = HasDelay(BE::SpecialA[a]);
+                if(HasReserve(BE::SpecialA[a]) && delay > 0) {
+                    if(delay < BE::CombatRound) {
+                    }
                 }
             }
         }
