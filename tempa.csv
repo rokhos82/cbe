@@ -18,4 +18,4 @@ S1017 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -
 S1018 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5 CLOAK TIME 1
 S1019 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5 CLOAK TIME 1
 S1020 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5 CLOAK TIME 1
-F1001 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 2] RESERVE 10 FIGHTER
+F1001 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 2] FIGHTER DELAY 1

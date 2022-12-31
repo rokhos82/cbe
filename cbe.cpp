@@ -285,9 +285,48 @@ void loadDefendingFleet(string fname) {
     }
 }
 
+int GetTriHex(const string & digit) {
+    int val = stoi(digit,0,36);
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "INFO: GetTriHex(\"" << digit << "\")" << endl;
+    #endif
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "INFO: GetTriHex(" << val << ")" << endl;
+    #endif
+
+    return val;
+}
+
+int HasBatteries(const string & special) {
+    int res = 0;
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "HasBatteries(\"" << special << "\")" << endl;
+    #endif
+
+    for(int i = 0;i < special.length();i++) {
+        // Count the opening square brackers to determine number of batteries
+        if(special.at(i) == '[') {
+            res++;
+        }
+    }
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "HasBatteries(" << res << ")" << endl;
+    #endif
+
+    return res;
+}
+
 int HasDelay(const string & special) {
     int start = 0;
     int res = -1;
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "INFO: HasDelay(special:\"" << special << "\")" << endl;
+    #endif
 
     start = special.find("DELAY");
     if(start != string::npos) {
@@ -296,7 +335,7 @@ int HasDelay(const string & special) {
         int len = end - middle;
         string delay = special.substr(middle,len);
         #ifdef CBE_DEBUG
-        CBE::debugFile << "INFO: HasDelay(\"" << special << "\") => " << delay << endl;
+        CBE::debugFile << "INFO: HasDelay(delay:" << delay << ")" << endl;
         #endif
         res = stoi(delay);
     }
@@ -328,9 +367,41 @@ bool HasLongWT(const string & special) {
     return res;
 }
 
+bool HasMissileWT(const string & special) {
+    bool res = false;
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "INFO: HasMissileWT(\"" << special << "\")" << endl;
+    #endif
+
+    int start = special.find("mis");
+
+    // IF the position of "mis" is NOT npos (no position)
+    if(start != string::npos) {
+        // Then it must have a mis tag in a bracket
+        res = true;
+
+        // This part is ridiculous...
+        string B = special.substr(start + 3,1);
+        string S = special.substr(start + 4,1);
+        string T = special.substr(start + 5,1);
+        string H = special.substr(start + 6,1);
+        BE::MissileB = GetTriHex(B);
+        BE::MissileS = GetTriHex(S);
+        BE::MissileT = GetTriHex(T);
+        BE::MissileH = GetTriHex(H);
+    }
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "INFO: HasMissileWT(" << res << ")" << endl;
+    #endif
+
+    return res;
+}
+
 int HasReserve(const string & special) {
     #ifdef CBE_DEBUG
-    CBE::debugFile << "INFO: HasReserve(" << special << ")" << endl;
+    CBE::debugFile << "INFO: HasReserve(special:\"" << special << "\")" << endl;
     #endif
     int res = -1;
 
@@ -342,7 +413,7 @@ int HasReserve(const string & special) {
         int len = end - middle;
         string reserve = special.substr(middle,len);
         #ifdef CBE_DEBUG
-        CBE::debugFile << "INFO: HasReserve(\"" << special << "\") => " << reserve << endl;
+        CBE::debugFile << "INFO: HasReserve(reserve:" << reserve << ")" << endl;
         #endif
         res = stoi(reserve);
     }
@@ -425,16 +496,104 @@ bool IsFled(const string & special) {
     return res;
 }
 
+bool IsSurprise(const string & special) {
+    bool res = false;
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "INFO: IsSurprise(special:\"" << special << "\")" << endl;
+    #endif
+
+    // IF the position of "SURPRISE" is NOT npos (no position)
+    if(special.find("SURPRISE") != string::npos) {
+        res = true;
+    }
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "INFO: IsSurprise(" << res << ")" << endl;
+    #endif
+
+    return res;
+}
+
 string RemoveTag(const string & source,const string & target,int num_fields) {
     // Remove the `target` tag from the `source` string and return a new string
 
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "INFO: RemoveTag(source:\"" << source << "\";target:\"" << target << "\";num_fields:" << num_fields << ")" << endl;
+    #endif
+
     int A = 0, start = 0, end_tag = 0, tag1 = 0, tag2 = 0;
+    string res = "";
 
     start = source.find(target);
     if(start != string::npos) {
         end_tag = source.find(" ",start + 1);
-        if(end_tag == string::npos) {}
+        if(end_tag == string::npos) {
+            end_tag = source.length();
+        }
+        // If the tag has at least 1 field, search for the next " " character
+        if(num_fields > 0) {
+            end_tag = source.find(" ",end_tag + 1);
+            if(end_tag == string::npos) {
+                end_tag = source.length();
+            }
+        }
+        // If the tag has at least 2 fields, search for the next " " character again
+        if(num_fields > 1) {
+            end_tag = source.find(" ",end_tag + 1);
+            if(end_tag == string::npos) {
+                end_tag = source.length();
+            }
+        }
+
+        #ifdef CBE_DEBUG
+        CBE::debugFile << "INFO: RemoveTag(start:" << start << ";end_tag:" << end_tag << ")" << endl;
+        #endif
+        // Get the "left" portion of the source string
+        string left = source.substr(0,start-1);
+        #ifdef CBE_DEBUG
+        CBE::debugFile << "INFO: RemoveTag(left:\"" << left << "\")" << endl;
+        #endif
+        // Get the "right" portion of the source string
+        string right = "";
+        if(end_tag < source.length()) {
+            right = source.substr(end_tag);
+            #ifdef CBE_DEBUG
+            CBE::debugFile << "INFO: RemoveTag(right:\"" << right << "\")" << endl;
+            #endif
+        }
+        // Splice left and right together
+        res = left + right;
+        
+        // Fix weapon tags that have lost their closing bracket because of inserted spaces
+        // we have to count the number of opening and closing brackets
+        // Don't do the check if the first character is NOT '['
+        if(res.at(0) == '[') {
+            for(int i = 0;i < res.length();i++) {
+                // Check if the character is a '['
+                if(res.at(i) == '[') {
+                    tag1++;
+                }
+                // Check if the character is a ']'
+                else if(res.at(i) == ']') {
+                    tag2++;
+                }
+            }
+            if(tag1 > tag2) {
+                res = res + "]";
+            }
+        }
     }
+    else {
+        // The target tag does not exist, just return the original source string
+        res = source;
+    }
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "INFO: RemoveTag(res:\"" << res << "\")" << endl;
+    #endif
+
+    return res;
 }
 
 void writeTempFiles() {
@@ -1031,12 +1190,186 @@ void be_main() {
             }
         }
         else {
-            // Remove reserve tags from delayed units
+            // Remove RESERVE tags from delayed units
             for(int a = 0;a < BE::AttShipsLeft;a++) {
+                // TODO: Split Has* and Get* functions so that boolean returns are separated from other types.
+                // TODO: Generalize HasTag and GetTag functions?
                 int delay = HasDelay(BE::SpecialA[a]);
                 if(HasReserve(BE::SpecialA[a]) && delay > 0) {
                     if(delay < BE::CombatRound) {
+                        BE::SpecialA[a] = RemoveTag(BE::SpecialA[a],"RESERVE",1);
                     }
+                }
+            }
+
+            // Remove RESERVE tags from delayed units
+            for(int b = 0;b < BE::DefShipsLeft;b++) {
+                int delay = HasDelay(BE::SpecialB[b]);
+                if(HasReserve(BE::SpecialB[b]) && delay > 0) {
+                    if(delay < BE::CombatRound) {
+                        BE::SpecialB[b] = RemoveTag(BE::SpecialB[b],"RESERVE",1);
+                    }
+                }
+            }
+
+            // Check attackers and defenders fleets for fighters
+            // TODO: Need to turn this into a function: CheckFighters(special[],shipsLeft)
+            for(int a = 0;a < BE::AttShipsLeft;a++) {
+                if(IsFighter(BE::SpecialA[a]) && !HasReserve(BE::SpecialA[a])) {
+                    BE::AttHasFighters = 1;
+                    break; // Leave the loop early as we have found at least 1 fighter not in reserve.
+                }
+            }
+            for(int b = 0;b < BE::DefShipsLeft;b++) {
+                if(IsFighter(BE::SpecialB[b]) && !HasReserve(BE::SpecialB[b])) {
+                    BE::DefHasFighters = 1;
+                    break; // Leave the loop early as we have found at least 1 fighter not in reserve.
+                }
+            }
+        }
+
+        // Check for attacker reserve & screen
+        AttHasScreen = false; // TODO: Move to BE namespace
+        AttHasReserveUnits = false; // TODO: Move to BE namespace
+        for(int a = 0;a < BE::AttShipsLeft;a++) {
+            // TODO: What kind of mechanic should there be for not enough screen?v
+            // The unit is either in the reserve or is part of the screen
+            if(HasReserve(BE::SpecialA[a])) {
+                AttHasReserveUnits = true;
+            }
+            else {
+                AttHasScreen = true;
+            }
+            // Check if both there is both a screen and a reserve already.
+            if(AttHasScreen && AttHasReserveUnits) {
+                // Leave the loop early as we found a unit in the screen and a unit in the reserve.
+                break;
+            }
+        }
+
+        // Check for the defender reserve & screen
+        // TODO: Turn this into a function: CheckFleetReserveAndScreen(special[],shipsLeft)
+        DefHasScreen = false; // TODO: Move to BE namespace
+        DefHasReserveUnits = false; // TODO: Move to BE namespace
+        for(int b = 0;b < BE::DefShipsLeft;b++) {
+            // The unit is either in the reserve or is part of the screen
+            if(HasReserve(BE::SpecialB[b])) {
+                DefHasReserveUnits = true;
+            }
+            else {
+                DefHasScreen = true;
+            }
+            // Check if both there is both a screen and a reserve already.
+            if(DefHasScreen && DefHasReserveUnits) {
+                // Leave the loop early as we found a unit in the screen and a unit in the reserve.
+                break;
+            }
+        }
+
+        // If there is no screen, the reserve automatically fails
+        // NOTE: if Reserve > BreakOff the reserves will NEVER engage.  Handy when you're trying to protect
+        // something like a badly damage capitol ship or freighters and the GM says they're vulnerable to attack.
+        // TODO: Turn this into a function:  BreakOffAndScreenCheck(special[],shipsLeft,hasScreen,hasReserve)
+        // TODO:  I should be able to handle this with the earlier checks?  Maybe...
+        // Check to see if the attackers have a reserve.
+        if(AttHasReserveUnits) {
+            // Check those reserve units for BreakOff and for screen
+            for(int a = 0;a < BE::AttShipsLeft;a++) {
+                // Get the reserve tag value of the ship
+                int reserve = HasReserve(BE::SpecialA[a]);
+                // Do the attackers have a screen?
+                if(!AttHasScreen) {
+                    // Does the ship have a reserve value?
+                    if(reserve >= 0) {
+                        // Remove the reserve tag
+                        BE::SpecialA[a] = RemoveTag(BE::SpecialA[a],"RESERVE",1);
+                        AttHasReserveUnits = false;
+                    }
+                }
+                else {
+                    // Is the reserve tag equal to or less than the attackers BreakOff?
+                    if(BE::BO_Att >= reserve && reserve >= 0) {
+                        // Remove the reserve tag
+                        BE::SpecialA[a] = RemoveTag(BE::SpecialA[a],"RESERVE",1);
+                    }
+                }
+            }
+        }
+
+        if(DefHasReserveUnits) {
+            // Check those reserve units for BreakOff and for screen
+            for(int b = 0;b < BE::AttShipsLeft;b++) {
+                // Get the reserve tag from the ship
+                int reserve = HasReserve(BE::SpecialB[b]);
+                // Do the defenders have a screen?
+                if(!DefHasScreen) {
+                    // Does the ship have a reserve value?
+                    if(reserve >= 0) {
+                        // Remove the reserve tag
+                        BE::SpecialB[b] = RemoveTag(BE::SpecialB[b],"RESERVE",1);
+                    }
+                }
+                else {
+                    // Is the reserve tag equal to or less than the defenders BreakOff?
+                    if(BE::BO_Def >= reserve && reserve >= 0) {
+                        // Remove the reserve tag
+                        BE::SpecialB[b] = RemoveTag(BE::SpecialB[b],"RESERVE",1);
+                    }
+                }
+            }
+        }
+
+        // UNKNOWN: Resetting AttackIndexes?
+        if(BE::AttacksIndex > 0) {
+            for(int i = 0;i < BE::AttacksIndex;i++) {
+                BE::Attacks[i].AttackID = 0;
+                BE::Attacks[i].TargetID = 0;
+                BE::Attacks[i].Damage = 0;
+                BE::Attacks[i].Weapon = 0;
+                BE::Attacks[i].Special = "";
+            }
+        }
+
+        // Spawn missiles routine
+        TempAttShipsLeft = BE::AttShipsLeft;
+        TempDefShipsLeft = BE::DefShipsLeft;
+        missile_counter = 0;
+        // Loop through a combine total of all remaining attacking and defending ships
+        // This is horribley convoluted
+        // TODO: make a funciton for this...not sure what it needs to look like
+        for(int A = 0;A < (BE::AttShipsLeft + BE::DefShipsLeft);A++) {
+            // Determine ForceID
+            // 0 => attackers
+            // 1 => defenders
+            int B = A;
+            ForceID = 0; // TODO: Make this a local scope variable
+            // Are we done with attackers?
+            if(A > BE::AttShipsLeft) {
+                B = A - BE::AttShipsLeft;
+                ForceID = 1; // Defenders
+            }
+
+            // Get unit values depending on ForceID
+            if(ForceID == 0) {
+                temp_str = BE::SpecialA[B]; // TODO: Make this local to the loop scope.  May not be necessary if a function is build.
+                tmp = BE::CurTorpA[B]; // TODO: Make this local to the loop scope.  May not be necessary if a function is build.
+            }
+            else {
+                temp_str = BE::SpecialB[B];
+                tmp = BE::CurTorpB[B];
+            }
+
+            // Check if the unit is crippled or is suprised.  If either is true, then skip the unit
+            if(IsCrippled(temp_str) || IsSurprise(temp_str)) {
+                continue;
+            }
+
+            // Check for batteries in the special string
+            if(HasBatteries(temp_str) > 0) {
+                // Check if any of the batteries has a `misXXXX` tag
+                if(!HasMissileWT(temp_str)) {
+                    // Skip the unit
+                    continue;
                 }
             }
         }

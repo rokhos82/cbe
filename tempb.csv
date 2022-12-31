@@ -1,15 +1,15 @@
 KSE,1st Fleet,75,259,416,259,0,0,0
-You Want A Piece Of This?,9,9,2,2,8,8,12,12,0,0,0,[9 target 30][8 mis0041 target 15 ammo 3 long] DEFENSE 15 RESIST 5 RESERVE 99
+You Want A Piece Of This?,9,9,2,2,8,8,12,12,0,0,0,[9 target 30][8 mis0041 target 15 ammo 3 long] DEFENSE 15 RESIST 5
 Bad Behavior,9,9,2,2,8,8,12,12,0,0,0,[9 target 30][8 mis0041 target 15 ammo 3 long] DEFENSE 15 RESIST 5
 Will Do Sketchy Things,9,9,2,2,9,9,14,14,0,0,0,[9 target 30][9 mis0041 target 15 ammo 3 long] DEFENSE 15 RESIST 5
-S0002 (Fleet Carrier Mk 1),0,0,1,1,0,0,6,6,0,0,0,DEFENSE 15 RESIST 5 CARRIER RESERVE 99
-S0001 (Fleet Carrier Mk 1),0,0,1,1,0,0,6,6,0,0,0,DEFENSE 15 RESIST 5 CARRIER RESERVE 99
-S0116 (Fleet Carrier Mk 1),0,0,1,1,0,0,6,6,0,0,0,DEFENSE 15 RESIST 5 CARRIER RESERVE 99
-S0092 (Fleet Carrier Mk 1),0,0,1,1,0,0,6,6,0,0,0,DEFENSE 15 RESIST 5 CARRIER RESERVE 99
-S0091 (Fleet Carrier Mk 1),0,0,1,1,0,0,6,6,0,0,0,DEFENSE 15 RESIST 5 CARRIER RESERVE 99
+S0002 (Fleet Carrier Mk 1),0,0,1,1,0,0,6,6,0,0,0,DEFENSE 15 RESIST 5 CARRIER
+S0001 (Fleet Carrier Mk 1),0,0,1,1,0,0,6,6,0,0,0,DEFENSE 15 RESIST 5 CARRIER
+S0116 (Fleet Carrier Mk 1),0,0,1,1,0,0,6,6,0,0,0,DEFENSE 15 RESIST 5 CARRIER
+S0092 (Fleet Carrier Mk 1),0,0,1,1,0,0,6,6,0,0,0,DEFENSE 15 RESIST 5 CARRIER
+S0091 (Fleet Carrier Mk 1),0,0,1,1,0,0,6,6,0,0,0,DEFENSE 15 RESIST 5 CARRIER
 S01010 (Garrison Corvette Mk 1),4,4,1,1,0,0,6,6,0,0,0,[4 target 5] DEFENSE -15 RESIST 5
 S0108 (Garrison Corvette Mk 1),4,4,1,1,0,0,6,6,0,0,0,[4 target 5] DEFENSE -15 RESIST 5
-S0102 (Fleet Carrier Mk 1),0,0,1,1,0,0,6,6,0,0,0,DEFENSE 15 RESIST 5 CARRIER RESERVE 99
+S0102 (Fleet Carrier Mk 1),0,0,1,1,0,0,6,6,0,0,0,DEFENSE 15 RESIST 5 CARRIER
 F4001 (Fighter Mk 1),0,0,0,0,6,6,1,1,0,0,0,[1 mis0041 ammo 3 target 15][1 mis0001] DEFENSE 15 FIGHTER
 F4009 (Fighter Mk 1),0,0,0,0,6,6,1,1,0,0,0,[1 mis0041 ammo 3 target 15][1 mis0001] DEFENSE 15 FIGHTER
 F4015 (Fighter Mk 1),0,0,0,0,6,6,1,1,0,0,0,[1 mis0041 ammo 3 target 15][1 mis0001] DEFENSE 15 FIGHTER
