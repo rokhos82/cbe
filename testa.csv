@@ -1,21 +1,21 @@
-KSE,Test Fleet,75,20,76,20,0,0,0,0,0,,
-S1002 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5 CLOAK FLEE
-S1003 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5 CLOAK FLEE
-S1004 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5 CLOAK FLEE
-S1005 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5 CLOAK FLEE
-S1006 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5 CLOAK FLEE
-S1007 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5 CLOAK FLEE
-S1008 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5 CLOAK FLEE
-S1009 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5 CLOAK FLEE
-S1010 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5 CLOAK FLEE
-S1011 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5 CLOAK FLEE
-S1012 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5 CLOAK FLEE
-S1013 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5 CLOAK FLEE
-S1014 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5 CLOAK FLEE
-S1015 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5 CLOAK FLEE
-S1016 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5 CLOAK TIME 1
-S1017 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5 CLOAK TIME 1
-S1018 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5 CLOAK TIME 1
-S1019 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5 CLOAK TIME 1
-S1020 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE -15 RESIST 5 CLOAK TIME 1
-F1001 (Fighter Mk 1-4),0,0,0,0,4,4,1,1,0,0,0,[2 mis0041 ammo 2] RESERVE 10 FIGHTER DELAY 1
+KSE,Test Fleet,75,20,80,20,0,0,0,0,0,,
+S1001 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE 15 RESIST 5 CLOAK FLEE
+S1002 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE 15 RESIST 5 CLOAK FLEE
+S1003 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE 15 RESIST 5 CLOAK FLEE
+S1004 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE 15 RESIST 5 CLOAK FLEE
+S1005 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE 15 RESIST 5 CLOAK FLEE
+S1006 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE 15 RESIST 5 CLOAK
+S1007 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE 15 RESIST 5 CLOAK
+S1008 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE 15 RESIST 5 CLOAK
+S1009 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE 15 RESIST 5 CLOAK
+S1010 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE 15 RESIST 5 CLOAK
+S1011 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE 15 RESIST 5 CLOAK RESERVE 75 DELAY 1
+S1012 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE 15 RESIST 5 CLOAK RESERVE 75 DELAY 1
+S1013 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE 15 RESIST 5 CLOAK RESERVE 75 DELAY 1
+S1014 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE 15 RESIST 5 CLOAK RESERVE 75 DELAY 1
+S1015 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE 15 RESIST 5 CLOAK RESERVE 75 DELAY 1
+S1016 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE 15 RESIST 5 CLOAK RESERVE 50
+S1017 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE 15 RESIST 5 CLOAK RESERVE 50
+S1018 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE 15 RESIST 5 CLOAK RESERVE 50
+S1019 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE 15 RESIST 5 CLOAK RESERVE 50
+S1020 (Stealth Beam Corvette Mk 2),8,8,0,0,0,0,4,4,0,0,0,[8 target 30] DEFENSE 15 RESIST 5 CLOAK RESERVE 50
