@@ -143,7 +143,9 @@ string BE::GroupName = "Fleets", BE::UnitName = "Ships";
 
 void loadAttackingFleet(string fname) {
     cout << "Loading attacking fleet from: " << fname << endl;
-    CBE::debugFile << "Loading attacking fleet from: " << fname << endl;
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] Loading attacking fleet from: " << fname << endl;
+    #endif
     BE::AttFleetStr = fname;
 
     fstream attFile;
@@ -181,7 +183,8 @@ void loadAttackingFleet(string fname) {
             BE::SpecialA[numUnits] = unit.Special;
 
             #ifdef CBE_DEBUG
-            CBE::debugFile << unit.UnitName << ","
+            CBE::debugFile << "[INFO] Loading unit: "
+                           << unit.UnitName << ","
                            << unit.MaxBeam << ","
                            << unit.CurBeam << ","
                            << unit.MaxShield << ","
@@ -202,7 +205,7 @@ void loadAttackingFleet(string fname) {
         BE::AttShipsLeft = numUnits;
 
         #ifdef CBE_DEBUG
-        CBE::debugFile << "Attacking Units Loaded: " << BE::AttShipsLeft << endl;
+        CBE::debugFile << "[INFO] Attacking Units Loaded: " << BE::AttShipsLeft << endl;
         #endif
 
         attFile.close();
@@ -215,7 +218,7 @@ void loadAttackingFleet(string fname) {
 void loadDefendingFleet(string fname) {
     cout << "Loading defending fleet from: " << fname << endl;
     #ifdef CBE_DEBUG
-    CBE::debugFile << "Loading defending fleet from: " << fname << endl;
+    CBE::debugFile << "[INFO] Loading defending fleet from: " << fname << endl;
     #endif
     BE::DefFleetStr = fname;
 
@@ -254,7 +257,8 @@ void loadDefendingFleet(string fname) {
             BE::SpecialB[numUnits] = unit.Special;
 
             #ifdef CBE_DEBUG
-            CBE::debugFile << unit.UnitName << ","
+            CBE::debugFile << "[INFO] Loaded unit: "
+                           << unit.UnitName << ","
                            << unit.MaxBeam << ","
                            << unit.CurBeam << ","
                            << unit.MaxShield << ","
@@ -275,7 +279,7 @@ void loadDefendingFleet(string fname) {
         BE::DefShipsLeft = numUnits;
 
         #ifdef CBE_DEBUG
-        CBE::debugFile << "Defending Units Loaded: " << BE::DefShipsLeft << endl;
+        CBE::debugFile << "[INFO] Defending Units Loaded: " << BE::DefShipsLeft << endl;
         #endif
 
         defFile.close();
@@ -604,10 +608,8 @@ void writeTempFiles() {
     old_DefShipsLeft = BE::DefShipsLeft; // TODO: Move to variable declaration.
 
     #ifdef CBE_DEBUG
-    CBE::debugFile << "########## WRITE TEMP FILES ##########" << endl;
-    CBE::debugFile << "    CombatRound: " << BE::CombatRound << endl;
-    CBE::debugFile << "    Attackers: " << old_AttShipsLeft << endl;
-    CBE::debugFile << "    Defenders: " << old_DefShipsLeft << endl;
+    CBE::debugFile << "############################## WRITE TEMP FILES ##############################" << endl;
+    CBE::debugFile << "[INFO] CombatRound: " << BE::CombatRound << "; Attackers: " << old_AttShipsLeft << "; Defenders: " << old_DefShipsLeft << endl;
     #endif
 
     // Write the Working and Temp files
@@ -616,7 +618,7 @@ void writeTempFiles() {
     ofstream attFledFile;
     attFledFile.open("fled_att.csv",ios::out | ios::binary | ios::app);
     #ifdef CBE_DEBUG
-    CBE::debugFile << "## PROCESSING FLED ATTACKERS " << BE::AttShipsLeft << " ##" << endl;
+    CBE::debugFile << "##### PROCESSING FLED ATTACKERS " << BE::AttShipsLeft << " #####" << endl;
     #endif
     for(int i = 0;i < old_AttShipsLeft;i++) {
         // IF the current ships hull is less than 1 OR (the current ship is a missile AND the combat round greater than 0)
@@ -625,7 +627,7 @@ void writeTempFiles() {
             BE::AttShipsLeft = BE::AttShipsLeft - 1;
             // TODO: Add writing to a att_dead.csv file
             #ifdef CBE_DEBUG
-            CBE::debugFile << "DEAD/MISSILE: " << BE::AttShipStr[i] << endl;
+            CBE::debugFile << "[INFO] DEAD/MISSILE: " << BE::AttShipStr[i] << endl;
             #endif
         }
         // ELSE non-dead ships that are not missiles
@@ -653,7 +655,7 @@ void writeTempFiles() {
             }
             else {
                 #ifdef CBE_DEBUG
-                CBE::debugFile << "CAPTURE/CRIPPLE: " << BE::AttShipStr[i] << endl;
+                CBE::debugFile << "[INFO] CAPTURE/CRIPPLE: " << BE::AttShipStr[i] << endl;
                 #endif
             }
         }
@@ -666,7 +668,7 @@ void writeTempFiles() {
     ofstream tempAFile;
     tempAFile.open(BE::TempAFile,ios::out | ios::binary | ios::trunc);
     #ifdef CBE_DEBUG
-    CBE::debugFile << "## PROCESSING OTHER ATTACKERS " << BE::AttShipsLeft << " ##" << endl;
+    CBE::debugFile << "##### PROCESSING OTHER ATTACKERS " << BE::AttShipsLeft << " #####" << endl;
     #endif
     // Write the header to the fleet file here (TempAFile)
     tempAFile << BE::AttRaceName << "," << BE::AttFleetName << "," << BE::AttBreakOff << "," << BE::AttShipsTotal << "," << BE::AttFleetStrength << "," << BE::AttShipsLeft << "," << BE::AttTargetBonus << "," << BE::AttTargetPriority << "," << BE::AttReserve << "\n";
@@ -691,7 +693,7 @@ void writeTempFiles() {
             if(BE::CurHullA[i] < 1 || IsFled(BE::SpecialA[i]) || (IsMissile(BE::SpecialA[i]) && BE::CombatRound > 0)) {
                 // Do nothing as this ship is either dead, fled, or a missile
                 #ifdef CBE_DEBUG
-                CBE::debugFile << "DEAD/FLED/MSL: " << BE::AttShipStr[i] << endl;
+                CBE::debugFile << "[INFO] DEAD/FLED/MSL: " << BE::AttShipStr[i] << endl;
                 #endif
             }
             else {
@@ -722,7 +724,7 @@ void writeTempFiles() {
     ofstream defFledFile;
     defFledFile.open("fled_def.csv",ios::out | ios::binary | ios::app);
     #ifdef CBE_DEBUG
-    CBE::debugFile << "## PROCESSING FLED DEFENDERS " << BE::DefShipsLeft << " ##" << endl;
+    CBE::debugFile << "##### PROCESSING FLED DEFENDERS " << BE::DefShipsLeft << " #####" << endl;
     #endif
     for(int i = 0;i < old_DefShipsLeft;i++) {
         // IF the current ships hull is less than 1 OR (the current ship is a missile AND the combat round greater than 0)
@@ -756,7 +758,7 @@ void writeTempFiles() {
             }
             else {
                 #ifdef CBE_DEBUG
-                CBE::debugFile << "CAPTURE/CRIPPLE: " << BE::DefShipStr[i] << endl;
+                CBE::debugFile << "[INFO] CAPTURE/CRIPPLE: " << BE::DefShipStr[i] << endl;
                 #endif
             }
         }
@@ -769,7 +771,7 @@ void writeTempFiles() {
     ofstream tempBFile;
     tempBFile.open(BE::TempBFile,ios::out | ios::binary | ios::trunc);
      #ifdef CBE_DEBUG
-    CBE::debugFile << "## PROCESSING OTHER DEFENDERS " << BE::DefShipsLeft << " ##" << endl;
+    CBE::debugFile << "##### PROCESSING OTHER DEFENDERS " << BE::DefShipsLeft << " #####" << endl;
     #endif
     // Write the header to the fleet file here (TempAFile)
     tempBFile << BE::DefRaceName << "," << BE::DefFleetName << "," << BE::DefBreakOff << "," << BE::DefShipsTotal << "," << BE::DefFleetStrength << "," << BE::DefShipsLeft << "," << BE::DefTargetBonus << "," << BE::DefTargetPriority << "," << BE::DefReserve << "\n";
@@ -794,7 +796,7 @@ void writeTempFiles() {
             if(BE::CurHullB[i] < 1 || IsFled(BE::SpecialB[i]) || (IsMissile(BE::SpecialB[i]) && BE::CombatRound > 0)) {
                 // Do nothing as this ship is either dead, fled, or a missile
                 #ifdef CBE_DEBUG
-                CBE::debugFile << "DEAD/FLED/MSL: " << BE::DefShipStr[i] << endl;
+                CBE::debugFile << "[INFO] DEAD/FLED/MSL: " << BE::DefShipStr[i] << endl;
                 #endif
             }
             else {
@@ -824,7 +826,7 @@ void readTempA() {
     ifstream tempA;
     #ifdef CBE_DEBUG
         cout << "Opening " << BE::TempAFile << " as tempA" << endl;
-        CBE::debugFile << "Opening " << BE::TempAFile << " as tempA" << endl;
+        CBE::debugFile << "[INFO] Opening " << BE::TempAFile << " as tempA" << endl;
     #endif
     tempA.open(BE::TempAFile,ios::binary | ios::in);
     // Read in the fleet header line
@@ -861,7 +863,7 @@ void readTempA() {
             BE::SpecialA[numUnits] = unit.Special;
 
             #ifdef CBE_DEBUG
-            CBE::debugFile << unit.UnitName << ","
+            CBE::debugFile << "[INFO] Loaded tempA unit: " << unit.UnitName << ","
                            << unit.MaxBeam << ","
                            << unit.CurBeam << ","
                            << unit.MaxShield << ","
@@ -882,7 +884,7 @@ void readTempA() {
         BE::AttShipsLeft = numUnits;
 
         #ifdef CBE_DEBUG
-        CBE::debugFile << "Attacking Units Loaded: " << BE::AttShipsLeft << endl;
+        CBE::debugFile << "[INFO] Attacking Units Loaded: " << BE::AttShipsLeft << endl;
         #endif
 
         // Close the file
@@ -1393,7 +1395,7 @@ void be_main() {
 */
 int main(int argc, char *argv[]) {
     #ifdef CBE_DEBUG
-    CBE::debugFile << "########## DEBUG ##########" << endl;
+    CBE::debugFile << "############################## DEBUG ##############################" << endl;
     #endif
     int i = 1;
     string fname = "";
