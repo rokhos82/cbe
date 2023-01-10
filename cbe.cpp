@@ -289,25 +289,73 @@ void loadDefendingFleet(string fname) {
     }
 }
 
+vector<string> GetBrackets(const string & special) {
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] GetBrackets(\"" << special << "\")" << endl;
+    #endif
+    // Setup the dynamic array for the return
+    vector<string> brackets;
+
+    // Is there an openning bracket in special?
+    int old_start = special.find("[");
+    while(old_start != string::npos) {
+        // Yes, save that location
+        int start = old_start;
+        // Get the next closing bracket
+        int start1 = special.find("]",start);
+        string bracket = special.substr(start,start1-start+1);
+        #ifdef CBE_DEBUG
+        CBE::debugFile << "[INFO] GetBrackets(start:" << start << ";start1:" << start1 << ";bracket:\"" << bracket << "\")" << endl;
+        #endif
+        brackets.push_back(bracket);
+        // Get the next openning bracket if it exists
+        old_start = special.find("[",start1);
+    }
+
+    // Return the bracket strings array
+    return brackets;
+}
+
 int GetTriHex(const string & digit) {
     int val = stoi(digit,0,36);
 
     #ifdef CBE_DEBUG
-    CBE::debugFile << "INFO: GetTriHex(\"" << digit << "\")" << endl;
+    CBE::debugFile << "[INFO] GetTriHex(\"" << digit << "\")" << endl;
     #endif
 
     #ifdef CBE_DEBUG
-    CBE::debugFile << "INFO: GetTriHex(" << val << ")" << endl;
+    CBE::debugFile << "[INFO] GetTriHex(" << val << ")" << endl;
     #endif
 
     return val;
+}
+
+bool HasArtilleryWT(const string & special) {
+    bool res = false;
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasArtilleryWT(\"" << special << "\")" << endl;
+    #endif
+
+    // Look for `artillery` in the special string
+    int start = special.find("artillery");
+    if(start != string::npos) {
+        // Found it!  Set the result to TRUE
+        res = true;
+    }
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasArtilleryWT(" << res << ")" << endl;
+    #endif
+
+    return res;
 }
 
 int HasBatteries(const string & special) {
     int res = 0;
 
     #ifdef CBE_DEBUG
-    CBE::debugFile << "HasBatteries(\"" << special << "\")" << endl;
+    CBE::debugFile << "[INFO] HasBatteries(\"" << special << "\")" << endl;
     #endif
 
     for(int i = 0;i < special.length();i++) {
@@ -329,7 +377,7 @@ int HasDelay(const string & special) {
     int res = -1;
 
     #ifdef CBE_DEBUG
-    CBE::debugFile << "INFO: HasDelay(special:\"" << special << "\")" << endl;
+    CBE::debugFile << "[INFO] HasDelay(special:\"" << special << "\")" << endl;
     #endif
 
     start = special.find("DELAY");
@@ -339,7 +387,7 @@ int HasDelay(const string & special) {
         int len = end - middle;
         string delay = special.substr(middle,len);
         #ifdef CBE_DEBUG
-        CBE::debugFile << "INFO: HasDelay(delay:" << delay << ")" << endl;
+        CBE::debugFile << "[INFO] HasDelay(delay:" << delay << ")" << endl;
         #endif
         res = stoi(delay);
     }
@@ -375,7 +423,7 @@ bool HasMissileWT(const string & special) {
     bool res = false;
 
     #ifdef CBE_DEBUG
-    CBE::debugFile << "INFO: HasMissileWT(\"" << special << "\")" << endl;
+    CBE::debugFile << "[INFO] HasMissileWT(\"" << special << "\")" << endl;
     #endif
 
     int start = special.find("mis");
@@ -397,7 +445,7 @@ bool HasMissileWT(const string & special) {
     }
 
     #ifdef CBE_DEBUG
-    CBE::debugFile << "INFO: HasMissileWT(" << res << ")" << endl;
+    CBE::debugFile << "[INFO] HasMissileWT(" << res << ")" << endl;
     #endif
 
     return res;
@@ -405,7 +453,7 @@ bool HasMissileWT(const string & special) {
 
 int HasReserve(const string & special) {
     #ifdef CBE_DEBUG
-    CBE::debugFile << "INFO: HasReserve(special:\"" << special << "\")" << endl;
+    CBE::debugFile << "[INFO] HasReserve(special:\"" << special << "\")" << endl;
     #endif
     int res = -1;
 
@@ -417,7 +465,7 @@ int HasReserve(const string & special) {
         int len = end - middle;
         string reserve = special.substr(middle,len);
         #ifdef CBE_DEBUG
-        CBE::debugFile << "INFO: HasReserve(reserve:" << reserve << ")" << endl;
+        CBE::debugFile << "[INFO] HasReserve(reserve:" << reserve << ")" << endl;
         #endif
         res = stoi(reserve);
     }
@@ -476,7 +524,7 @@ bool IsCrippled(const string & special) {
 bool IsFighter(const string & special) {
     bool res = false;
     #ifdef CBE_DEBUG
-    CBE::debugFile << "INFO: IsFighter(" << special << ")" << endl;
+    CBE::debugFile << "[INFO] IsFighter(" << special << ")" << endl;
     #endif
 
     // IF the position of "FIGHTER" is NOT npos (no position)
@@ -504,7 +552,7 @@ bool IsSurprise(const string & special) {
     bool res = false;
 
     #ifdef CBE_DEBUG
-    CBE::debugFile << "INFO: IsSurprise(special:\"" << special << "\")" << endl;
+    CBE::debugFile << "[INFO] IsSurprise(special:\"" << special << "\")" << endl;
     #endif
 
     // IF the position of "SURPRISE" is NOT npos (no position)
@@ -513,7 +561,7 @@ bool IsSurprise(const string & special) {
     }
 
     #ifdef CBE_DEBUG
-    CBE::debugFile << "INFO: IsSurprise(" << res << ")" << endl;
+    CBE::debugFile << "[INFO] IsSurprise(" << res << ")" << endl;
     #endif
 
     return res;
@@ -523,7 +571,7 @@ string RemoveTag(const string & source,const string & target,int num_fields) {
     // Remove the `target` tag from the `source` string and return a new string
 
     #ifdef CBE_DEBUG
-    CBE::debugFile << "INFO: RemoveTag(source:\"" << source << "\";target:\"" << target << "\";num_fields:" << num_fields << ")" << endl;
+    CBE::debugFile << "[INFO] RemoveTag(source:\"" << source << "\";target:\"" << target << "\";num_fields:" << num_fields << ")" << endl;
     #endif
 
     int A = 0, start = 0, end_tag = 0, tag1 = 0, tag2 = 0;
@@ -551,19 +599,19 @@ string RemoveTag(const string & source,const string & target,int num_fields) {
         }
 
         #ifdef CBE_DEBUG
-        CBE::debugFile << "INFO: RemoveTag(start:" << start << ";end_tag:" << end_tag << ")" << endl;
+        CBE::debugFile << "[INFO] RemoveTag(start:" << start << ";end_tag:" << end_tag << ")" << endl;
         #endif
         // Get the "left" portion of the source string
         string left = source.substr(0,start-1);
         #ifdef CBE_DEBUG
-        CBE::debugFile << "INFO: RemoveTag(left:\"" << left << "\")" << endl;
+        CBE::debugFile << "[INFO] RemoveTag(left:\"" << left << "\")" << endl;
         #endif
         // Get the "right" portion of the source string
         string right = "";
         if(end_tag < source.length()) {
             right = source.substr(end_tag);
             #ifdef CBE_DEBUG
-            CBE::debugFile << "INFO: RemoveTag(right:\"" << right << "\")" << endl;
+            CBE::debugFile << "[INFO] RemoveTag(right:\"" << right << "\")" << endl;
             #endif
         }
         // Splice left and right together
@@ -594,7 +642,7 @@ string RemoveTag(const string & source,const string & target,int num_fields) {
     }
 
     #ifdef CBE_DEBUG
-    CBE::debugFile << "INFO: RemoveTag(res:\"" << res << "\")" << endl;
+    CBE::debugFile << "[INFO] RemoveTag(res:\"" << res << "\")" << endl;
     #endif
 
     return res;
@@ -1043,7 +1091,7 @@ void be_main() {
     ofstream reportFile("battle_r.txt",ios::out | ios::trunc | ios::binary); // This is #3 in basic
     ofstream damageFile("damage_r.txt",ios::out | ios::trunc | ios::binary); // This is #4 in basic
 
-    // TODO: Do file checks to see if they openned
+    // TODO: Do file checks to see if they opened
 
     // NEW: Set TempAFile and TempBFile to tempa.csv and tempb.csv for initial temp file writes.
 
@@ -1120,7 +1168,7 @@ void be_main() {
             // And, we need to determine if FLAK equiped ships have targets
 
             #ifdef CBE_DEBUG
-            CBE::debugFile << "INFO: Doing Combat Round 0 Special Checks" << endl;
+            CBE::debugFile << "[INFO] Doing Combat Round 0 Special Checks" << endl;
             #endif
 
             // Check the attacking fleet
@@ -1336,7 +1384,7 @@ void be_main() {
         TempAttShipsLeft = BE::AttShipsLeft;
         TempDefShipsLeft = BE::DefShipsLeft;
         missile_counter = 0;
-        // Loop through a combine total of all remaining attacking and defending ships
+        // Loop through a combined total of all remaining attacking and defending ships
         // This is horribley convoluted
         // TODO: make a funciton for this...not sure what it needs to look like
         for(int A = 0;A < (BE::AttShipsLeft + BE::DefShipsLeft);A++) {
@@ -1370,8 +1418,46 @@ void be_main() {
             if(HasBatteries(temp_str) > 0) {
                 // Check if any of the batteries has a `misXXXX` tag
                 if(!HasMissileWT(temp_str)) {
-                    // Skip the unit
+                    // Skip the unit since there is no missile tag in a bracket
                     continue;
+                }
+
+                tmp = 0; // TODO: Make this a local variable
+                int SalvoCount = 0; // FIXME: This might not be local?
+                int sc = 0; // TODO: Make this local to the loop below
+                // Reset the salvo array
+                for(sc = 0;sc < 200;sc++) {
+                    BE::Salvos[sc].MissileS = 0;
+                    BE::Salvos[sc].DataStr = "";
+                }
+
+                // Get the first openning weapons bracket
+                old_start = temp_str.find("[");
+                sc = 0; // TODO: Not sure what to do with this yet.
+                // Get the brackets for this unit
+                vector<string> brackets = GetBrackets(temp_str);
+                for(int i = 0;i < brackets.size();i++) {
+                    // Setup the salvo object
+                    BE::Salvos[sc].DataStr = brackets[i];
+                    BE::Salvos[sc].MissileS = 0;
+
+                    // Does the bracket have a salvo tag?
+                    if(HasMissileWT(BE::Salvos[sc].DataStr)) {
+                        // Is the unit in reserve and without an artillery tag?
+                        if(HasReserve(temp_str) && HasArtilleryWT(BE::Salvos[sc].DataStr)) {
+                            // This unit is in reserve and doesn't have an artillery tag
+                        }
+                        else {
+                            // This unit is either NOT in the reserve or HAS an artillery tag
+                            // Do the long range checks
+                            if((BE::AttHasLongRange || BE::DefHasLongRange) && HasLongWT(BE::Salvos[sc].DataStr)) {
+                                // We are at long range and the salvo has a long tag!
+                            }
+                        }
+                    }
+
+                    // Increment the salvo count
+                    sc = sc + 1;
                 }
             }
         }
