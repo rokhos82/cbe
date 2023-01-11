@@ -330,6 +330,38 @@ int GetTriHex(const string & digit) {
     return val;
 }
 
+int HasAmmoWT(const string & special) {
+    // Possible return values
+    // >0: Indicates that the special includes an ammo tag and returns the value of that tag
+    // 0: Indicates that the special includes an ammo tag and that the value is 0
+    // <0: Indicates that the special does not include an ammo tag
+    // TODO: Setup a set of constants to test against for clarity and consistancy
+    int res = CBE::AMMO_EMPTY;
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasAmmoWT(\"" << special << "\")" << endl;
+    #endif
+
+    // Find the ammo tag and return it's starting position in the special string
+    int start = special.find("ammo");
+    if(start != string::npos) {
+        int middle = special.find(" ",start);
+        int end = special.find(" ",middle+1);
+        int len = end - middle;
+        string ammo = special.substr(middle,len);
+        #ifdef CBE_DEBUG
+        CBE::debugFile << "[INFO] HasAmmoWT(ammo:" << ammo << ")" << endl;
+        #endif
+        res = stoi(ammo);
+    }
+    else {
+        res = CBE::AMMO_INFINITE;
+    }
+
+    // Return the result
+    return res;
+}
+
 bool HasArtilleryWT(const string & special) {
     bool res = false;
 
@@ -1449,9 +1481,56 @@ void be_main() {
                         }
                         else {
                             // This unit is either NOT in the reserve or HAS an artillery tag
-                            // Do the long range checks
-                            if((BE::AttHasLongRange || BE::DefHasLongRange) && HasLongWT(BE::Salvos[sc].DataStr)) {
-                                // We are at long range and the salvo has a long tag!
+                            // Do the long range checks.
+                            if((BE::AttHasLongRange || BE::DefHasLongRange) && !HasLongWT(BE::Salvos[sc].DataStr)) {
+                                // We are at long range BUT this unit does NOT have a long tag.
+                                // Do nothing.
+                            }
+                            else {
+                                // Either we are at standard range or this unit has a long tag.
+                                // Does the unit have ammo?
+                                int ammo = HasAmmoWT(BE::Salvos[sc].DataStr);
+                                if(ammo > CBE::AMMO_EMPTY) {
+                                    // The bracket has ammo OR doesn't use ammo
+                                    // ORIGINAL is VAL(MID$(Salvo(sc).DataStr,2)) which is the numeric value of the substring from position 2 to end of string...I think
+                                    // VAL(MID$("[2 mis0041 ammo 1 target 15]")) ==> VAL("2 mis0041 ammo 1 target 15]") ==> 2 (Wow...I really dislike QBASIC)
+                                    // Essentially it grabs the number at the beginning of the string.  VAL might only return the first number it finds?
+                                    // So, we get to do this the hard way for now because I'm not going to learn C++ regex right now.  See TODO below.
+                                    // TODO: Convert this mess to a regex extraction of the first number in the string
+                                    int start = BE::Salvos[sc].DataStr.find("[");
+                                    // If start is npos then there is no "[" in the string.  So the first item in the string should be the size of the salvo.
+                                    if(start == string::npos) {
+                                        start = 0;
+                                    }
+                                    else {
+                                        start++;
+                                    }
+                                    string sizeStr = BE::Salvos[sc].DataStr.substr(start); // Grab everything past the openning bracket or the start of string
+                                    int size = stoi(sizeStr); // This will only grab the first number in the string and it must start with a string
+                                    #ifdef CBE_DEBUG
+                                    CBE::debugFile << "[INFO] Salvo Size: " << size << endl;
+                                    #endif
+                                    BE::Salvos[sc].MissileS = size; // This is simultaneously the number of missiles to launch and the volley size for non-missile salvos
+                                }
+                                else if(ammo == CBE::AMMO_INFINITE) {
+                                    // The bracket doesn't need ammo
+                                    // Do the same things as above....which is a mess
+                                    // TODO: Redo logic to collapse these two paths
+                                    int start = BE::Salvos[sc].DataStr.find("[");
+                                    // If start is npos then there is no "[" in the string.  So the first item in the string should be the size of the salvo.
+                                    if(start == string::npos) {
+                                        start = 0;
+                                    }
+                                    else {
+                                        start++;
+                                    }
+                                    string sizeStr = BE::Salvos[sc].DataStr.substr(start); // Grab everything past the openning bracket or the start of string
+                                    int size = stoi(sizeStr); // This will only grab the first number in the string and it must start with a string
+                                    #ifdef CBE_DEBUG
+                                    CBE::debugFile << "[INFO] Salvo Size: " << size << endl;
+                                    #endif
+                                    BE::Salvos[sc].MissileS = size; // This is simultaneously the number of missiles to launch and the volley size for non-missile salvos
+                                }
                             }
                         }
                     }
@@ -1459,11 +1538,43 @@ void be_main() {
                     // Increment the salvo count
                     sc = sc + 1;
                 }
+
+                // Loop through the salvo count and spawn a missile 'unit' for each entity
+                SalvoCount = sc;
+                // TODO: Clean up the reused sc variable.  Poor thing, mistreated like that.
+                for(sc = 0;sc < SalvoCount;sc++) {
+                    // Does the salvo have a size greater than 0?  TODO: Move this check to the loop above?  Might mess with the [0] tags on units that shouldn't flee.  Maybe BRAVE tag.
+                    int size = BE::Salvos[sc].MissileS;
+                    if(size > 0) {
+                        // The salvo has a size.  Do all the things!!!
+                        // But first, check to make sure the salvo size won't overflow the 9999 max unit limit
+                        // TODO: Setup a preprocessor variable for maximum number of units
+                        if(size + TempAttShipsLeft + TempDefShipsLeft > 9999) {
+                            // There will be a problem.  We should throw an exception here rather than just exiting
+                            // TODO: Throw an exception
+                            cerr << "The 9999 ship limit has been exceeded while spawning missiles.  Simulation aborted." << endl;
+                            exit(1); // TODO: Define error codes...and more constants for consistancy and clarity.
+                        }
+
+                        // Check for a missile tag and get the BSTH values from the tag
+                        // TODO: Add a flags member to the SalvoInfo struct so these tests don't need to be constantly done over and over and over and over again...
+                        // This also sets BE::MissileB, BE::MissileS, BE::MissileT, and BE:MissileH
+                        const string & special = BE::Salvos[sc].DataStr; // I got tired of accessing this variable in every function call....
+                        if(HasMissileWT(special)) {
+                            // Check to see if the salvo need ammo.  See todo above...damn.
+                            int ammo = HasAmmoWT(special);
+                            if(ammo > CBE::AMMO_EMPTY) {
+                            }
+                        }
+                    }
+                }
             }
         }
 
         // END OF ROUND!!!!
         writeTempFiles();
+
+        //FIXME: Memory cleanup?
         
         reportFile << "\n";
         reportFile.flush();
