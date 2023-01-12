@@ -289,6 +289,66 @@ void loadDefendingFleet(string fname) {
     }
 }
 
+string AddTag(const string & source,const string & target) {
+    // Add the target tag to the source string and return the modified string.
+    int start = 0;
+    string res = "";
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] AddTag(source:\"" << source << "\",target:\"" << target << "\")" << endl;
+    #endif
+
+    // Find the target tag in the source string first...not sure what this is doing.  Maybe grouping similar tags?
+    // Nope!  See the else block below.  Looks like targets are intended to be singltons.  Multiple OFFLINE tags was never implemented...
+    start = source.find(target);
+    if(start == string::npos) {
+        // The target does not exist in the source.
+        // Check if the source starts with a bracket
+        if(*(source.begin()) == '[' && *(source.end()) == ']') {
+            // Yep, this is a weapon bracket
+            // Now check if the target tag is uppercase
+            if(isupper(target[0])) {
+                // The target tag is upper case.  Make sure it goes OUTSIDE any brackets.
+                // This leads to an intersting case of being able to add a tag to a salvo string...
+                // Test for an ' ' at the end of the string first
+                if(*(source.end()) != ' ') {
+                    // Add the target tag to the end of the source string with a ' '
+                    res = source + " " + target;
+                }
+                else {
+                    // Just add the target tag to the end of the source string
+                    res = source + target;
+                }
+            }
+            else {
+                // The target tag is lower case.  It can go inside the bracket.
+                // We know that the ending character is ']'
+                res = source.substr(0,source.size()-1) + " " + target + "]";
+            }
+        }
+        else {
+            // Not a bracket so add to the end...working with strings is so dumb.
+            // Check for a space and add if necessary.
+            if(*(source.end()) != ' ') {
+                res = source + " " + target;
+            }
+            else {
+                res = source + target;
+            }
+        }
+    }
+    else {
+        // The tag already exists.  Just return the original string.
+        res = source; // Create a new string   Memory allocation is going to be a mess...
+    }
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] AddTag(res:\"" << res << "\")" << endl;
+    #endif
+
+    return res;
+}
+
 vector<string> GetBrackets(const string & special) {
     #ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] GetBrackets(\"" << special << "\")" << endl;
@@ -553,6 +613,26 @@ bool IsCrippled(const string & special) {
     return res;
 }
 
+bool IsDrifting(const string & special) {
+    bool res = false;
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] IsDrifting(\"" << special << "\")" << endl;
+    #endif
+
+    // IF the position of "DRIFTING" is NOT npos (no position)
+    if(special.find("DRIFTING") != string::npos) {
+        // Then it must be drifting
+        res = true;
+    }
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] IsDrifting(" << res << ")" << endl;
+    #endif
+
+    return res;
+}
+
 bool IsFighter(const string & special) {
     bool res = false;
     #ifdef CBE_DEBUG
@@ -576,6 +656,46 @@ bool IsFled(const string & special) {
         // Then it must be fled
         res = true;
     }
+
+    return res;
+}
+
+bool IsFlee(const string & special) {
+    bool res = false;
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] IsFlee(\"" << special << "\")" << endl;
+    #endif
+
+    // IF the position of "DRIFTING" is NOT npos (no position)
+    if(special.find("FLEE") != string::npos) {
+        // Then it must be drifting
+        res = true;
+    }
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] IsFlee(" << res << ")" << endl;
+    #endif
+
+    return res;
+}
+
+bool IsNoMove(const string & special) {
+    bool res = false;
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] IsNoMove(\"" << special << "\")" << endl;
+    #endif
+
+    // IF the position of "DRIFTING" is NOT npos (no position)
+    if(special.find("NOMOVE") != string::npos) {
+        // Then it must be drifting
+        res = true;
+    }
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] IsNoMove(" << res << ")" << endl;
+    #endif
 
     return res;
 }
@@ -1560,15 +1680,241 @@ void be_main() {
                         // TODO: Add a flags member to the SalvoInfo struct so these tests don't need to be constantly done over and over and over and over again...
                         // This also sets BE::MissileB, BE::MissileS, BE::MissileT, and BE:MissileH
                         const string & special = BE::Salvos[sc].DataStr; // I got tired of accessing this variable in every function call....
-                        if(HasMissileWT(special)) {
-                            // Check to see if the salvo need ammo.  See todo above...damn.
-                            int ammo = HasAmmoWT(special);
-                            if(ammo > CBE::AMMO_EMPTY) {
+                        HasMissileWT(special); // FIXME: I can't describe how much I hate this line.
+                        // Check to see if the salvo need ammo.  See todo above...damn.
+                        int ammo = HasAmmoWT(special);
+                        if(ammo > CBE::AMMO_EMPTY) {
+                            NewTag = "ammo " + (ammo - 1); // Decrement the ammo counter.  TODO: Make this a local variable
+                            NewTag += " "; // Had to make this a new line do to type converstion of the (ammo -1) expression.
+                            temp_str = RemoveTag(BE::Salvos[sc].DataStr,"ammo",1); // FIXME: This is so clunky to update the string in the middle of the round
+                            temp_str = AddTag(BE::Salvos[sc].DataStr,NewTag);
+                            BE::Salvos[sc].DataStr = temp_str; // FIXME: And this breaks my pointer above?  Maybe not.  We'll see!!!
+                            // Remove the ammo string from missiles so there are no 'duds'
+                            missile_str = RemoveTag(BE::Salvos[sc].DataStr,"ammo",1); // Remove the ammo tag and save as missile_str.  TODO: Local?  I'm not sure where this is used next.
+                            missile_str = RemoveTag(missile_str,"shots",1); // Remove the shots tag because redundancy
+                        }
+                        else if(ammo == CBE::AMMO_INFINITE) {
+                            missile_str = BE::Salvos[sc].DataStr; // Just use the salve string since there is no ammo
+                        }
+                        
+                        // Spawn those babies...
+                        for(int i = 0;i < size;i++) {
+                            missile_counter = missile_counter + 1; // This is a global variable that was zeroed at the start of this section.  This tracks all missiles launched from both sides?
+                            // Check the ForceID...TODO: Get rid of ForceID so that multiple fleets can be added.  Not to mention factions
+                            if(ForceID == 0) {
+                                // VB sucks.  Where do MissileB, MissileS, MissileT, and Missile H come from?  From the call to HasMissileWT() about 20 lines up!
+                                // [JLL] This block of code makes me want to vomit.  No wonder tags jump between units.  Argh!!
+                                TempAttShipsLeft = TempAttShipsLeft + 1;
+                                BE::AttShipStr[TempAttShipsLeft] = "missile " + missile_counter; // Global missile names too...
+                                BE::MaxBeamA[TempAttShipsLeft] = BE::MissileB;
+                                BE::CurBeamA[TempAttShipsLeft] = BE::MissileB;
+                                BE::MaxShieldA[TempAttShipsLeft] = BE::MissileS;
+                                BE::CurShieldA[TempAttShipsLeft] = BE::MissileS;
+                                BE::MaxTorpA[TempAttShipsLeft] = BE::MissileT;
+                                BE::CurTorpA[TempAttShipsLeft] = BE::MissileT;
+                                BE::MaxHullA[TempAttShipsLeft] = BE::MissileH;
+                                BE::CurHullA[TempAttShipsLeft] = BE::MissileH;
+                                // Inherit tags from the launcher and convert to a missile
+                                BE::SpecialA[TempAttShipsLeft] = missile_str; // Use the missile string the the salvos array ~20-25 lines up.
+                                // Change the beginning number to match the missile strength
+                                // [JLL] This converts the B and T portions of the missile to a single salvo so that it is processed correctly.
+                                // [JLL] For example, [4 mis0021] becomes 4 units that have [2] as their single salvo bracket
+                                /* [JLL] The original code looks for the first space in the special string.
+                                        Then creates a salvo bracket and appends the original special string from the " " onward.
+                                        This looses information from the missile_str...maybe the salvo size?
+                                    1) Remove the "[\d+" from the missile special
+                                    2) Add a "[" + (Beam+Torp) to the missile special
+                                    3) Remove the "mis" tag from the missile special
+                                    4) Add "MSL" to denote the unit is a missile
+                                    5) Add "SUICIDE" to denote the unit should be destroyed at end of turn
+                                */
+                                int start = BE::SpecialA[TempAttShipsLeft].find(" ");
+                                BE::SpecialA[TempAttShipsLeft] = "[" + to_string(BE::MissileB + BE::MissileT) + BE::SpecialA[TempAttShipsLeft].substr(start); // Combine Beam and Torp rating for full salvo strength.  FIXME: This assumes that there is a closing ']'
+                                BE::SpecialA[TempAttShipsLeft] = RemoveTag(BE::SpecialA[TempAttShipsLeft],"mis",0); // Remove the missile tag or missiles will spawn missiles.  Could be used for submunitions...
+                                BE::SpecialA[TempAttShipsLeft] = AddTag(BE::SpecialA[TempAttShipsLeft],"MSL"); // Denotes the unit as a missile
+                                BE::SpecialA[TempAttShipsLeft] = AddTag(BE::SpecialA[TempAttShipsLeft],"SUICIDE"); // Suicide denotes that the unit should be removed at end of combat
+                                // [JLL] TODO: Remove all of the above and use bitwise flags
+                            }
+                            else {
+                                // Do the other foce
+                                // [JLL] TODO: Make this a function
+                                TempDefShipsLeft = TempDefShipsLeft + 1;
+                                BE::DefShipStr[TempDefShipsLeft] = "missile " + missile_counter; // Global missile names too...
+                                BE::MaxBeamB[TempDefShipsLeft] = BE::MissileB;
+                                BE::CurBeamB[TempDefShipsLeft] = BE::MissileB;
+                                BE::MaxShieldB[TempDefShipsLeft] = BE::MissileS;
+                                BE::CurShieldB[TempDefShipsLeft] = BE::MissileS;
+                                BE::MaxTorpB[TempDefShipsLeft] = BE::MissileT;
+                                BE::CurTorpB[TempDefShipsLeft] = BE::MissileT;
+                                BE::MaxHullB[TempDefShipsLeft] = BE::MissileH;
+                                BE::CurHullB[TempDefShipsLeft] = BE::MissileH;
+                                // Inherit tags from the launcher and convert to a missile
+                                BE::SpecialB[TempDefShipsLeft] = missile_str; // Use the missile string the the salvos array ~20-25 lines up.
+                                int start = BE::SpecialB[TempDefShipsLeft].find(" ");
+                                BE::SpecialB[TempDefShipsLeft] = "[" + to_string(BE::MissileB + BE::MissileT) + BE::SpecialB[TempDefShipsLeft].substr(start); // Combine Beam and Torp rating for full salvo strength.  FIXME: This assumes that there is a closing ']'
+                                BE::SpecialB[TempDefShipsLeft] = RemoveTag(BE::SpecialB[TempDefShipsLeft],"mis",0); // Remove the missile tag or missiles will spawn missiles.  Could be used for submunitions...
+                                BE::SpecialB[TempDefShipsLeft] = AddTag(BE::SpecialB[TempDefShipsLeft],"MSL"); // Denotes the unit as a missile
+                                BE::SpecialB[TempDefShipsLeft] = AddTag(BE::SpecialB[TempDefShipsLeft],"SUICIDE"); // Suicide denotes that the unit should be removed at end of combat
                             }
                         }
                     }
                 }
+
+                // Reassemble weapon tags back into a unit's appropriate Special tag
+                // Get the Specail tag from the special array.  Again with the ForceID junk.  Functions are your friend...
+                // [JLL] This is why string manipulation is bad.  A well built class or struct will render a lot of this code useless.
+                // Check ForceID
+                if(ForceID == 0) {
+                    temp_str = BE::SpecialA[B]; // [JLL] TODO: Stop global variable abuse!
+                }
+                else {
+                    temp_str = BE::SpecialB[B];
+                }
+
+                Strip = false;
+                new_str = "";
+
+                // Not entirely sure what this is for.  Might be for removing the [] from the string?
+                // Or does it remove the first salvo from the string?
+                // [JLL] This removes all salvos from the string!  Because they will be rebuilt from the Salvos array below.
+                // [JLL] This builds a new string for the unit, sans salvos, character by character.  Vomit inducing...
+                for(swt = 0;swt < temp_str.size();swt++) {
+                    if(temp_str[swt] == '[') {
+                        Strip = true;
+                    }
+                    if(Strip == false) {
+                        new_str = new_str + temp_str[swt];
+                    }
+                    if(temp_str[swt] == ']') {
+                        Strip = false;
+                    }
+                }
+
+                // This builds a new string of Salvos from the Salvos array?  But why?
+                // Also, 200 salvos for the entire simulation...that isn't enough for one fleet!
+                // See the code below this block.  The salvos array is per unit, I think.
+                // [JLL] The Salvos array is per unit.
+                // [JLL] FIXME: This is why salvos jump units some times.  This loops through all 200 Salvos.
+                for(sc = 0;sc < 200;sc++) {
+                    if(BE::Salvos[sc].DataStr == "") {
+                        break;
+                    }
+                    new_str = new_str + BE::Salvos[sc].DataStr;
+                }
+
+                // Assign the new specials string to the SpecialA or SpecialB array for the unit in question depending on ForceID
+                // [JLL] FIXME: This explains why the salvo string jumps from attackers to defenders and vice versa.
+                if(ForceID == 0) {
+                    BE::SpecialA[B] = new_str;
+                }
+                else {
+                    BE::SpecialB[B] = new_str;
+                }
+            } // End of HasBatteries If Block
+            else { // This unit has no batteries.
+                // [JLL] TODO: Discontinue use of non-battery weapons
+                // Check unit torpedo rating and for Missile
+                // [JLL] I am skipping this for now pending response from the FOTS group - 2023-01-11
             }
+        }// End of spawn missile loop....
+
+        // [JLL] Since missiles are added at the end of the units array the code below keeps other units from targeting them.
+        AttNumValidTargets = BE::AttShipsLeft;
+        DefNumValidTargets = BE::DefShipsLeft;
+        BE::AttShipsLeft = TempAttShipsLeft; // [JLL] Need to keep track of missiles
+        BE::DefShipsLeft = TempDefShipsLeft; // [JLL] Need to keep track of missiles
+
+        // Copy real values to temp fields so that combat will be fair
+        for(int i = 0;i < BE::AttShipsLeft;i++) {
+            BE::TempAttCritStr[i] = BE::AttCritStr[i];
+            BE::TempCurBeamA[i] = BE::CurBeamA[i];
+            BE::TempCurShieldA[i] = BE::CurShieldA[i];
+            BE::TempCurTorpA[i] = BE::CurTorpA[i];
+            BE::TempCurHullA[i] = BE::CurHullA[i];
+            BE::TempHitsA[i] = BE::HitsA[i];
+            BE::TempPenHitsA[i] = BE::HitsA[i];
+            BE::TempCurDamA[i] = BE::CurDamA[i];
+            BE::TempSpecialA[i] = BE::SpecialA[i];
+        }
+        for(int i = 0;i < BE::DefShipsLeft;i++) {
+            BE::TempDefCritStr[i] = BE::DefCritStr[i];
+            BE::TempCurBeamB[i] = BE::CurBeamB[i];
+            BE::TempCurShieldB[i] = BE::CurShieldB[i];
+            BE::TempCurTorpB[i] = BE::CurTorpB[i];
+            BE::TempCurHullB[i] = BE::CurHullB[i];
+            BE::TempHitsB[i] = BE::HitsB[i];
+            BE::TempPenHitsB[i] = BE::HitsB[i];
+            BE::TempCurDamB[i] = BE::CurDamB[i];
+            BE::TempSpecialB[i] = BE::SpecialB[i];
+        }
+
+        // ------------------------------------------------------------------------------------------
+        // Attack Routine
+        for(BE::A = 0;BE::A < (BE::AttShipsLeft + BE::DefShipsLeft);BE::A++) {
+            // The same BS about ForceID...
+            int B = BE::A;
+            ForceID = 0;
+            if(BE::A > BE::AttShipsLeft) {
+                B = BE::A - BE::AttShipsLeft;
+                ForceID = 1;
+            }
+            if(BE::A = BE::AttShipsLeft + 1) {
+                // Print a space in the report file
+                reportFile << endl;
+            }
+
+            Special1 = 0;
+            Special2 = 0;
+            FirePower1 = 0;
+            FirePower2 = 0;
+            
+            /* 
+                OK, here's the problem in a nut shell.  Each ship can have multiple
+                attacks.  In the past, the firepower was added up and the damage
+                spread out.  But that won't work with the new multi's, Special
+                effect weapons, and resistant defenses.  The firepower needs to be
+                divided before combat and each shot rolled and applied separately.
+
+                Determine the number of attacks:  Split, Multi, Flak, Special
+                Effect weapons that are unsplit are lumped together into a
+                single attack.  [ie. A 4 pt heat beam plus a 6 pt pen torp
+                becomes a 10 pt heat+pen attack.]  I'll assume that 200
+                individual attacks is enough to drive most individual units.
+            */
+
+           // Clear the firepower and TempSpecial attributes arrays.
+           for(int i = 0;i < 200;i++) {
+            Hits[i].firepower = 0;
+            Hits[i].special = 0;
+            Hits[i].tag = "";
+           }
+           number_of_attacks = 0; // Assume the attacker has no weapons
+
+           // Determine eligibility and the number of attacks (if any)
+           switch(ForceID) {
+            case 0: // Attacking fleet
+            if(BE::AttShipStr[B].find("missile") != string::npos) {
+                // [JLL] Why the hell do we care if the name of the unit has "missile" in it?
+                BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " is a drone or decoy."; // Check the name of the ship for missile?  Assume it is a drone or decoy.
+            }
+            else {
+                BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " did not fire beams or torps."; // If missile is not in the name then the unit did not fire?
+            }
+            // [JLL] I am so confused by the if/else blocks above.  TODO: Can I remove these?
+
+            // Check if the unit has a drifting tag AND NOT having a nomove tag.
+            if(IsDrifting(BE::SpecialA[B]) && !IsNoMove(BE::SpecialA[B])) {
+                // The unit is drifting and does not have a nomove tag
+                // Check if the unit is fleeing
+                if(IsFlee(BE::SpecialA[B])) {
+                    // The unit is fleeing.  Remove flee and add fled
+                    BE::TempSpecialA[B] = RemoveTag(BE::TempSpecialA[B],"FLEE",0);
+                }
+            }
+            break;
+            case 1: // Defending fleet
+            break;
+           }
         }
 
         // END OF ROUND!!!!
