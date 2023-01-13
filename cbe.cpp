@@ -5,6 +5,7 @@
 #include <vector>
 #include <time.h>
 #include <stdlib.h>
+#include <limits>
 
 //#include "FleetInfo.h"
 #include "flags.h"
@@ -464,6 +465,30 @@ int HasBatteries(const string & special) {
     return res;
 }
 
+int HasDefense(const string & special) {
+    int start = 0;
+    int res = std::numeric_limits<int>::min(); // TODO: Replace with constant for consistancy and clarity.
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasDefense(\"" << special << "\")" << endl;
+    #endif
+
+    start = special.find("DEFENSE");
+    // IF the position of DEFENSE is NOT no position
+    if(start != string::npos) {
+        // Get the value of the defense tag and return it.
+        start = special.find(" ",start);
+        int end = special.find(" ",start+1);
+        res = stoi(special.substr(start+1,end - start + 1));
+    }
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasDefense(" << res << ")" << endl;
+    #endif
+
+    return 0;
+}
+
 int HasDelay(const string & special) {
     int start = 0;
     int res = -1;
@@ -563,6 +588,30 @@ int HasReserve(const string & special) {
     }
 
     return res;
+}
+
+int HasTarget(const string & special) {
+    int start = 0;
+    int res = std::numeric_limits<int>::min(); // TODO: Replace with constant for consistancy and clarity. TODO: Use negative infinity or at least min()
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasTarget(\"" << special << "\")" << endl;
+    #endif
+
+    start = special.find("TARGET");
+    // IF the position of DEFENSE is NOT no position
+    if(start != string::npos) {
+        // Get the value of the defense tag and return it.
+        start = special.find(" ",start);
+        int end = special.find(" ",start+1);
+        res = stoi(special.substr(start+1,end - start + 1));
+    }
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasTarget(" << res << ")" << endl;
+    #endif
+
+    return 0;
 }
 
 bool IsMissile(const string & special) {
@@ -1902,18 +1951,61 @@ void be_main() {
             }
             // [JLL] I am so confused by the if/else blocks above.  TODO: Can I remove these?
 
-            // Check if the unit has a drifting tag AND NOT having a nomove tag.
-            if(IsDrifting(BE::SpecialA[B]) && !IsNoMove(BE::SpecialA[B])) {
-                // The unit is drifting and does not have a nomove tag
+            // Check if the unit is NOT drifting AND NOT nomove
+            if(!IsDrifting(BE::SpecialA[B]) && !IsNoMove(BE::SpecialA[B])) {
+                // The unit is neither drifting nor nomove
                 // Check if the unit is fleeing
                 if(IsFlee(BE::SpecialA[B])) {
                     // The unit is fleeing.  Remove flee and add fled
                     BE::TempSpecialA[B] = RemoveTag(BE::TempSpecialA[B],"FLEE",0);
+                    BE::TempSpecialA[B] = AddTag(BE::TempSpecialA[B],"FLED");
+                    // Check for a DEFENSE tag
+                    int defense = HasDefense(BE::TempSpecialA[B]);
+                    if(defense != std::numeric_limits<int>::min()) { // TODO: Replace the limit call with a constant for clarity and consistancy
+                        BE::TempSpecialA[B] = RemoveTag(BE::TempSpecialA[B],"DEFENSE",1); // Remove the defense tag
+                    }
+                    NewTag = "DEFENSE " + int(defense + BaseAccuracy/2); // TODO: Replace with local variable.
+                    BE::TempSpecialA[B] = AddTag(BE::TempSpecialA[B],NewTag);
+
+                    // Check if the unit has a TARGET tag
+                    int target = HasTarget(BE::TempSpecialA[B]);
+                    if(target != std::numeric_limits<int>::min()) { // TODO: Replace the limit::min call with a constant
+                        BE::TempSpecialA[B] = RemoveTag(BE::TempSpecialA[B],"TARGET",1);
+                    }
+                    NewTag = "TARGET " + int(target + BaseAccuracy/2); // TODO: Replace with local variable.  TODO: Replace BaseAccuracy/2 with a constant
+                    BE::TempSpecialA[B] = AddTag(BE::TempSpecialA[B],NewTag);
+                    #ifdef CBE_DEBUG
+                    CBE::debugFile << "[INFO] Checking unit \"" << BE::AttShipStr[B] << "\" is fleeing." << endl;
+                    CBE::debugFile << "[INFO] Old Special String: \"" << BE::SpecialA[B] << "\"" << endl;
+                    CBE::debugFile << "[INFO] New Special String: \"" << BE::TempSpecialA[B] << "\"" << endl;
+                    #endif
+                    BE:: SpecialA[B] = BE::TempSpecialA[B]; // Replace the unit's special string NOTE: Why is this replaced now?
                 }
+            }
+            // Check if the unit is drifting
+            if(IsDrifting(BE::SpecialA[B])) {
+                // Remove the DRIFTING tag.  NOTE: This must be a transitory tag
+                BE::TempSpecialA[B] = RemoveTag(BE::TempSpecialA[B],"DRIFTING",0);
+                #ifdef CBE_DEBUG
+                CBE::debugFile << "[INFO] " << BE::AttShipStr[B] << " is no longer drifting." << endl;
+                #endif
+            }
+            // Check if the unit is surprised!
+            if(IsSurprise(BE::SpecialA[B])) {
+                // Print the unit is suprised message
+                BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " is surprised!";
+                // Skip the rest of this unit's round
+                break; // TODO: This might need to be continue but I don't think so.
             }
             break;
             case 1: // Defending fleet
             break;
+           }
+           // Check ForceID to print the correct message
+           if(ForceID == 0) {
+              if(BE::AttBattleStr.size() > 0) {
+                 reportFile << BE::AttBattleStr << "\n";                  
+              }
            }
         }
 
