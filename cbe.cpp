@@ -1899,6 +1899,9 @@ void be_main() {
 
         // ------------------------------------------------------------------------------------------
         // Attack Routine
+        #ifdef CBE_DEBUG
+        CBE::debugFile << "[INFO] Beginning the attack look" << endl;
+        #endif
         for(BE::A = 0;BE::A < (BE::AttShipsLeft + BE::DefShipsLeft);BE::A++) {
             // The same BS about ForceID...
             int B = BE::A;
@@ -1983,6 +1986,7 @@ void be_main() {
                 }
             }
             // Check if the unit is drifting
+            // NOTE: [JLL] This appears to be linked with the flee/fled check above.  Meaning, a unit can not flee if it is drifting.  Not really connected to the checks below to see if the unit is skipped.
             if(IsDrifting(BE::SpecialA[B])) {
                 // Remove the DRIFTING tag.  NOTE: This must be a transitory tag
                 BE::TempSpecialA[B] = RemoveTag(BE::TempSpecialA[B],"DRIFTING",0);
@@ -1997,14 +2001,90 @@ void be_main() {
                 // Skip the rest of this unit's round
                 break; // TODO: This might need to be continue but I don't think so.
             }
+            // Check if the unit is captured! TODO: Have the capture mechanic move the unit to the opposing fleet
+            if(IsCaptured(BE::SpecialA[B])) {
+                // Print the unit has been captured
+                BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " has been captured and can not attack!";
+                // Skip the rest of this unit's round
+                break;
+            }
+            // Check if the unit is crippled!
+            if(IsCrippled(BE::SpecialA[B])) {
+                // Print the unit is crippled
+                BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " is crippled and can not attack!";
+                // Skip the rest of this unit's round
+                break;
+            }
+            // Check if the defending fleet has a cloak
+            if(BE::DefIsCloaked == 1) {
+                // TODO: This needs to be generalized to are there targets availabled?  Move to target selection code!
+                BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " can not lock onto a target!";
+                // Skip the rest of the unit's round
+                break;
+            }
+            // This is the start of the battery processing
+            // Check if the unit has batteries
+            if(HasBatteries(BE::SpecialA[B])) {
+                // Check if the unit is in the RESERVE and NOT ARTILLERY
+                if(HasReserve(BE::SpecialA[B]) > 0 && !HasArtilleryWT(BE::SpecialA[B])) {
+                    // The unit can not fire from the reserve
+                    BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " is being held in reserve!";
+                    // Skip the rest of the unit's round
+                    break;
+                }
+                
+                // Getting the bracket attacks and adding them to the Salvos array
+                number_of_attacks = 0; // TODO: Replace with a local variable
+                temp_str = BE::SpecialA[B]; // TODO: Replace with a local variable
+                old_start = temp_str.find("["); // TODO: Replace with a local variable
+                sc = 0; // TODO: Replace with a local variable?  This may be used later
+                #ifdef CBE_DEBUG
+                CBE::debugFile << "[INFO] " << BE::AttRaceName << " " << BE::AttShipStr[B] << " looking for batteries: " << temp_str << endl;
+                #endif
+                // TODO: Turn the code below into a function?
+                while(old_start != string::npos) {
+                    start = temp_str.find("[",old_start); // TODO: Replace with a local variable
+                    start1 = temp_str.find("]",start); // TODO: Replace with a local variable
+                    // NOTE: [JLL] Not sure what the below does
+                    if(start1 == string::npos) {
+                        old_start = int(string::npos); // Set to no position so that the loop stops NOTE: [JLL] Explicit typecast to int causes this to be -1.
+                        start1 = temp_str.size(); // Get the whole string since there is no closing bracket TODO: This should be handled at load with a validation check.
+                    }
+                    else {
+                        old_start = temp_str.find("[",start1); // Find the start of the next salvo string
+                    }
+                    // Increment the salvo count
+                    sc = sc + 1;
+                    // Save the bracket string
+                    BE::Salvos[sc].DataStr = temp_str.substr(start,start1 - start + 1);
+                    BE::Salvos[sc].MissileS = stoi(temp_str.substr(1));
+                    #ifdef CBE_DEBUG
+                    CBE::debugFile << "[INFO] " << BE::AttRaceName << " " << BE::AttShipStr[B] << " has battery: " << BE::Salvos[sc].DataStr << endl;
+                    #endif
+                }
+
+                // Did we find any salvos?
+                if(sc > 0) {
+                    for(int i = 0;i < sc;i++) {
+                        // Do everything we can to set the firepower to zero [JLL] Meaning, if there is a reason to set the firepower to 0 do so.  Such as missile, lack long, ROF, offline, etc.
+                        // Check if this is a missile battery which was taken care of earlier
+                        if(HasMissileWT(BE::Salvos[i].DataStr)) {
+                            BE::Salvos[i].MissileS = 0;
+                        }
+                    }
+                }
+            }
             break;
             case 1: // Defending fleet
             break;
            }
            // Check ForceID to print the correct message
            if(ForceID == 0) {
+              // TODO: Change AttBattleStr and DefBattleStr to a single local variable.  Unless these get added to later in the loop. (Written at the Salvos point)
               if(BE::AttBattleStr.size() > 0) {
                  reportFile << BE::AttBattleStr << "\n";                  
+              }
+              else {
               }
            }
         }
