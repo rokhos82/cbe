@@ -377,6 +377,52 @@ vector<string> GetBrackets(const string & special) {
     return brackets;
 }
 
+int GetROFDelayWT(const string & special) {
+    int res = -1;
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] GetROFDelayWT(\"" << special << "\")" << endl;
+    #endif
+
+    // Check for ROF tag first
+    int start = special.find("rof");
+    if(start != string::npos) {
+        // Now get the delay value of the tag
+        start = special.find(" ",start + 4);
+        int end = special.find(" ",start + 1);
+        res = stoi(special.substr(start,end - start + 1));
+    }
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] GetROFDelayWT(" << res << ")" << endl;
+    #endif
+
+    return res;
+}
+
+int GetROFRateWT(const string & special) {
+    int res = -1;
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] GetROFRateWT(\"" << special << "\")" << endl;
+    #endif
+
+    // Check for ROF tag first
+    int start = special.find("rof");
+    if(start != string::npos) {
+        // Now get the delay value of the tag
+        start = special.find(" ",start);
+        int end = special.find(" ",start + 1);
+        res = stoi(special.substr(start,end - start + 1));
+    }
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] GetROFRateWT(" << res << ")" << endl;
+    #endif
+
+    return res;
+}
+
 int GetTriHex(const string & digit) {
     int val = stoi(digit,0,36);
 
@@ -749,6 +795,26 @@ bool IsNoMove(const string & special) {
     return res;
 }
 
+bool IsOffline(const string & special) {
+    bool res = false;
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] IsOffline(\"" << special << "\")" << endl;
+    #endif
+
+    // IF the position of "DRIFTING" is NOT npos (no position)
+    if(special.find("offline") != string::npos) {
+        // Then it must be drifting
+        res = true;
+    }
+
+    #ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] IsOffline(" << res << ")" << endl;
+    #endif
+
+    return res;
+}
+
 bool IsSurprise(const string & special) {
     bool res = false;
 
@@ -764,6 +830,31 @@ bool IsSurprise(const string & special) {
     #ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] IsSurprise(" << res << ")" << endl;
     #endif
+
+    return res;
+}
+
+string RebuildBatteryTags(const string & special,const BE::SalvoInfo *salvos,int count) {
+    string res = "";
+    bool strip = false;
+
+    // First, strip out all of the old battery tags
+    for(int i = 0;i < special.size();i++) {
+        if(special[i] == '[') {
+            strip = true;
+        }
+        if(!strip) {
+            res  = res + special[i];
+        }
+        if(special[i] == ']') {
+            strip = false;
+        }
+    }
+
+    // Now build the new battery tags from the salvos
+    for(int i = 0;i < count;i++) {
+        res = res + salvos[i].DataStr;
+    }
 
     return res;
 }
@@ -2069,8 +2160,55 @@ void be_main() {
                         // Do everything we can to set the firepower to zero [JLL] Meaning, if there is a reason to set the firepower to 0 do so.  Such as missile, lack long, ROF, offline, etc.
                         // Check if this is a missile battery which was taken care of earlier
                         if(HasMissileWT(BE::Salvos[i].DataStr)) {
+                            BE::Salvos[i].MissileS = 0; // TODO: Can I move these checks to building the salvo array above?
+                        }
+                        // Check if the battery is offline
+                        else if(IsOffline(BE::Salvos[i].DataStr)) {
                             BE::Salvos[i].MissileS = 0;
                         }
+                        // Check for a firing delay in the ROF tag
+                        else if(GetROFDelayWT(BE::Salvos[i].DataStr) > 0) {
+                            BE::Salvos[i].MissileS = 0;
+                        }
+                        // Check if only LR attacks are valid and if the battery is NOT long
+                        else if((BE::AttHasLongRange || BE::DefHasLongRange) && !HasLongWT(BE::Salvos[i].DataStr)) {
+                            BE::Salvos[i].MissileS = 0;
+                        }
+                        // Check for reserve and artillery tags
+                        // TODO: Can't this be removed?  The checks before salvos are built should skip this
+                        else if(HasReserve(BE::SpecialA[B]) && !HasArtilleryWT(BE::Salvos[i].DataStr)) {
+                            BE::Salvos[i].MissileS = 0;
+                        }
+                        // Check if the battery needs ammo and has some
+                        else if(HasAmmoWT(BE::Salvos[i].DataStr) != CBE::AMMO_EMPTY) {
+                            BE::Salvos[i].MissileS = 0;
+                        }
+
+                        // Cycle weapons updating counters and removing offline tags
+                        // TODO: Check for offline tag first?
+                        BE::Salvos[i].DataStr = RemoveTag(BE::Salvos[i].DataStr,"offline",0);
+                        // Update the ROF tag if it is present
+                        int rate = GetROFRateWT(BE::Salvos[i].DataStr);
+                        if(rate > 0) {
+                            // Weapon is cycling using ROF rate
+                            int delay = GetROFDelayWT(BE::Salvos[i].DataStr);
+                            string newROF = "";
+                            if(delay > 0) {
+                                // Compute a new ROF tag by decrementing the delay value by 1.
+                                newROF = "rof " + to_string(rate) + " " + to_string(delay - 1);
+                            }
+                            else {
+                                // Compute a new ROF tag by setting the delay value to the rate value
+                                newROF = "rof " + to_string(rate) + " " + to_string(rate - 1);  // Minus 1 because a rate of 2 is fire every other turn
+                            }
+                            string temp = RemoveTag(BE::Salvos[i].DataStr,"rof",2); // Remove the old ROF tag
+                            temp = AddTag(temp,newROF); // Add the new ROF tag
+                            BE::Salvos[i].DataStr = temp;
+                        }
+
+                        // [JLL] Now that the salvo strings have been updated (offline & rof)
+                        // [JLL] rebuild the battery tags in the unit special string
+                        string temp = RebuildBatteryTags(BE::SpecialA[B],BE::Salvos,sc);
                     }
                 }
             }
