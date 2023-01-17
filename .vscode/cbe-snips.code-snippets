@@ -16,6 +16,7 @@
 	// 	"description": "Log output to console"
 	// }
 	"Debug Block": {
+		"scope": "cpp",
 		"prefix": "debug",
 		"body": [
 			"#ifdef CBE_DEBUG",
