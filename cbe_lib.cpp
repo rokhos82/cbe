@@ -4,33 +4,37 @@
 #include <fstream>
 #include <sstream>
 
-//#include "structs.h"
+// #include "structs.h"
 #include "cbe_lib.h"
 
 using namespace std;
 
-vector<vector<string>> loadCSVFile(string filename) {
+vector<vector<string>> loadCSVFile(string filename)
+{
     vector<vector<string>> content; // This is a 2-dimensional array (vector<vector>) of strings to hold all of the CSV content.
     // Setup and open the filestream
-    fstream file(filename,ios::in);
+    fstream file(filename, ios::in);
 
     // Test if the file is open
-    if(file.is_open()) {
+    if (file.is_open())
+    {
         // Yes, we openned the file
         // Now read each line
-        string line,word;
+        string line, word;
         vector<string> row;
 
         // Get each line of the file
-        while(getline(file,line)) {
+        while (getline(file, line))
+        {
             // Clear the row
             row.clear();
             // Convert the line to a stringstream
-            stringstream  str(line);
+            stringstream str(line);
 
             // Get each individual word separated by commas
             // Use getline() with a custom end-of-line character ','
-            while(getline(str,word,',')) {
+            while (getline(str, word, ','))
+            {
                 // Push the word into the current row
                 row.push_back(word);
             }
@@ -39,7 +43,8 @@ vector<vector<string>> loadCSVFile(string filename) {
             content.push_back(row);
         }
     }
-    else {
+    else
+    {
         // We could not open the file.  Let the user know.
         cerr << "Could not open file: " << filename << endl;
     }
@@ -48,27 +53,31 @@ vector<vector<string>> loadCSVFile(string filename) {
     return content;
 }
 
-vector<string> loadCSVFileRows(string filename) {
+vector<string> loadCSVFileRows(string filename)
+{
     vector<string> rows; // This is a 2-dimensional array (vector<vector>) of strings to hold all of the CSV content.
     // Setup and open the filestream
-    fstream file(filename,ios::in);
+    fstream file(filename, ios::in);
 
     // Test if the file is open
-    if(file.is_open()) {
+    if (file.is_open())
+    {
         // Yes, we openned the file
         // Now read each line
         string line;
 
         // Get each line of the file
-        while(getline(file,line)) {
+        while (getline(file, line))
+        {
             // Convert the line to a stringstream
-            stringstream  str(line);
+            stringstream str(line);
 
             // Push the current row into the content array
             rows.push_back(line);
         }
     }
-    else {
+    else
+    {
         // We could not open the file.  Let the user know.
         cerr << "Could not open file: " << filename << endl;
     }
@@ -77,10 +86,11 @@ vector<string> loadCSVFileRows(string filename) {
     return rows;
 }
 
-vector<string> parseCSVRow(string row) {
+vector<string> parseCSVRow(string row)
+{
     vector<string> parts;
     parts.clear();
-    //cout << "Row: " << row << endl;
+    // cout << "Row: " << row << endl;
 
     // Convert the line to a stringstream
     stringstream ss(row);
@@ -88,7 +98,8 @@ vector<string> parseCSVRow(string row) {
 
     // Get each individual word separated by commas
     // Use getline() with a custom end-of-line character ','
-    while(getline(ss,word,',')) {
+    while (getline(ss, word, ','))
+    {
         // Push the word into the current row
         parts.push_back(word);
     }
@@ -96,7 +107,8 @@ vector<string> parseCSVRow(string row) {
     return parts;
 }
 
-BE::UnitInfo parseUnit(string line) {
+BE::UnitInfo parseUnit(string line)
+{
     BE::UnitInfo unit;
 
     vector<string> parts = parseCSVRow(line);
@@ -114,15 +126,16 @@ BE::UnitInfo parseUnit(string line) {
     unit.Status = stol(parts[10]);
     unit.Ammo = stol(parts[11]);
     unit.Special = parts[12];
-    
+
     return unit;
 }
 
-BE::FleetInfo parseFleetHeader(string header) {
+BE::FleetInfo parseFleetHeader(string header)
+{
     BE::FleetInfo info;
 
     vector<string> parts = parseCSVRow(header);
-    
+
     // TODO: Test if the right number of parts are present
     info.RaceName = parts[0];
     info.FleetName = parts[1];
@@ -137,24 +150,29 @@ BE::FleetInfo parseFleetHeader(string header) {
     return info;
 }
 
-void debugPrintUnits() {
+void debugPrintUnits()
+{
     cout << "Number of attacking units: " << BE::AttShipsLeft << endl;
-    for(int i = 0;i < BE::AttShipsLeft;i++) {
+    for (int i = 0; i < BE::AttShipsLeft; i++)
+    {
         cout << "Att Unit: " << attShipStr(i) << endl;
     }
     cout << "Number of defending units: " << BE::DefShipsLeft << endl;
-    for(int i = 0;i < BE::DefShipsLeft;i++) {
+    for (int i = 0; i < BE::DefShipsLeft; i++)
+    {
         cout << "Def Unit: " << defShipStr(i) << endl;
     }
 }
 
-string attShipStr(int i) {
+string attShipStr(int i)
+{
     stringstream strm;
     strm << BE::AttShipStr[i] << "," << BE::MaxBeamA[i] << "," << BE::CurBeamA[i] << "," << BE::MaxShieldA[i] << "," << BE::CurShieldA[i];
     return strm.str();
 }
 
-string defShipStr(int i) {
+string defShipStr(int i)
+{
     stringstream strm;
     strm << BE::DefShipStr[i] << "," << BE::MaxBeamB[i];
     return strm.str();

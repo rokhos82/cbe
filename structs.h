@@ -4,8 +4,10 @@
 
 using std::string;
 
-namespace BE {
-    struct AttackInfo {
+namespace BE
+{
+    struct AttackInfo
+    {
         long AttackID;
         long TargetID;
         long Damage;
@@ -13,19 +15,22 @@ namespace BE {
         string Special;
     };
 
-    struct CombatInfo {
+    struct CombatInfo
+    {
         long firepower;
         long special;
         string tag;
     };
 
-    struct SalvoInfo {
+    struct SalvoInfo
+    {
         long MissileS;
         string DataStr;
     };
 
     // New Structs
-    struct FleetInfo {
+    struct FleetInfo
+    {
         string RaceName;
         string FleetName;
         long BreakOff;
@@ -37,7 +42,8 @@ namespace BE {
         long Reserve;
     };
 
-    struct UnitInfo{
+    struct UnitInfo
+    {
         string UnitName;
         long MaxBeam;
         long CurBeam;
@@ -63,7 +69,7 @@ namespace BE {
     extern long AttBreakOff, AttTargetBonus;
     extern long DefBreakOff, DefTargetBonus;
     extern long AttShipsLeft, AttFleetStrength;
-    extern long AttTargetPriority, AttIsCloaked; 
+    extern long AttTargetPriority, AttIsCloaked;
     extern long AttIsMixed;
     extern long AttSurprised, AttReserve;
     extern long DefShipsLeft, DefFleetStrength;
@@ -119,7 +125,7 @@ namespace BE {
     extern long CurDamA[9999];
     extern string SpecialA[9999];
     extern long BPAttackCritA[9999];
-    
+
     extern long CurBeamB[9999];
     extern long CurShieldB[9999];
     extern long CurTorpB[9999];
@@ -135,6 +141,7 @@ namespace BE {
     extern long CurDamB[9999];
     extern string SpecialB[9999];
     extern long BPAttackCritB[9999];
+    extern long ValidTargets[9999];
 
     extern string TempAttCritStr[9999];
     extern string TempDefCritStr[9999];

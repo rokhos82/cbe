@@ -7,15 +7,15 @@
 #include <stdlib.h>
 #include <limits>
 
-//#include "FleetInfo.h"
+// #include "FleetInfo.h"
 #include "flags.h"
 #include "structs.h"
 #include "cbe_lib.h"
 #include "cbe.h"
- 
+
 using namespace std;
 
-fstream CBE::debugFile = fstream("debug.txt",ios::out | ios::binary);
+fstream CBE::debugFile = fstream("debug.txt", ios::out | ios::binary);
 
 string BE::AttFleetStr = "", BE::AttRaceName = "", BE::AttFleetName = "";
 string BE::AttBattleStr = "", BE::AttDamageStr = "", BE::AttRetreatStr = "";
@@ -26,7 +26,7 @@ long BE::AttShipsTotal = 0, BE::DefShipsTotal = 0;
 long BE::AttBreakOff = 0, BE::AttTargetBonus = 0;
 long BE::DefBreakOff = 0, BE::DefTargetBonus = 0;
 long BE::AttShipsLeft = 0, BE::AttFleetStrength = 0;
-long BE::AttTargetPriority = 0, BE::AttIsCloaked = 0; 
+long BE::AttTargetPriority = 0, BE::AttIsCloaked = 0;
 long BE::AttIsMixed = 0;
 long BE::AttSurprised = 0, BE::AttReserve = 0;
 long BE::DefShipsLeft = 0, BE::DefFleetStrength = 0;
@@ -99,6 +99,7 @@ long BE::MaxHullB[9999];
 long BE::CurDamB[9999];
 string BE::SpecialB[9999];
 long BE::BPAttackCritB[9999];
+long BE::ValidTargets[9999];
 
 string BE::TempAttCritStr[9999];
 string BE::TempDefCritStr[9999];
@@ -142,18 +143,20 @@ bool BE::LoadA_ready = false, BE::LoadD_ready = false;
 bool BE::AttHasLongRange = false, BE::DefHasLongRange = false;
 string BE::GroupName = "Fleets", BE::UnitName = "Ships";
 
-void loadAttackingFleet(string fname) {
-    cout << "Loading attacking fleet from: " << fname << endl;
-    #ifdef CBE_DEBUG
+void loadAttackingFleet(string fname)
+{
+    std::cout << "Loading attacking fleet from: " << fname << endl;
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] Loading attacking fleet from: " << fname << endl;
-    #endif
+#endif
     BE::AttFleetStr = fname;
 
     fstream attFile;
-    attFile.open(BE::AttFleetStr,ios::in | ios::binary);
-    if(attFile.is_open()) {
+    attFile.open(BE::AttFleetStr, ios::in | ios::binary);
+    if (attFile.is_open())
+    {
         string line = "";
-        getline(attFile,line,'\n');
+        getline(attFile, line, '\n');
         BE::FleetInfo fleet = parseFleetHeader(line);
         BE::AttRaceName = fleet.RaceName;
         BE::AttFleetName = fleet.FleetName;
@@ -166,7 +169,8 @@ void loadAttackingFleet(string fname) {
         BE::AttReserve = fleet.Reserve;
 
         long numUnits = 0;
-        while(getline(attFile,line,'\n')) {
+        while (getline(attFile, line, '\n'))
+        {
             BE::UnitInfo unit = parseUnit(line);
 
             BE::AttShipStr[numUnits] = unit.UnitName;
@@ -183,7 +187,7 @@ void loadAttackingFleet(string fname) {
             BE::AmmoA[numUnits] = unit.Ammo;
             BE::SpecialA[numUnits] = unit.Special;
 
-            #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
             CBE::debugFile << "[INFO] Loading unit: "
                            << unit.UnitName << ","
                            << unit.MaxBeam << ","
@@ -198,36 +202,38 @@ void loadAttackingFleet(string fname) {
                            << unit.Status << ","
                            << unit.Ammo << ","
                            << unit.Special << endl;
-            #endif
+#endif
 
             numUnits++;
         }
 
         BE::AttShipsLeft = numUnits;
 
-        #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
         CBE::debugFile << "[INFO] Attacking Units Loaded: " << BE::AttShipsLeft << endl;
-        #endif
+#endif
 
         attFile.close();
 
-        cout << BE::AttShipsLeft << " units loaded." << endl;
+        std::cout << BE::AttShipsLeft << " units loaded." << endl;
         CBE::attackerLoaded = true;
     }
 }
 
-void loadDefendingFleet(string fname) {
-    cout << "Loading defending fleet from: " << fname << endl;
-    #ifdef CBE_DEBUG
+void loadDefendingFleet(string fname)
+{
+    std::cout << "Loading defending fleet from: " << fname << endl;
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] Loading defending fleet from: " << fname << endl;
-    #endif
+#endif
     BE::DefFleetStr = fname;
 
     fstream defFile;
-    defFile.open(BE::DefFleetStr,ios::in | ios::binary);
-    if(defFile.is_open()) {
+    defFile.open(BE::DefFleetStr, ios::in | ios::binary);
+    if (defFile.is_open())
+    {
         string line = "";
-        getline(defFile,line,'\n');
+        getline(defFile, line, '\n');
         BE::FleetInfo fleet = parseFleetHeader(line);
         BE::DefRaceName = fleet.RaceName;
         BE::DefFleetName = fleet.FleetName;
@@ -240,7 +246,8 @@ void loadDefendingFleet(string fname) {
         BE::DefReserve = fleet.Reserve;
 
         long numUnits = 0;
-        while(getline(defFile,line,'\n')) {
+        while (getline(defFile, line, '\n'))
+        {
             BE::UnitInfo unit = parseUnit(line);
 
             BE::DefShipStr[numUnits] = unit.UnitName;
@@ -257,7 +264,7 @@ void loadDefendingFleet(string fname) {
             BE::AmmoB[numUnits] = unit.Ammo;
             BE::SpecialB[numUnits] = unit.Special;
 
-            #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
             CBE::debugFile << "[INFO] Loaded unit: "
                            << unit.UnitName << ","
                            << unit.MaxBeam << ","
@@ -272,172 +279,302 @@ void loadDefendingFleet(string fname) {
                            << unit.Status << ","
                            << unit.Ammo << ","
                            << unit.Special << endl;
-            #endif
+#endif
 
             numUnits++;
         }
 
         BE::DefShipsLeft = numUnits;
 
-        #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
         CBE::debugFile << "[INFO] Defending Units Loaded: " << BE::DefShipsLeft << endl;
-        #endif
+#endif
 
         defFile.close();
 
         CBE::defenderLoaded = true;
-        cout << BE::DefShipsLeft << " units loaded." << endl;
+        std::cout << BE::DefShipsLeft << " units loaded." << endl;
     }
 }
 
-string AddTag(const string & source,const string & target) {
+string AddTag(const string &source, const string &target)
+{
     // Add the target tag to the source string and return the modified string.
     int start = 0;
     string res = "";
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] AddTag(source:\"" << source << "\",target:\"" << target << "\")" << endl;
-    #endif
+#endif
 
     // Find the target tag in the source string first...not sure what this is doing.  Maybe grouping similar tags?
     // Nope!  See the else block below.  Looks like targets are intended to be singltons.  Multiple OFFLINE tags was never implemented...
     start = source.find(target);
-    if(start == string::npos) {
+    if (start == string::npos)
+    {
         // The target does not exist in the source.
         // Check if the source starts with a bracket
-        if(*(source.begin()) == '[' && *(source.end()) == ']') {
+        if (*(source.begin()) == '[' && *(source.end()) == ']')
+        {
             // Yep, this is a weapon bracket
             // Now check if the target tag is uppercase
-            if(isupper(target[0])) {
+            if (isupper(target[0]))
+            {
                 // The target tag is upper case.  Make sure it goes OUTSIDE any brackets.
                 // This leads to an intersting case of being able to add a tag to a salvo string...
                 // Test for an ' ' at the end of the string first
-                if(*(source.end()) != ' ') {
+                if (*(source.end()) != ' ')
+                {
                     // Add the target tag to the end of the source string with a ' '
                     res = source + " " + target;
                 }
-                else {
+                else
+                {
                     // Just add the target tag to the end of the source string
                     res = source + target;
                 }
             }
-            else {
+            else
+            {
                 // The target tag is lower case.  It can go inside the bracket.
                 // We know that the ending character is ']'
-                res = source.substr(0,source.size()-1) + " " + target + "]";
+                res = source.substr(0, source.size() - 1) + " " + target + "]";
             }
         }
-        else {
+        else
+        {
             // Not a bracket so add to the end...working with strings is so dumb.
             // Check for a space and add if necessary.
-            if(*(source.end()) != ' ') {
+            if (*(source.end()) != ' ')
+            {
                 res = source + " " + target;
             }
-            else {
+            else
+            {
                 res = source + target;
             }
         }
     }
-    else {
+    else
+    {
         // The tag already exists.  Just return the original string.
         res = source; // Create a new string   Memory allocation is going to be a mess...
     }
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] AddTag(res:\"" << res << "\")" << endl;
-    #endif
+#endif
 
     return res;
 }
 
-vector<string> GetBrackets(const string & special) {
-    #ifdef CBE_DEBUG
+vector<string> GetBrackets(const string &special)
+{
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] GetBrackets(\"" << special << "\")" << endl;
-    #endif
+#endif
     // Setup the dynamic array for the return
     vector<string> brackets;
 
     // Is there an openning bracket in special?
     int old_start = special.find("[");
-    while(old_start != string::npos) {
+    while (old_start != string::npos)
+    {
         // Yes, save that location
         int start = old_start;
         // Get the next closing bracket
-        int start1 = special.find("]",start);
-        string bracket = special.substr(start,start1-start+1);
-        #ifdef CBE_DEBUG
+        int start1 = special.find("]", start);
+        string bracket = special.substr(start, start1 - start + 1);
+#ifdef CBE_DEBUG
         CBE::debugFile << "[INFO] GetBrackets(start:" << start << ";start1:" << start1 << ";bracket:\"" << bracket << "\")" << endl;
-        #endif
+#endif
         brackets.push_back(bracket);
         // Get the next openning bracket if it exists
-        old_start = special.find("[",start1);
+        old_start = special.find("[", start1);
     }
 
     // Return the bracket strings array
     return brackets;
 }
 
-int GetROFDelayWT(const string & special) {
+int GetDatalinkIndex(char label)
+{
+    int index = -1;
+
+    // Check if the label is A-Z
+    if (label >= 65 && label <= 90)
+    {
+    }
+}
+
+int GetROFDelayWT(const string &special)
+{
     int res = -1;
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] GetROFDelayWT(\"" << special << "\")" << endl;
-    #endif
+#endif
 
     // Check for ROF tag first
     int start = special.find("rof");
-    if(start != string::npos) {
+    if (start != string::npos)
+    {
         // Now get the delay value of the tag
-        start = special.find(" ",start + 4);
-        int end = special.find(" ",start + 1);
-        res = stoi(special.substr(start,end - start + 1));
+        start = special.find(" ", start + 4);
+        int end = special.find(" ", start + 1);
+        res = stoi(special.substr(start, end - start + 1));
     }
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] GetROFDelayWT(" << res << ")" << endl;
-    #endif
+#endif
 
     return res;
 }
 
-int GetROFRateWT(const string & special) {
+int GetROFRateWT(const string &special)
+{
     int res = -1;
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] GetROFRateWT(\"" << special << "\")" << endl;
-    #endif
+#endif
 
     // Check for ROF tag first
     int start = special.find("rof");
-    if(start != string::npos) {
+    if (start != string::npos)
+    {
         // Now get the delay value of the tag
-        start = special.find(" ",start);
-        int end = special.find(" ",start + 1);
-        res = stoi(special.substr(start,end - start + 1));
+        start = special.find(" ", start);
+        int end = special.find(" ", start + 1);
+        res = stoi(special.substr(start, end - start + 1));
     }
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] GetROFRateWT(" << res << ")" << endl;
-    #endif
+#endif
 
     return res;
 }
 
-int GetTriHex(const string & digit) {
-    int val = stoi(digit,0,36);
+/*
+ * =============================================================================
+ * GetRandomTarget returns the index for a randomly chosen target.
+ * =============================================================================
+ */
+int GetRandomTarget(int numTargets)
+{
+    // Generate the random index given the numTargets
+    int targetIndex = int(rand() * numTargets);
+    // Return that random index
+    return targetIndex;
+}
 
-    #ifdef CBE_DEBUG
+/*
+ * ============================================================================
+ * GetScanTarget returns the index for a randomly chosen target that meets the scan constraints
+ * [JLL] This is a complete rewrite of the original.  It was so convoluted
+ *  and had logic errors that I decided to scrap it.
+ * ============================================================================
+ */
+int GetScanTarget(int forceId, const string &UnitData, int UnitTarget, int UnitScope, int NumTargets)
+{
+    int ValidTarget = 0, TargetSize = 0;
+    string TargetData;
+    int ValidTargets[9999]; // FIXME: Change to dynamic array.  Most battles will not have 10k units.  Can use NumTargets!
+    int target = 0;
+
+    // Zero out valid target array
+    // FIXME: Change the upper bound to the same used in the dynamic array above.
+    for (int i = 0; i < 9999; i++)
+    {
+        ValidTargets[i] = 0;
+    }
+
+    string *targetsData;
+    long *targetsHull;
+    if (forceId == 0)
+    {
+        targetsData = BE::SpecialB;
+        targetsHull = BE::MaxHullB;
+    }
+    else
+    {
+        targetsData = BE::SpecialA;
+        targetsHull = BE::MaxHullA;
+    }
+
+    // Scan through all targets and build a list of valid targets
+    for (int i = 0; i < NumTargets; i++)
+    {
+        // Get the size and data for the possible target
+        TargetSize = targetsHull[i];
+        TargetData = targetsData[i];
+
+        // Is the target a missile? Those get skipped entirely
+        if (!IsMissile(TargetData))
+        {
+            // Nope, not a missile.  Not check if it fits in the scope
+            bool keeper = false;
+            // First, is the base negative?
+            if (UnitTarget < 0 && (TargetSize < (-UnitTarget - UnitScope) || TargetSize > (-UnitTarget + UnitScope)))
+            {
+                // Negative base means avoidance
+                // With avoidance we test for the TargetSize being lower than base-scope or higher than base+scope
+                // Since we are here, this is a keeper.
+                keeper = true;
+            }
+            else if (UnitTarget > 0 && (TargetSize >= (UnitTarget - UnitScope) && TargetSize <= (UnitTarget + UnitScope)))
+            {
+                // Positive base means priority
+                // With avoidance we test for the TargetSize being lower than base-scope or higher than base+scope
+                // Since we are here, this is a keeper.
+                keeper = true;
+            }
+
+            // Is this unit a keeper?
+            if (keeper)
+            {
+                ValidTargets[ValidTarget] = i;
+                ValidTarget++;
+            }
+        }
+    }
+
+    // Check if any valid targets were found
+    if (ValidTarget == 0)
+    {
+        // Roll a random target, from all available targets, since there are no valid targets
+        int targetIndex = GetRandomTarget(ValidTarget);
+        target = ValidTargets[targetIndex];
+    }
+    else
+    {
+        // Roll a random target from the list of valid targets
+        target = GetRandomTarget(NumTargets);
+    }
+
+    // Return the index of the targetted unit
+    return target;
+}
+
+int GetTriHex(const string &digit)
+{
+    int val = stoi(digit, 0, 36);
+
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] GetTriHex(\"" << digit << "\")" << endl;
-    #endif
+#endif
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] GetTriHex(" << val << ")" << endl;
-    #endif
+#endif
 
     return val;
 }
 
-int HasAmmoWT(const string & special) {
+int HasAmmoWT(const string &special)
+{
     // Possible return values
     // >0: Indicates that the special includes an ammo tag and returns the value of that tag
     // 0: Indicates that the special includes an ammo tag and that the value is 0
@@ -445,23 +582,25 @@ int HasAmmoWT(const string & special) {
     // TODO: Setup a set of constants to test against for clarity and consistancy
     int res = CBE::AMMO_EMPTY;
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] HasAmmoWT(\"" << special << "\")" << endl;
-    #endif
+#endif
 
     // Find the ammo tag and return it's starting position in the special string
     int start = special.find("ammo");
-    if(start != string::npos) {
-        int middle = special.find(" ",start);
-        int end = special.find(" ",middle+1);
+    if (start != string::npos)
+    {
+        int middle = special.find(" ", start);
+        int end = special.find(" ", middle + 1);
         int len = end - middle;
-        string ammo = special.substr(middle,len);
-        #ifdef CBE_DEBUG
+        string ammo = special.substr(middle, len);
+#ifdef CBE_DEBUG
         CBE::debugFile << "[INFO] HasAmmoWT(ammo:" << ammo << ")" << endl;
-        #endif
+#endif
         res = stoi(ammo);
     }
-    else {
+    else
+    {
         res = CBE::AMMO_INFINITE;
     }
 
@@ -469,100 +608,304 @@ int HasAmmoWT(const string & special) {
     return res;
 }
 
-bool HasArtilleryWT(const string & special) {
+bool HasArtilleryWT(const string &special)
+{
     bool res = false;
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] HasArtilleryWT(\"" << special << "\")" << endl;
-    #endif
+#endif
 
     // Look for `artillery` in the special string
     int start = special.find("artillery");
-    if(start != string::npos) {
+    if (start != string::npos)
+    {
         // Found it!  Set the result to TRUE
         res = true;
     }
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] HasArtilleryWT(" << res << ")" << endl;
-    #endif
+#endif
 
     return res;
 }
 
-int HasBatteries(const string & special) {
+int HasBatteries(const string &special)
+{
     int res = 0;
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] HasBatteries(\"" << special << "\")" << endl;
-    #endif
+#endif
 
-    for(int i = 0;i < special.length();i++) {
+    for (int i = 0; i < special.length(); i++)
+    {
         // Count the opening square brackers to determine number of batteries
-        if(special.at(i) == '[') {
+        if (special.at(i) == '[')
+        {
             res++;
         }
     }
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "HasBatteries(" << res << ")" << endl;
-    #endif
+#endif
 
     return res;
 }
 
-int HasDefense(const string & special) {
+bool HasBPWT(const string &special)
+{
+    bool res = false;
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasBPWT(\"" << special << "\")" << endl;
+#endif
+
+    // Look for `bp` in the special string
+    int start = special.find("bp");
+    if (start != string::npos)
+    {
+        // Found it!  Set the result to TRUE
+        res = true;
+    }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasBPWT(" << res << ")" << endl;
+#endif
+
+    return res;
+}
+
+bool HasDatalinkWT(const string &special, int &group)
+{
+    bool res = false;
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasDatalinkWT(\"" << special << "\")" << endl;
+#endif
+
+    // Look for `meson` in the special string
+    int start = special.find("dl ");
+    if (start != string::npos)
+    {
+        // Found it!  Set the result to TRUE
+        res = true;
+        // Now get the datalink group
+        start = special.find(" ", start);
+        int end = special.find(" ", start + 1);
+        char value = special.substr(start + 1, end - start)[0];
+        // Indices is thus:
+        // Index 0 << A = 65
+        // Index 1 << B = 66
+        // Index 26 << a = 97
+        // Index 27 << b = 98
+        if (value >= 65 && value <= 90)
+        {
+            // The datalink group is A-Z
+            group = value - 65;
+        }
+        else if (value >= 97 && value <= 122)
+        {
+            // The datalink group is a-z
+            group = value - 71;
+        }
+        else
+        {
+// Not a valid group label.
+// TODO: Throw an exception
+#ifdef CBE_DEBUG
+            CBE::debugFile << "[ERROR] HasDatalinkWT(): Datalink group label is invalid." << endl;
+#endif
+        }
+    }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasDatalinkWT(" << res << ")" << endl;
+#endif
+
+    return res;
+}
+
+bool HasCrackWT(const string &special)
+{
+    bool res = false;
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasCrackWT(\"" << special << "\")" << endl;
+#endif
+
+    // Look for `crack` in the special string
+    int start = special.find("crack");
+    if (start != string::npos)
+    {
+        // Found it!  Set the result to TRUE
+        res = true;
+    }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasCrackWT(" << res << ")" << endl;
+#endif
+
+    return res;
+}
+
+int HasDefense(const string &special)
+{
     int start = 0;
     int res = std::numeric_limits<int>::min(); // TODO: Replace with constant for consistancy and clarity.
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] HasDefense(\"" << special << "\")" << endl;
-    #endif
+#endif
 
     start = special.find("DEFENSE");
     // IF the position of DEFENSE is NOT no position
-    if(start != string::npos) {
+    if (start != string::npos)
+    {
         // Get the value of the defense tag and return it.
-        start = special.find(" ",start);
-        int end = special.find(" ",start+1);
-        res = stoi(special.substr(start+1,end - start + 1));
+        start = special.find(" ", start);
+        int end = special.find(" ", start + 1);
+        res = stoi(special.substr(start + 1, end - start + 1));
     }
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] HasDefense(" << res << ")" << endl;
-    #endif
+#endif
 
     return 0;
 }
 
-int HasDelay(const string & special) {
+int HasDelay(const string &special)
+{
     int start = 0;
     int res = -1;
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] HasDelay(special:\"" << special << "\")" << endl;
-    #endif
+#endif
 
     start = special.find("DELAY");
-    if(start != string::npos) {
-        int middle = special.find(" ",start);
-        int end = special.find(" ",middle+1);
+    if (start != string::npos)
+    {
+        int middle = special.find(" ", start);
+        int end = special.find(" ", middle + 1);
         int len = end - middle;
-        string delay = special.substr(middle,len);
-        #ifdef CBE_DEBUG
+        string delay = special.substr(middle, len);
+#ifdef CBE_DEBUG
         CBE::debugFile << "[INFO] HasDelay(delay:" << delay << ")" << endl;
-        #endif
+#endif
         res = stoi(delay);
     }
 
     return res;
 }
 
-bool HasLong(const string & special) {
+bool HasDisableWT(const string &special)
+{
+    bool res = false;
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasDisableWT(\"" << special << "\")" << endl;
+#endif
+
+    // Look for `dis` in the special string
+    int start = special.find("dis");
+    if (start != string::npos)
+    {
+        // Found it!  Set the result to TRUE
+        res = true;
+    }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasDisableWT(" << res << ")" << endl;
+#endif
+
+    return res;
+}
+
+bool HasFlakWT(const string &special)
+{
+    bool res = false;
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasFlakWT(\"" << special << "\")" << endl;
+#endif
+
+    // Look for `artillery` in the special string
+    int start = special.find("flak");
+    if (start != string::npos)
+    {
+        // Found it!  Set the result to TRUE
+        res = true;
+    }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasFlakWT(" << res << ")" << endl;
+#endif
+
+    return res;
+}
+
+bool HasHeatWT(const string &special)
+{
+    bool res = false;
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasHeatWT(\"" << special << "\")" << endl;
+#endif
+
+    // Look for `heat` in the special string
+    int start = special.find("heat");
+    if (start != string::npos)
+    {
+        // Found it!  Set the result to TRUE
+        res = true;
+    }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasHeatWT(" << res << ")" << endl;
+#endif
+
+    return res;
+}
+
+bool HasHull(const string &special, int &base, int &scope)
+{
+    bool res = false;
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasHull(\"" << special << "\")" << endl;
+#endif
+
+    // Look for `hull` in the special string
+    int start = special.find("hull");
+    if (start != string::npos)
+    {
+        // Found it!  Now get the base and the scope
+        res = true;
+        int mark1 = special.find(" ", start);
+        int mark2 = special.find(" ", mark1 + 1);
+        int mark3 = special.find(" ", mark2 + 1);
+        base = stoi(special.substr(mark1, mark2 - mark1 + 1));
+        scope = stoi(special.substr(mark2, mark3 - mark2 + 1));
+    }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasHull(" << res << ")" << endl;
+#endif
+
+    return res;
+}
+
+bool HasLong(const string &special)
+{
     bool res = false;
 
     // IF the position of "LONG" is NOT npos (no position)
-    if(special.find("LONG") != string::npos) {
+    if (special.find("LONG") != string::npos)
+    {
         // The it must be a long range weapons
         res = true;
     }
@@ -570,11 +913,13 @@ bool HasLong(const string & special) {
     return res;
 }
 
-bool HasLongWT(const string & special) {
+bool HasLongWT(const string &special)
+{
     bool res = false;
 
     // IF the position of "long" is NOT npos (no position)
-    if(special.find("long") != string::npos) {
+    if (special.find("long") != string::npos)
+    {
         // Then it must have a long range weapon bracket
         res = true;
     }
@@ -582,89 +927,244 @@ bool HasLongWT(const string & special) {
     return res;
 }
 
-bool HasMissileWT(const string & special) {
+bool HasMesonWT(const string &special)
+{
     bool res = false;
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasMesonWT(\"" << special << "\")" << endl;
+#endif
+
+    // Look for `meson` in the special string
+    int start = special.find("meson");
+    if (start != string::npos)
+    {
+        // Found it!  Set the result to TRUE
+        res = true;
+    }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasMesonWT(" << res << ")" << endl;
+#endif
+
+    return res;
+}
+
+bool HasMissileWT(const string &special)
+{
+    bool res = false;
+
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] HasMissileWT(\"" << special << "\")" << endl;
-    #endif
+#endif
 
     int start = special.find("mis");
 
     // IF the position of "mis" is NOT npos (no position)
-    if(start != string::npos) {
+    if (start != string::npos)
+    {
         // Then it must have a mis tag in a bracket
         res = true;
 
         // This part is ridiculous...
-        string B = special.substr(start + 3,1);
-        string S = special.substr(start + 4,1);
-        string T = special.substr(start + 5,1);
-        string H = special.substr(start + 6,1);
+        string B = special.substr(start + 3, 1);
+        string S = special.substr(start + 4, 1);
+        string T = special.substr(start + 5, 1);
+        string H = special.substr(start + 6, 1);
         BE::MissileB = GetTriHex(B);
         BE::MissileS = GetTriHex(S);
         BE::MissileT = GetTriHex(T);
         BE::MissileH = GetTriHex(H);
     }
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] HasMissileWT(" << res << ")" << endl;
-    #endif
+#endif
 
     return res;
 }
 
-int HasReserve(const string & special) {
-    #ifdef CBE_DEBUG
+int HasMultiWT(const string &special)
+{
+    int res = -1; // TODO: Use a constant here
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasMultiWT(\"" << special << "\")" << endl;
+#endif
+
+    // Look for `multi` in the special string
+    int start = special.find("multi");
+    if (start != string::npos)
+    {
+        // Found it!  Now get the packet size
+        start = special.find(" ", start);
+        int end = special.find(" ", start + 1);
+        res = stoi(special.substr(start, end - start + 1));
+    }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasMultiWT(" << res << ")" << endl;
+#endif
+
+    return res;
+}
+
+bool HasPenWT(const string &special)
+{
+    bool res = false;
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasPenWT(\"" << special << "\")" << endl;
+#endif
+
+    // Look for `pen` in the special string
+    int start = special.find("pen");
+    if (start != string::npos)
+    {
+        // Found it!  Set the result to TRUE
+        res = true;
+    }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasPenWT(" << res << ")" << endl;
+#endif
+
+    return res;
+}
+
+int HasReserve(const string &special)
+{
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] HasReserve(special:\"" << special << "\")" << endl;
-    #endif
+#endif
     int res = -1;
 
     // Look for the starting position of "RESERVE"
     int start = special.find("RESERVE");
-    if(start != string::npos) {
-        int middle = special.find(" ",start);
-        int end = special.find(" ",middle+1);
+    if (start != string::npos)
+    {
+        int middle = special.find(" ", start);
+        int end = special.find(" ", middle + 1);
         int len = end - middle;
-        string reserve = special.substr(middle,len);
-        #ifdef CBE_DEBUG
+        string reserve = special.substr(middle, len);
+#ifdef CBE_DEBUG
         CBE::debugFile << "[INFO] HasReserve(reserve:" << reserve << ")" << endl;
-        #endif
+#endif
         res = stoi(reserve);
     }
 
     return res;
 }
 
-int HasTarget(const string & special) {
+bool HasScan(const string &special, int &base, int &scope)
+{
+    bool res = false;
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasScan(\"" << special << "\")" << endl;
+#endif
+
+    // Look for `hull` in the special string
+    int start = special.find("scan");
+    if (start != string::npos)
+    {
+        // Found it!  Now get the base and the scope
+        res = true;
+        int mark1 = special.find(" ", start);
+        int mark2 = special.find(" ", mark1 + 1);
+        int mark3 = special.find(" ", mark2 + 1);
+        base = stoi(special.substr(mark1, mark2 - mark1 + 1));
+        scope = stoi(special.substr(mark2, mark3 - mark2 + 1));
+    }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasScan(" << res << ")" << endl;
+#endif
+
+    return res;
+}
+
+int HasSpecialWT(const string &special)
+{
+    int res = -1; // TODO: Replace with constant for consistancy and clarity
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasSpecialWT(\"" << special << "\")" << endl;
+#endif
+
+    // Look for `special` in the special string
+    int start = special.find("special");
+    if (start != string::npos)
+    {
+        // Found it!  Now get the special table ID
+        start = special.find(" ", start);
+        int end = special.find(" ", start + 1);
+        res = stoi(special.substr(start, end - start + 1));
+    }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasSpecialWT(" << res << ")" << endl;
+#endif
+
+    return res;
+}
+
+int HasTarget(const string &special)
+{
     int start = 0;
     int res = std::numeric_limits<int>::min(); // TODO: Replace with constant for consistancy and clarity. TODO: Use negative infinity or at least min()
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] HasTarget(\"" << special << "\")" << endl;
-    #endif
+#endif
 
     start = special.find("TARGET");
     // IF the position of DEFENSE is NOT no position
-    if(start != string::npos) {
+    if (start != string::npos)
+    {
         // Get the value of the defense tag and return it.
-        start = special.find(" ",start);
-        int end = special.find(" ",start+1);
-        res = stoi(special.substr(start+1,end - start + 1));
+        start = special.find(" ", start);
+        int end = special.find(" ", start + 1);
+        res = stoi(special.substr(start + 1, end - start + 1));
     }
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] HasTarget(" << res << ")" << endl;
-    #endif
+#endif
 
     return 0;
 }
 
-bool IsMissile(const string & special) {
+bool HasVibroWT(const string &special)
+{
+    bool res = false;
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasVibroWT(\"" << special << "\")" << endl;
+#endif
+
+    // Look for `vibro` in the special string
+    int start = special.find("vibro");
+    if (start != string::npos)
+    {
+        // Found it!  Set the result to TRUE
+        res = true;
+    }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasVibroWT(" << res << ")" << endl;
+#endif
+
+    return res;
+}
+
+bool IsMissile(const string &special)
+{
     bool res = false;
 
     // If the position of "MSL" is NOT npos
-    if(special.find("MSL") != string::npos) {
+    if (special.find("MSL") != string::npos)
+    {
         // Then it must be a missile
         res = true;
     }
@@ -672,11 +1172,13 @@ bool IsMissile(const string & special) {
     return res;
 }
 
-bool IsCaptured(const string & special) {
+bool IsCaptured(const string &special)
+{
     bool res = false;
 
     // IF the position of "CAPTURED" is NOT npos (no position)
-    if(special.find("CAPTURED") != string::npos) {
+    if (special.find("CAPTURED") != string::npos)
+    {
         // Then it must be captured
         res = true;
     }
@@ -684,11 +1186,13 @@ bool IsCaptured(const string & special) {
     return res;
 }
 
-bool IsCloak(const string & special) {
+bool IsCloak(const string &special)
+{
     bool res = false;
 
     // IF the position of "CLOAK" is NOT npos (no position)
-    if(special.find("CLOAK") != string::npos) {
+    if (special.find("CLOAK") != string::npos)
+    {
         // The it must be cloaked
         res = true;
     }
@@ -696,11 +1200,13 @@ bool IsCloak(const string & special) {
     return res;
 }
 
-bool IsCrippled(const string & special) {
+bool IsCrippled(const string &special)
+{
     bool res = false;
 
     // IF the position of "CRIPPLE" is NOT npos (no position)
-    if(special.find("CRIPPLE") != string::npos) {
+    if (special.find("CRIPPLE") != string::npos)
+    {
         // Then it must be crippled
         res = true;
     }
@@ -708,34 +1214,38 @@ bool IsCrippled(const string & special) {
     return res;
 }
 
-bool IsDrifting(const string & special) {
+bool IsDrifting(const string &special)
+{
     bool res = false;
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] IsDrifting(\"" << special << "\")" << endl;
-    #endif
+#endif
 
     // IF the position of "DRIFTING" is NOT npos (no position)
-    if(special.find("DRIFTING") != string::npos) {
+    if (special.find("DRIFTING") != string::npos)
+    {
         // Then it must be drifting
         res = true;
     }
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] IsDrifting(" << res << ")" << endl;
-    #endif
+#endif
 
     return res;
 }
 
-bool IsFighter(const string & special) {
+bool IsFighter(const string &special)
+{
     bool res = false;
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] IsFighter(" << special << ")" << endl;
-    #endif
+#endif
 
     // IF the position of "FIGHTER" is NOT npos (no position)
-    if(special.find("FIGHTER") != string::npos) {
+    if (special.find("FIGHTER") != string::npos)
+    {
         // Then it must be a fighter
         res = true;
     }
@@ -743,11 +1253,13 @@ bool IsFighter(const string & special) {
     return res;
 }
 
-bool IsFled(const string & special) {
+bool IsFled(const string &special)
+{
     bool res = false;
 
     // IF the position of "FLED" is NOT npos (no position)
-    if(special.find("FLED") != string::npos) {
+    if (special.find("FLED") != string::npos)
+    {
         // Then it must be fled
         res = true;
     }
@@ -755,248 +1267,360 @@ bool IsFled(const string & special) {
     return res;
 }
 
-bool IsFlee(const string & special) {
+bool IsFlee(const string &special)
+{
     bool res = false;
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] IsFlee(\"" << special << "\")" << endl;
-    #endif
+#endif
 
     // IF the position of "DRIFTING" is NOT npos (no position)
-    if(special.find("FLEE") != string::npos) {
+    if (special.find("FLEE") != string::npos)
+    {
         // Then it must be drifting
         res = true;
     }
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] IsFlee(" << res << ")" << endl;
-    #endif
+#endif
 
     return res;
 }
 
-bool IsNoMove(const string & special) {
+bool IsGlobal(const string &special)
+{
     bool res = false;
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] IsGlobal(\"" << special << "\")" << endl;
+#endif
+
+    // Look for `pen` in the special string
+    int start = special.find("global");
+    if (start != string::npos)
+    {
+        // Found it!  Set the result to TRUE
+        res = true;
+    }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] IsGlobal(" << res << ")" << endl;
+#endif
+
+    return res;
+}
+
+bool IsNoMove(const string &special)
+{
+    bool res = false;
+
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] IsNoMove(\"" << special << "\")" << endl;
-    #endif
+#endif
 
     // IF the position of "DRIFTING" is NOT npos (no position)
-    if(special.find("NOMOVE") != string::npos) {
+    if (special.find("NOMOVE") != string::npos)
+    {
         // Then it must be drifting
         res = true;
     }
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] IsNoMove(" << res << ")" << endl;
-    #endif
+#endif
 
     return res;
 }
 
-bool IsOffline(const string & special) {
+bool IsOffline(const string &special)
+{
     bool res = false;
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] IsOffline(\"" << special << "\")" << endl;
-    #endif
+#endif
 
     // IF the position of "DRIFTING" is NOT npos (no position)
-    if(special.find("offline") != string::npos) {
+    if (special.find("offline") != string::npos)
+    {
         // Then it must be drifting
         res = true;
     }
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] IsOffline(" << res << ")" << endl;
-    #endif
+#endif
 
     return res;
 }
 
-bool IsSurprise(const string & special) {
+bool IsSurprise(const string &special)
+{
     bool res = false;
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] IsSurprise(special:\"" << special << "\")" << endl;
-    #endif
+#endif
 
     // IF the position of "SURPRISE" is NOT npos (no position)
-    if(special.find("SURPRISE") != string::npos) {
+    if (special.find("SURPRISE") != string::npos)
+    {
         res = true;
     }
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] IsSurprise(" << res << ")" << endl;
-    #endif
+#endif
 
     return res;
 }
 
-string RebuildBatteryTags(const string & special,const BE::SalvoInfo *salvos,int count) {
+string RebuildBatteryTags(const string &special, const BE::SalvoInfo *salvos, int count)
+{
     string res = "";
     bool strip = false;
 
     // First, strip out all of the old battery tags
-    for(int i = 0;i < special.size();i++) {
-        if(special[i] == '[') {
+    for (int i = 0; i < special.size(); i++)
+    {
+        if (special[i] == '[')
+        {
             strip = true;
         }
-        if(!strip) {
-            res  = res + special[i];
+        if (!strip)
+        {
+            res = res + special[i];
         }
-        if(special[i] == ']') {
+        if (special[i] == ']')
+        {
             strip = false;
         }
     }
 
     // Now build the new battery tags from the salvos
-    for(int i = 0;i < count;i++) {
+    for (int i = 0; i < count; i++)
+    {
         res = res + salvos[i].DataStr;
     }
 
     return res;
 }
 
-string RemoveTag(const string & source,const string & target,int num_fields) {
+string RemoveTag(const string &source, const string &target, int num_fields)
+{
     // Remove the `target` tag from the `source` string and return a new string
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] RemoveTag(source:\"" << source << "\";target:\"" << target << "\";num_fields:" << num_fields << ")" << endl;
-    #endif
+#endif
 
     int A = 0, start = 0, end_tag = 0, tag1 = 0, tag2 = 0;
     string res = "";
 
     start = source.find(target);
-    if(start != string::npos) {
-        end_tag = source.find(" ",start + 1);
-        if(end_tag == string::npos) {
+    if (start != string::npos)
+    {
+        end_tag = source.find(" ", start + 1);
+        if (end_tag == string::npos)
+        {
             end_tag = source.length();
         }
         // If the tag has at least 1 field, search for the next " " character
-        if(num_fields > 0) {
-            end_tag = source.find(" ",end_tag + 1);
-            if(end_tag == string::npos) {
+        if (num_fields > 0)
+        {
+            end_tag = source.find(" ", end_tag + 1);
+            if (end_tag == string::npos)
+            {
                 end_tag = source.length();
             }
         }
         // If the tag has at least 2 fields, search for the next " " character again
-        if(num_fields > 1) {
-            end_tag = source.find(" ",end_tag + 1);
-            if(end_tag == string::npos) {
+        if (num_fields > 1)
+        {
+            end_tag = source.find(" ", end_tag + 1);
+            if (end_tag == string::npos)
+            {
                 end_tag = source.length();
             }
         }
 
-        #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
         CBE::debugFile << "[INFO] RemoveTag(start:" << start << ";end_tag:" << end_tag << ")" << endl;
-        #endif
+#endif
         // Get the "left" portion of the source string
-        string left = source.substr(0,start-1);
-        #ifdef CBE_DEBUG
+        string left = source.substr(0, start - 1);
+#ifdef CBE_DEBUG
         CBE::debugFile << "[INFO] RemoveTag(left:\"" << left << "\")" << endl;
-        #endif
+#endif
         // Get the "right" portion of the source string
         string right = "";
-        if(end_tag < source.length()) {
+        if (end_tag < source.length())
+        {
             right = source.substr(end_tag);
-            #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
             CBE::debugFile << "[INFO] RemoveTag(right:\"" << right << "\")" << endl;
-            #endif
+#endif
         }
         // Splice left and right together
         res = left + right;
-        
+
         // Fix weapon tags that have lost their closing bracket because of inserted spaces
         // we have to count the number of opening and closing brackets
         // Don't do the check if the first character is NOT '['
-        if(res.at(0) == '[') {
-            for(int i = 0;i < res.length();i++) {
+        if (res.at(0) == '[')
+        {
+            for (int i = 0; i < res.length(); i++)
+            {
                 // Check if the character is a '['
-                if(res.at(i) == '[') {
+                if (res.at(i) == '[')
+                {
                     tag1++;
                 }
                 // Check if the character is a ']'
-                else if(res.at(i) == ']') {
+                else if (res.at(i) == ']')
+                {
                     tag2++;
                 }
             }
-            if(tag1 > tag2) {
+            if (tag1 > tag2)
+            {
                 res = res + "]";
             }
         }
     }
-    else {
+    else
+    {
         // The target tag does not exist, just return the original source string
         res = source;
     }
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] RemoveTag(res:\"" << res << "\")" << endl;
-    #endif
+#endif
 
     return res;
 }
 
-void writeTempFiles() {
+int SetFlagsWT(const string &special, int bit_flag)
+{
+
+    // Check for `dis`
+    if (HasDisableWT(special))
+    {
+        bit_flag = bit_flag | BE::saDis;
+    }
+
+    // Check for `heat`
+    if (HasHeatWT(special))
+    {
+        bit_flag = bit_flag | BE::saHeat;
+    }
+
+    // Check for `meson`
+    if (HasMesonWT(special))
+    {
+        bit_flag = bit_flag | BE::saMeson;
+    }
+
+    // Check for `vibro`
+    if (HasVibroWT(special))
+    {
+        bit_flag = bit_flag | BE::saVibro;
+    }
+
+    // Check for `crack`
+    if (HasCrackWT(special))
+    {
+        bit_flag = bit_flag | BE::saCrack;
+    }
+
+    // Check for `bp`
+    if (HasBPWT(special))
+    {
+        bit_flag = bit_flag | BE::saBp;
+    }
+
+    // Check for `pen`
+    if (HasPenWT(special))
+    {
+        bit_flag = bit_flag | BE::saPen;
+    }
+
+    // Check for `special`
+    if (HasSpecialWT(special) > 0)
+    {
+        bit_flag = bit_flag | BE::saSpecial;
+    }
+
+    return bit_flag;
+}
+
+void writeTempFiles()
+{
     long old_AttShipsLeft = 0;
     long old_DefShipsLeft = 0;
 
     old_AttShipsLeft = BE::AttShipsLeft; // TODO: Move to variable declaration.
     old_DefShipsLeft = BE::DefShipsLeft; // TODO: Move to variable declaration.
 
-    #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
     CBE::debugFile << "############################## WRITE TEMP FILES ##############################" << endl;
     CBE::debugFile << "[INFO] CombatRound: " << BE::CombatRound << "; Attackers: " << old_AttShipsLeft << "; Defenders: " << old_DefShipsLeft << endl;
-    #endif
+#endif
 
     // Write the Working and Temp files
 
     // Find Dead and Fled Ships
     ofstream attFledFile;
-    attFledFile.open("fled_att.csv",ios::out | ios::binary | ios::app);
-    #ifdef CBE_DEBUG
+    attFledFile.open("fled_att.csv", ios::out | ios::binary | ios::app);
+#ifdef CBE_DEBUG
     CBE::debugFile << "##### PROCESSING FLED ATTACKERS " << BE::AttShipsLeft << " #####" << endl;
-    #endif
-    for(int i = 0;i < old_AttShipsLeft;i++) {
+#endif
+    for (int i = 0; i < old_AttShipsLeft; i++)
+    {
         // IF the current ships hull is less than 1 OR (the current ship is a missile AND the combat round greater than 0)
         // This clears out dead ships and missiles from the ships list/array
-        if(BE::CurHullA[i] < 1 || (IsMissile(BE::SpecialA[i]) && BE::CombatRound > 0)) {
+        if (BE::CurHullA[i] < 1 || (IsMissile(BE::SpecialA[i]) && BE::CombatRound > 0))
+        {
             BE::AttShipsLeft = BE::AttShipsLeft - 1;
-            // TODO: Add writing to a att_dead.csv file
-            #ifdef CBE_DEBUG
+// TODO: Add writing to a att_dead.csv file
+#ifdef CBE_DEBUG
             CBE::debugFile << "[INFO] DEAD/MISSILE: " << BE::AttShipStr[i] << endl;
-            #endif
+#endif
         }
         // ELSE non-dead ships that are not missiles
-        else {
+        else
+        {
             // IF NOT a captured unit AND NOT a crippled unit
-            if(!IsCaptured(BE::SpecialA[i]) && !IsCrippled(BE::SpecialA[i])) {
+            if (!IsCaptured(BE::SpecialA[i]) && !IsCrippled(BE::SpecialA[i]))
+            {
                 // IF the unit has fled
                 // Units that have been marked as fled but are captured or cripple never get considered fled.
-                if(IsFled(BE::SpecialA[i])) {
+                if (IsFled(BE::SpecialA[i]))
+                {
                     BE::AttShipsLeft = BE::AttShipsLeft - 1;
-                    attFledFile << BE::AttShipStr[i] << "," 
-                                << BE::MaxBeamA[i] << "," 
-                                << BE::CurBeamA[i] << "," 
-                                << BE::MaxShieldA[i] << "," 
-                                << BE::CurShieldA[i] << "," 
-                                << BE::MaxTorpA[i] << "," 
-                                << BE::CurTorpA[i] << "," 
-                                << BE::MaxHullA[i] << "," 
-                                << BE::CurHullA[i] << "," 
-                                << BE::CurDamA[i] << "," 
-                                << BE::StatusA[i] << "," 
-                                << BE::AmmoA[i] << "," 
+                    attFledFile << BE::AttShipStr[i] << ","
+                                << BE::MaxBeamA[i] << ","
+                                << BE::CurBeamA[i] << ","
+                                << BE::MaxShieldA[i] << ","
+                                << BE::CurShieldA[i] << ","
+                                << BE::MaxTorpA[i] << ","
+                                << BE::CurTorpA[i] << ","
+                                << BE::MaxHullA[i] << ","
+                                << BE::CurHullA[i] << ","
+                                << BE::CurDamA[i] << ","
+                                << BE::StatusA[i] << ","
+                                << BE::AmmoA[i] << ","
                                 << BE::SpecialA[i] << "\n";
                 }
             }
-            else {
-                #ifdef CBE_DEBUG
+            else
+            {
+#ifdef CBE_DEBUG
                 CBE::debugFile << "[INFO] CAPTURE/CRIPPLE: " << BE::AttShipStr[i] << endl;
-                #endif
+#endif
             }
         }
     }
@@ -1006,50 +1630,54 @@ void writeTempFiles() {
 
     // Open TempAFile here
     ofstream tempAFile;
-    tempAFile.open(BE::TempAFile,ios::out | ios::binary | ios::trunc);
-    #ifdef CBE_DEBUG
+    tempAFile.open(BE::TempAFile, ios::out | ios::binary | ios::trunc);
+#ifdef CBE_DEBUG
     CBE::debugFile << "##### PROCESSING OTHER ATTACKERS " << BE::AttShipsLeft << " #####" << endl;
-    #endif
+#endif
     // Write the header to the fleet file here (TempAFile)
     tempAFile << BE::AttRaceName << "," << BE::AttFleetName << "," << BE::AttBreakOff << "," << BE::AttShipsTotal << "," << BE::AttFleetStrength << "," << BE::AttShipsLeft << "," << BE::AttTargetBonus << "," << BE::AttTargetPriority << "," << BE::AttReserve << "\n";
-    if(BE::AttShipsLeft > 0) {
-        for(int i = 0;i < old_AttShipsLeft;i++) {
-            #ifdef CBE_DEBUG
-            CBE::debugFile << BE::AttShipStr[i] << "," 
-                          << BE::MaxBeamA[i] << "," 
-                          << BE::CurBeamA[i] << "," 
-                          << BE::MaxShieldA[i] << "," 
-                          << BE::CurShieldA[i] << "," 
-                          << BE::MaxTorpA[i] << "," 
-                          << BE::CurTorpA[i] << "," 
-                          << BE::MaxHullA[i] << "," 
-                          << BE::CurHullA[i] << "," 
-                          << BE::CurDamA[i] << "," 
-                          << BE::StatusA[i] << "," 
-                          << BE::AmmoA[i] << "," 
-                          << BE::SpecialA[i] << "\n";
-            #endif
+    if (BE::AttShipsLeft > 0)
+    {
+        for (int i = 0; i < old_AttShipsLeft; i++)
+        {
+#ifdef CBE_DEBUG
+            CBE::debugFile << BE::AttShipStr[i] << ","
+                           << BE::MaxBeamA[i] << ","
+                           << BE::CurBeamA[i] << ","
+                           << BE::MaxShieldA[i] << ","
+                           << BE::CurShieldA[i] << ","
+                           << BE::MaxTorpA[i] << ","
+                           << BE::CurTorpA[i] << ","
+                           << BE::MaxHullA[i] << ","
+                           << BE::CurHullA[i] << ","
+                           << BE::CurDamA[i] << ","
+                           << BE::StatusA[i] << ","
+                           << BE::AmmoA[i] << ","
+                           << BE::SpecialA[i] << "\n";
+#endif
             // IF the current ships hull is less than 1 OR the ship is fled OR (the ships is a missile AND the combat round is greater than 0)
-            if(BE::CurHullA[i] < 1 || IsFled(BE::SpecialA[i]) || (IsMissile(BE::SpecialA[i]) && BE::CombatRound > 0)) {
-                // Do nothing as this ship is either dead, fled, or a missile
-                #ifdef CBE_DEBUG
+            if (BE::CurHullA[i] < 1 || IsFled(BE::SpecialA[i]) || (IsMissile(BE::SpecialA[i]) && BE::CombatRound > 0))
+            {
+// Do nothing as this ship is either dead, fled, or a missile
+#ifdef CBE_DEBUG
                 CBE::debugFile << "[INFO] DEAD/FLED/MSL: " << BE::AttShipStr[i] << endl;
-                #endif
+#endif
             }
-            else {
+            else
+            {
                 // Write this ship to the TempAFile csv
-                tempAFile << BE::AttShipStr[i] << "," 
-                          << BE::MaxBeamA[i] << "," 
-                          << BE::CurBeamA[i] << "," 
-                          << BE::MaxShieldA[i] << "," 
-                          << BE::CurShieldA[i] << "," 
-                          << BE::MaxTorpA[i] << "," 
-                          << BE::CurTorpA[i] << "," 
-                          << BE::MaxHullA[i] << "," 
-                          << BE::CurHullA[i] << "," 
-                          << BE::CurDamA[i] << "," 
-                          << BE::StatusA[i] << "," 
-                          << BE::AmmoA[i] << "," 
+                tempAFile << BE::AttShipStr[i] << ","
+                          << BE::MaxBeamA[i] << ","
+                          << BE::CurBeamA[i] << ","
+                          << BE::MaxShieldA[i] << ","
+                          << BE::CurShieldA[i] << ","
+                          << BE::MaxTorpA[i] << ","
+                          << BE::CurTorpA[i] << ","
+                          << BE::MaxHullA[i] << ","
+                          << BE::CurHullA[i] << ","
+                          << BE::CurDamA[i] << ","
+                          << BE::StatusA[i] << ","
+                          << BE::AmmoA[i] << ","
                           << BE::SpecialA[i] << "\n";
             }
         }
@@ -1062,44 +1690,50 @@ void writeTempFiles() {
     //      This may need to wait until I have restructed the fleet data into objects
     // Find Dead and Fled Ships
     ofstream defFledFile;
-    defFledFile.open("fled_def.csv",ios::out | ios::binary | ios::app);
-    #ifdef CBE_DEBUG
+    defFledFile.open("fled_def.csv", ios::out | ios::binary | ios::app);
+#ifdef CBE_DEBUG
     CBE::debugFile << "##### PROCESSING FLED DEFENDERS " << BE::DefShipsLeft << " #####" << endl;
-    #endif
-    for(int i = 0;i < old_DefShipsLeft;i++) {
+#endif
+    for (int i = 0; i < old_DefShipsLeft; i++)
+    {
         // IF the current ships hull is less than 1 OR (the current ship is a missile AND the combat round greater than 0)
         // This clears out dead ships and missiles from the ships list/array
-        if(BE::CurHullB[i] < 1 || (IsMissile(BE::SpecialB[i]) && BE::CombatRound > 0)) {
+        if (BE::CurHullB[i] < 1 || (IsMissile(BE::SpecialB[i]) && BE::CombatRound > 0))
+        {
             BE::DefShipsLeft = BE::DefShipsLeft - 1;
             // TODO: Add writing to a att_dead.csv file
         }
         // ELSE non-dead ships that are not missiles
-        else {
+        else
+        {
             // IF NOT a captured unit AND NOT a crippled unit
-            if(!IsCaptured(BE::SpecialB[i]) && !IsCrippled(BE::SpecialB[i])) {
+            if (!IsCaptured(BE::SpecialB[i]) && !IsCrippled(BE::SpecialB[i]))
+            {
                 // IF the unit has fled
                 // Units that have been marked as fled but are captured or cripple never get considered fled.
-                if(IsFled(BE::SpecialB[i])) {
+                if (IsFled(BE::SpecialB[i]))
+                {
                     BE::DefShipsLeft = BE::DefShipsLeft - 1;
-                    defFledFile << BE::DefShipStr[i] << "," 
-                                << BE::MaxBeamB[i] << "," 
-                                << BE::CurBeamB[i] << "," 
-                                << BE::MaxShieldB[i] << "," 
-                                << BE::CurShieldB[i] << "," 
-                                << BE::MaxTorpB[i] << "," 
-                                << BE::CurTorpB[i] << "," 
-                                << BE::MaxHullB[i] << "," 
-                                << BE::CurHullB[i] << "," 
-                                << BE::CurDamB[i] << "," 
-                                << BE::StatusB[i] << "," 
-                                << BE::AmmoB[i] << "," 
+                    defFledFile << BE::DefShipStr[i] << ","
+                                << BE::MaxBeamB[i] << ","
+                                << BE::CurBeamB[i] << ","
+                                << BE::MaxShieldB[i] << ","
+                                << BE::CurShieldB[i] << ","
+                                << BE::MaxTorpB[i] << ","
+                                << BE::CurTorpB[i] << ","
+                                << BE::MaxHullB[i] << ","
+                                << BE::CurHullB[i] << ","
+                                << BE::CurDamB[i] << ","
+                                << BE::StatusB[i] << ","
+                                << BE::AmmoB[i] << ","
                                 << BE::SpecialB[i] << "\n";
                 }
             }
-            else {
-                #ifdef CBE_DEBUG
+            else
+            {
+#ifdef CBE_DEBUG
                 CBE::debugFile << "[INFO] CAPTURE/CRIPPLE: " << BE::DefShipStr[i] << endl;
-                #endif
+#endif
             }
         }
     }
@@ -1109,50 +1743,54 @@ void writeTempFiles() {
 
     // Open TempAFile here
     ofstream tempBFile;
-    tempBFile.open(BE::TempBFile,ios::out | ios::binary | ios::trunc);
-     #ifdef CBE_DEBUG
+    tempBFile.open(BE::TempBFile, ios::out | ios::binary | ios::trunc);
+#ifdef CBE_DEBUG
     CBE::debugFile << "##### PROCESSING OTHER DEFENDERS " << BE::DefShipsLeft << " #####" << endl;
-    #endif
+#endif
     // Write the header to the fleet file here (TempAFile)
     tempBFile << BE::DefRaceName << "," << BE::DefFleetName << "," << BE::DefBreakOff << "," << BE::DefShipsTotal << "," << BE::DefFleetStrength << "," << BE::DefShipsLeft << "," << BE::DefTargetBonus << "," << BE::DefTargetPriority << "," << BE::DefReserve << "\n";
-    if(BE::DefShipsLeft > 0) {
-        for(int i = 0;i < old_DefShipsLeft;i++) {
-             #ifdef CBE_DEBUG
-            CBE::debugFile << BE::DefShipStr[i] << "," 
-                          << BE::MaxBeamB[i] << "," 
-                          << BE::CurBeamB[i] << "," 
-                          << BE::MaxShieldB[i] << "," 
-                          << BE::CurShieldB[i] << "," 
-                          << BE::MaxTorpB[i] << "," 
-                          << BE::CurTorpB[i] << "," 
-                          << BE::MaxHullB[i] << "," 
-                          << BE::CurHullB[i] << "," 
-                          << BE::CurDamB[i] << "," 
-                          << BE::StatusB[i] << "," 
-                          << BE::AmmoB[i] << "," 
-                          << BE::SpecialB[i] << "\n";
-            #endif
+    if (BE::DefShipsLeft > 0)
+    {
+        for (int i = 0; i < old_DefShipsLeft; i++)
+        {
+#ifdef CBE_DEBUG
+            CBE::debugFile << BE::DefShipStr[i] << ","
+                           << BE::MaxBeamB[i] << ","
+                           << BE::CurBeamB[i] << ","
+                           << BE::MaxShieldB[i] << ","
+                           << BE::CurShieldB[i] << ","
+                           << BE::MaxTorpB[i] << ","
+                           << BE::CurTorpB[i] << ","
+                           << BE::MaxHullB[i] << ","
+                           << BE::CurHullB[i] << ","
+                           << BE::CurDamB[i] << ","
+                           << BE::StatusB[i] << ","
+                           << BE::AmmoB[i] << ","
+                           << BE::SpecialB[i] << "\n";
+#endif
             // IF the current ships hull is less than 1 OR the ship is fled OR (the ships is a missile AND the combat round is greater than 0)
-            if(BE::CurHullB[i] < 1 || IsFled(BE::SpecialB[i]) || (IsMissile(BE::SpecialB[i]) && BE::CombatRound > 0)) {
-                // Do nothing as this ship is either dead, fled, or a missile
-                #ifdef CBE_DEBUG
+            if (BE::CurHullB[i] < 1 || IsFled(BE::SpecialB[i]) || (IsMissile(BE::SpecialB[i]) && BE::CombatRound > 0))
+            {
+// Do nothing as this ship is either dead, fled, or a missile
+#ifdef CBE_DEBUG
                 CBE::debugFile << "[INFO] DEAD/FLED/MSL: " << BE::DefShipStr[i] << endl;
-                #endif
+#endif
             }
-            else {
+            else
+            {
                 // Write this ship to the TempAFile csv
-                tempBFile << BE::DefShipStr[i] << "," 
-                          << BE::MaxBeamB[i] << "," 
-                          << BE::CurBeamB[i] << "," 
-                          << BE::MaxShieldB[i] << "," 
-                          << BE::CurShieldB[i] << "," 
-                          << BE::MaxTorpB[i] << "," 
-                          << BE::CurTorpB[i] << "," 
-                          << BE::MaxHullB[i] << "," 
-                          << BE::CurHullB[i] << "," 
-                          << BE::CurDamB[i] << "," 
-                          << BE::StatusB[i] << "," 
-                          << BE::AmmoB[i] << "," 
+                tempBFile << BE::DefShipStr[i] << ","
+                          << BE::MaxBeamB[i] << ","
+                          << BE::CurBeamB[i] << ","
+                          << BE::MaxShieldB[i] << ","
+                          << BE::CurShieldB[i] << ","
+                          << BE::MaxTorpB[i] << ","
+                          << BE::CurTorpB[i] << ","
+                          << BE::MaxHullB[i] << ","
+                          << BE::CurHullB[i] << ","
+                          << BE::CurDamB[i] << ","
+                          << BE::StatusB[i] << ","
+                          << BE::AmmoB[i] << ","
                           << BE::SpecialB[i] << "\n";
             }
         }
@@ -1161,31 +1799,34 @@ void writeTempFiles() {
     tempBFile.close();
 }
 
-void readTempA() {
+void readTempA()
+{
     // Open tempA file for reading
     ifstream tempA;
-    #ifdef CBE_DEBUG
-        cout << "Opening " << BE::TempAFile << " as tempA" << endl;
-        CBE::debugFile << "[INFO] Opening " << BE::TempAFile << " as tempA" << endl;
-    #endif
-    tempA.open(BE::TempAFile,ios::binary | ios::in);
+#ifdef CBE_DEBUG
+    std::cout << "Opening " << BE::TempAFile << " as tempA" << endl;
+    CBE::debugFile << "[INFO] Opening " << BE::TempAFile << " as tempA" << endl;
+#endif
+    tempA.open(BE::TempAFile, ios::binary | ios::in);
     // Read in the fleet header line
-    if(tempA.is_open()) {
+    if (tempA.is_open())
+    {
         // Read the first line
         string header = "";
-        getline(tempA,header,'\n');
+        getline(tempA, header, '\n');
         BE::FleetInfo info = parseFleetHeader(header);
-        #ifdef CBE_DEBUG
-        cout << info.RaceName << " - " << info.FleetName << endl;
+#ifdef CBE_DEBUG
+        std::cout << info.RaceName << " - " << info.FleetName << endl;
         CBE::debugFile << info.RaceName << " - " << info.FleetName << endl;
-        #endif
+#endif
         BE::AttRaceName = info.RaceName;
         BE::AttFleetName = info.FleetName;
 
         // Read the unit lines
         long numUnits = 0;
         string line = "";
-        while(getline(tempA,line,'\n')) {
+        while (getline(tempA, line, '\n'))
+        {
             // Now break it back out to the individual arrays...because...BASIC
             BE::UnitInfo unit = parseUnit(line);
             BE::AttShipStr[numUnits] = unit.UnitName;
@@ -1202,7 +1843,7 @@ void readTempA() {
             BE::AmmoA[numUnits] = unit.Ammo;
             BE::SpecialA[numUnits] = unit.Special;
 
-            #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
             CBE::debugFile << "[INFO] Loaded tempA unit: " << unit.UnitName << ","
                            << unit.MaxBeam << ","
                            << unit.CurBeam << ","
@@ -1216,50 +1857,54 @@ void readTempA() {
                            << unit.Status << ","
                            << unit.Ammo << ","
                            << unit.Special << endl;
-            #endif
+#endif
 
             numUnits++;
         }
 
         BE::AttShipsLeft = numUnits;
 
-        #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
         CBE::debugFile << "[INFO] Attacking Units Loaded: " << BE::AttShipsLeft << endl;
-        #endif
+#endif
 
         // Close the file
         tempA.close();
     }
-    else {
-        cout << "Unable to open: " << BE::TempAFile << endl;
+    else
+    {
+        std::cout << "Unable to open: " << BE::TempAFile << endl;
     }
 }
 
-void readTempB() {
+void readTempB()
+{
     // Open tempA file for reading
     ifstream tempB;
-    #ifdef CBE_DEBUG
-        cout << "Opening " << BE::TempBFile << " as tempB" << endl;
-        CBE::debugFile << "Opening " << BE::TempBFile << " as tempB" << endl;
-    #endif
-    tempB.open(BE::TempBFile,ios::binary | ios::in);
+#ifdef CBE_DEBUG
+    std::cout << "Opening " << BE::TempBFile << " as tempB" << endl;
+    CBE::debugFile << "Opening " << BE::TempBFile << " as tempB" << endl;
+#endif
+    tempB.open(BE::TempBFile, ios::binary | ios::in);
     // Read in the fleet header line
-    if(tempB.is_open()) {
+    if (tempB.is_open())
+    {
         // Read the first line
         string header = "";
-        getline(tempB,header,'\n');
+        getline(tempB, header, '\n');
         BE::FleetInfo info = parseFleetHeader(header);
-        #ifdef CBE_DEBUG
-        cout << info.RaceName << " - " << info.FleetName << endl;
+#ifdef CBE_DEBUG
+        std::cout << info.RaceName << " - " << info.FleetName << endl;
         CBE::debugFile << info.RaceName << " - " << info.FleetName << endl;
-        #endif
+#endif
         BE::DefRaceName = info.RaceName;
         BE::DefFleetName = info.FleetName;
 
         // Read the unit lines
         long numUnits = 0;
         string line = "";
-        while(getline(tempB,line,'\n')) {
+        while (getline(tempB, line, '\n'))
+        {
             // Now break it back out to the individual arrays...because...BASIC
             BE::UnitInfo unit = parseUnit(line);
 
@@ -1277,7 +1922,7 @@ void readTempB() {
             BE::AmmoB[numUnits] = unit.Ammo;
             BE::SpecialB[numUnits] = unit.Special;
 
-            #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
             CBE::debugFile << unit.UnitName << ","
                            << unit.MaxBeam << ","
                            << unit.CurBeam << ","
@@ -1291,29 +1936,31 @@ void readTempB() {
                            << unit.Status << ","
                            << unit.Ammo << ","
                            << unit.Special << endl;
-            #endif
+#endif
 
             numUnits++;
         }
 
         BE::DefShipsLeft = numUnits;
 
-        #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
         CBE::debugFile << "Defending Units Loaded: " << BE::DefShipsLeft << endl;
-        #endif
+#endif
 
         // Close the file
         tempB.close();
     }
-    else {
-        cout << "Unable to open: " << BE::TempBFile << endl;
+    else
+    {
+        std::cout << "Unable to open: " << BE::TempBFile << endl;
     }
 }
 
 /*
-* Main BattleEngine Loop
-*/
-void be_main() {
+ * Main BattleEngine Loop
+ */
+void be_main()
+{
     long AttackLoop = 0, AbortCounter = 0;
     long AttShipsRead = 0, DefShipsRead = 0;
 
@@ -1323,7 +1970,7 @@ void be_main() {
     bool AttHasReserveUnits = false, DefHasReserveUnits = false;
 
     long HullTarget = 0, CombatBonus = 0, ForceID = 0;
-    long SeekTarget = 0, HasReaded = 0;
+    long SeekTarget = 0, HasRaided = 0;
     long AttVal = 0, DefVal = 0, BPDice = 0, SuicideBonus = 0;
     long FirePower1 = 0, FirePower2 = 0;
     long DataLinkA[52], DataLinkB[52];
@@ -1353,16 +2000,16 @@ void be_main() {
     long AutoHit = 0;
 
     // Seed the random number generator
-    srand(time(NULL));
+    std::srand(time(NULL));
 
     // Set counts and flags to their default values
     BE::CombatRound = 0;
     BE::RetreatFlag = 0;
-    //BE::AttShipsLeft = 0;
-    //BE::DefShipsLeft = 0;
+    // BE::AttShipsLeft = 0;
+    // BE::DefShipsLeft = 0;
     AttShipsRead = 0;
     DefShipsRead = 0;
-    AttackLoop = 1; // set to zero to end combat | TODO: This can be moved to variable declaration
+    AttackLoop = 1;         // set to zero to end combat | TODO: This can be moved to variable declaration
     BE::AttacksMax = 20000; // TODO: This can be moved to the variable declaration
     BE::AttacksIndex = 0;
 
@@ -1375,13 +2022,13 @@ void be_main() {
     // Original code has a lot of Form code here for the GUI.  Will pick up after that.
 
     // Basic init stuff
-    BE::BO_Att = 0; // TODO: This can be moved to the variable declaration.
-    BE::BO_Def = 0; // TODO: This can be moved to the variable declaration.
+    BE::BO_Att = 0;                   // TODO: This can be moved to the variable declaration.
+    BE::BO_Def = 0;                   // TODO: This can be moved to the variable declaration.
     BaseAccuracy = CBE::baseAccuracy; // TODO: Need to setup a command line arg and a interface for this.  | TODO: Move to variable declaration. | TODO: Move to BE namespace
 
     // Open the battle_report and damage_report files here for output
-    ofstream reportFile("battle_r.txt",ios::out | ios::trunc | ios::binary); // This is #3 in basic
-    ofstream damageFile("damage_r.txt",ios::out | ios::trunc | ios::binary); // This is #4 in basic
+    ofstream reportFile("battle_r.txt", ios::out | ios::trunc | ios::binary); // This is #3 in basic
+    ofstream damageFile("damage_r.txt", ios::out | ios::trunc | ios::binary); // This is #4 in basic
 
     // TODO: Do file checks to see if they opened
 
@@ -1403,9 +2050,9 @@ void be_main() {
 
         // Trip the Round counter
         BE::CombatRound = BE::CombatRound + 1;
-        
+
         // Battle finally commences!
-        cout << "Battle Round: " << BE::CombatRound << endl;
+        std::cout << "Battle Round: " << BE::CombatRound << endl;
         reportFile << "Battle Round: " << BE::CombatRound << "\n";
 
         // Write the attackers to the report file
@@ -1413,17 +2060,18 @@ void be_main() {
         reportFile << "Current group Break-off level is " << BE::AttBreakOff << "%\n";
         reportFile << "The " << BE::UnitName << " are currently listed as:\n";
 
-        for(int x = 0;x < BE::AttShipsLeft;x++) {
+        for (int x = 0; x < BE::AttShipsLeft; x++)
+        {
             reportFile << BE::AttShipStr[x] << " Bm=" << BE::CurBeamA[x] << " Sh=" << BE::CurShieldA[x] << " Tp=" << BE::CurTorpA[x] << " Hl=" << BE::CurHullA[x] << " \"" << BE::SpecialA[x] << "\"\n";
         }
-        
 
         // Write the defenders to the report file
         reportFile << "Defenders are the " << BE::DefRaceName << ", " << BE::DefFleetName << " " << BE::GroupName << ".\n";
         reportFile << "Current group Break-off level is " << BE::DefBreakOff << "%\n";
         reportFile << "The " << BE::UnitName << " are currently listed as:\n";
 
-        for(int x = 0;x < BE::DefShipsLeft;x++) {
+        for (int x = 0; x < BE::DefShipsLeft; x++)
+        {
             reportFile << BE::DefShipStr[x] << " Bm=" << BE::CurBeamB[x] << " Sh=" << BE::CurShieldB[x] << " Tp=" << BE::CurTorpB[x] << " Hl=" << BE::CurHullB[x] << " \"" << BE::SpecialB[x] << "\"\n";
         }
 
@@ -1432,12 +2080,18 @@ void be_main() {
 
         // Clear the old damage array values
         // TODO: Change this to max array size not just ships left
-        for(int a = 0;a < BE::AttShipsLeft;a++) {
-            BE::HitsA[a] = 0; BE::PenHitsA[a] = 0; BE::BPAttackCritA[a] = 0;
+        for (int a = 0; a < BE::AttShipsLeft; a++)
+        {
+            BE::HitsA[a] = 0;
+            BE::PenHitsA[a] = 0;
+            BE::BPAttackCritA[a] = 0;
         }
         // TODO: Change this to max array size not just ships left
-        for(int b = 0;b < BE::DefShipsLeft;b++) {
-            BE::HitsB[b] = 0; BE::PenHitsB[b] = 0; BE::BPAttackCritB[b] = 0;
+        for (int b = 0; b < BE::DefShipsLeft; b++)
+        {
+            BE::HitsB[b] = 0;
+            BE::PenHitsB[b] = 0;
+            BE::BPAttackCritB[b] = 0;
         }
 
         // Cloak and missiles affect the battle order
@@ -1453,117 +2107,145 @@ void be_main() {
         BE::DefHasLongRange = 0;
         BE::DefHasFighters = 0;
 
-        if(BE::CombatRound == 1) {
+        if (BE::CombatRound == 1)
+        {
             // Several special things can happen in turn one.
             // cloaked ships can get a first strike
             // long range weapons can get a first strike if the targets are not cloaked
             // And, we need to determine if FLAK equiped ships have targets
 
-            #ifdef CBE_DEBUG
+#ifdef CBE_DEBUG
             CBE::debugFile << "[INFO] Doing Combat Round 0 Special Checks" << endl;
-            #endif
+#endif
 
             // Check the attacking fleet
-            for(int a = 0;a < BE::AttShipsLeft;a++) {
+            for (int a = 0; a < BE::AttShipsLeft; a++)
+            {
                 // Count the number of units that are cloaked
-                if(IsCloak(BE::SpecialA[a])) {
+                if (IsCloak(BE::SpecialA[a]))
+                {
                     BE::AttIsCloaked = BE::AttIsCloaked + 1;
                 }
                 // Count if the unit has a long range tag
                 // TODO: Add a check for DefHasLongRange so that once it is true the checking can stop
-                if(HasLong(BE::SpecialA[a])) {
+                if (HasLong(BE::SpecialA[a]))
+                {
                     BE::AttHasLongRange = true;
                 }
                 // This checks all weapon tags since we pass it all weapon tags
-                if(HasLongWT(BE::SpecialA[a])) {
+                if (HasLongWT(BE::SpecialA[a]))
+                {
                     BE::AttHasLongRange = true;
                 }
                 // Check if a fighter and not in reserve
                 // TODO: Add a check for DefHasFighters to stop the checking early
-                if(IsFighter(BE::SpecialA[a]) && HasReserve(BE::SpecialA[a]) < 0) {
+                if (IsFighter(BE::SpecialA[a]) && HasReserve(BE::SpecialA[a]) < 0)
+                {
                     BE::AttHasFighters = 1;
                 }
             }
 
             // Determine if all the attackers are cloaked, if none are, or if some are cloked.
             // TODO: Seperate AttIsCloaked from the counting above
-            if(BE::AttIsCloaked > 0) {
-                if(BE::AttIsCloaked == BE::AttShipsLeft) {
+            if (BE::AttIsCloaked > 0)
+            {
+                if (BE::AttIsCloaked == BE::AttShipsLeft)
+                {
                     BE::AttIsCloaked = 1;
                 }
-                else {
+                else
+                {
                     BE::AttIsCloaked = 0;
                     BE::AttIsMixed = 1;
                 }
             }
 
             // Check the defending fleet
-            for(int a = 0;a < BE::DefShipsLeft;a++) {
+            for (int a = 0; a < BE::DefShipsLeft; a++)
+            {
                 // Count the numbe of units that are cloaked
-                if(IsCloak(BE::SpecialB[a])) {
+                if (IsCloak(BE::SpecialB[a]))
+                {
                     BE::DefIsCloaked = BE::DefIsCloaked + 1;
                 }
                 // Count if the unit has a long rangew tag
                 // TODO: Add a check for DefHasLongRange so that once it is true the checking can stop
-                if(HasLong(BE::SpecialB[a])) {
+                if (HasLong(BE::SpecialB[a]))
+                {
                     BE::DefHasLongRange = true;
                 }
                 // This checks all weapon tags since we pass it all weapon tags
-                if(HasLongWT(BE::SpecialB[a])) {
+                if (HasLongWT(BE::SpecialB[a]))
+                {
                     BE::DefHasLongRange = true;
                 }
                 // Check if a fighter and not in reserve
                 // TODO: Add a check for DefHasFighters to stop the checking early
-                if(IsFighter(BE::SpecialB[a]) && HasReserve(BE::SpecialB[a]) < 0) {
+                if (IsFighter(BE::SpecialB[a]) && HasReserve(BE::SpecialB[a]) < 0)
+                {
                     BE::DefHasFighters = 1;
                 }
             }
 
             // Determine if all the defenders are cloaked, if none are, or if some are cloked.
             // TODO: Seperate DefIsCloaked from the counting above
-            if(BE::DefIsCloaked > 0) {
-                if(BE::DefIsCloaked == BE::DefShipsLeft) {
+            if (BE::DefIsCloaked > 0)
+            {
+                if (BE::DefIsCloaked == BE::DefShipsLeft)
+                {
                     BE::DefIsCloaked = 1;
                 }
-                else {
+                else
+                {
                     BE::DefIsCloaked = 0;
                     BE::DefIsMixed = 1;
                 }
             }
         }
-        else {
+        else
+        {
             // Remove RESERVE tags from delayed units
-            for(int a = 0;a < BE::AttShipsLeft;a++) {
+            for (int a = 0; a < BE::AttShipsLeft; a++)
+            {
                 // TODO: Split Has* and Get* functions so that boolean returns are separated from other types.
                 // TODO: Generalize HasTag and GetTag functions?
                 int delay = HasDelay(BE::SpecialA[a]);
-                if(HasReserve(BE::SpecialA[a]) && delay > 0) {
-                    if(delay < BE::CombatRound) {
-                        BE::SpecialA[a] = RemoveTag(BE::SpecialA[a],"RESERVE",1);
+                if (HasReserve(BE::SpecialA[a]) && delay > 0)
+                {
+                    if (delay < BE::CombatRound)
+                    {
+                        BE::SpecialA[a] = RemoveTag(BE::SpecialA[a], "RESERVE", 1);
                     }
                 }
             }
 
             // Remove RESERVE tags from delayed units
-            for(int b = 0;b < BE::DefShipsLeft;b++) {
+            for (int b = 0; b < BE::DefShipsLeft; b++)
+            {
                 int delay = HasDelay(BE::SpecialB[b]);
-                if(HasReserve(BE::SpecialB[b]) && delay > 0) {
-                    if(delay < BE::CombatRound) {
-                        BE::SpecialB[b] = RemoveTag(BE::SpecialB[b],"RESERVE",1);
+                if (HasReserve(BE::SpecialB[b]) && delay > 0)
+                {
+                    if (delay < BE::CombatRound)
+                    {
+                        BE::SpecialB[b] = RemoveTag(BE::SpecialB[b], "RESERVE", 1);
                     }
                 }
             }
 
             // Check attackers and defenders fleets for fighters
             // TODO: Need to turn this into a function: CheckFighters(special[],shipsLeft)
-            for(int a = 0;a < BE::AttShipsLeft;a++) {
-                if(IsFighter(BE::SpecialA[a]) && !HasReserve(BE::SpecialA[a])) {
+            for (int a = 0; a < BE::AttShipsLeft; a++)
+            {
+                if (IsFighter(BE::SpecialA[a]) && !HasReserve(BE::SpecialA[a]))
+                {
                     BE::AttHasFighters = 1;
                     break; // Leave the loop early as we have found at least 1 fighter not in reserve.
                 }
             }
-            for(int b = 0;b < BE::DefShipsLeft;b++) {
-                if(IsFighter(BE::SpecialB[b]) && !HasReserve(BE::SpecialB[b])) {
+            for (int b = 0; b < BE::DefShipsLeft; b++)
+            {
+                if (IsFighter(BE::SpecialB[b]) && !HasReserve(BE::SpecialB[b]))
+                {
                     BE::DefHasFighters = 1;
                     break; // Leave the loop early as we have found at least 1 fighter not in reserve.
                 }
@@ -1571,19 +2253,23 @@ void be_main() {
         }
 
         // Check for attacker reserve & screen
-        AttHasScreen = false; // TODO: Move to BE namespace
+        AttHasScreen = false;       // TODO: Move to BE namespace
         AttHasReserveUnits = false; // TODO: Move to BE namespace
-        for(int a = 0;a < BE::AttShipsLeft;a++) {
+        for (int a = 0; a < BE::AttShipsLeft; a++)
+        {
             // TODO: What kind of mechanic should there be for not enough screen?v
             // The unit is either in the reserve or is part of the screen
-            if(HasReserve(BE::SpecialA[a])) {
+            if (HasReserve(BE::SpecialA[a]))
+            {
                 AttHasReserveUnits = true;
             }
-            else {
+            else
+            {
                 AttHasScreen = true;
             }
             // Check if both there is both a screen and a reserve already.
-            if(AttHasScreen && AttHasReserveUnits) {
+            if (AttHasScreen && AttHasReserveUnits)
+            {
                 // Leave the loop early as we found a unit in the screen and a unit in the reserve.
                 break;
             }
@@ -1591,18 +2277,22 @@ void be_main() {
 
         // Check for the defender reserve & screen
         // TODO: Turn this into a function: CheckFleetReserveAndScreen(special[],shipsLeft)
-        DefHasScreen = false; // TODO: Move to BE namespace
+        DefHasScreen = false;       // TODO: Move to BE namespace
         DefHasReserveUnits = false; // TODO: Move to BE namespace
-        for(int b = 0;b < BE::DefShipsLeft;b++) {
+        for (int b = 0; b < BE::DefShipsLeft; b++)
+        {
             // The unit is either in the reserve or is part of the screen
-            if(HasReserve(BE::SpecialB[b])) {
+            if (HasReserve(BE::SpecialB[b]))
+            {
                 DefHasReserveUnits = true;
             }
-            else {
+            else
+            {
                 DefHasScreen = true;
             }
             // Check if both there is both a screen and a reserve already.
-            if(DefHasScreen && DefHasReserveUnits) {
+            if (DefHasScreen && DefHasReserveUnits)
+            {
                 // Leave the loop early as we found a unit in the screen and a unit in the reserve.
                 break;
             }
@@ -1614,56 +2304,70 @@ void be_main() {
         // TODO: Turn this into a function:  BreakOffAndScreenCheck(special[],shipsLeft,hasScreen,hasReserve)
         // TODO:  I should be able to handle this with the earlier checks?  Maybe...
         // Check to see if the attackers have a reserve.
-        if(AttHasReserveUnits) {
+        if (AttHasReserveUnits)
+        {
             // Check those reserve units for BreakOff and for screen
-            for(int a = 0;a < BE::AttShipsLeft;a++) {
+            for (int a = 0; a < BE::AttShipsLeft; a++)
+            {
                 // Get the reserve tag value of the ship
                 int reserve = HasReserve(BE::SpecialA[a]);
                 // Do the attackers have a screen?
-                if(!AttHasScreen) {
+                if (!AttHasScreen)
+                {
                     // Does the ship have a reserve value?
-                    if(reserve >= 0) {
+                    if (reserve >= 0)
+                    {
                         // Remove the reserve tag
-                        BE::SpecialA[a] = RemoveTag(BE::SpecialA[a],"RESERVE",1);
+                        BE::SpecialA[a] = RemoveTag(BE::SpecialA[a], "RESERVE", 1);
                         AttHasReserveUnits = false;
                     }
                 }
-                else {
+                else
+                {
                     // Is the reserve tag equal to or less than the attackers BreakOff?
-                    if(BE::BO_Att >= reserve && reserve >= 0) {
+                    if (BE::BO_Att >= reserve && reserve >= 0)
+                    {
                         // Remove the reserve tag
-                        BE::SpecialA[a] = RemoveTag(BE::SpecialA[a],"RESERVE",1);
+                        BE::SpecialA[a] = RemoveTag(BE::SpecialA[a], "RESERVE", 1);
                     }
                 }
             }
         }
 
-        if(DefHasReserveUnits) {
+        if (DefHasReserveUnits)
+        {
             // Check those reserve units for BreakOff and for screen
-            for(int b = 0;b < BE::AttShipsLeft;b++) {
+            for (int b = 0; b < BE::AttShipsLeft; b++)
+            {
                 // Get the reserve tag from the ship
                 int reserve = HasReserve(BE::SpecialB[b]);
                 // Do the defenders have a screen?
-                if(!DefHasScreen) {
+                if (!DefHasScreen)
+                {
                     // Does the ship have a reserve value?
-                    if(reserve >= 0) {
+                    if (reserve >= 0)
+                    {
                         // Remove the reserve tag
-                        BE::SpecialB[b] = RemoveTag(BE::SpecialB[b],"RESERVE",1);
+                        BE::SpecialB[b] = RemoveTag(BE::SpecialB[b], "RESERVE", 1);
                     }
                 }
-                else {
+                else
+                {
                     // Is the reserve tag equal to or less than the defenders BreakOff?
-                    if(BE::BO_Def >= reserve && reserve >= 0) {
+                    if (BE::BO_Def >= reserve && reserve >= 0)
+                    {
                         // Remove the reserve tag
-                        BE::SpecialB[b] = RemoveTag(BE::SpecialB[b],"RESERVE",1);
+                        BE::SpecialB[b] = RemoveTag(BE::SpecialB[b], "RESERVE", 1);
                     }
                 }
             }
         }
 
         // UNKNOWN: Resetting AttackIndexes?
-        if(BE::AttacksIndex > 0) {
-            for(int i = 0;i < BE::AttacksIndex;i++) {
+        if (BE::AttacksIndex > 0)
+        {
+            for (int i = 0; i < BE::AttacksIndex; i++)
+            {
                 BE::Attacks[i].AttackID = 0;
                 BE::Attacks[i].TargetID = 0;
                 BE::Attacks[i].Damage = 0;
@@ -1679,46 +2383,54 @@ void be_main() {
         // Loop through a combined total of all remaining attacking and defending ships
         // This is horribley convoluted
         // TODO: make a funciton for this...not sure what it needs to look like
-        for(int A = 0;A < (BE::AttShipsLeft + BE::DefShipsLeft);A++) {
+        for (int A = 0; A < (BE::AttShipsLeft + BE::DefShipsLeft); A++)
+        {
             // Determine ForceID
             // 0 => attackers
             // 1 => defenders
             int B = A;
             ForceID = 0; // TODO: Make this a local scope variable
             // Are we done with attackers?
-            if(A > BE::AttShipsLeft) {
+            if (A > BE::AttShipsLeft)
+            {
                 B = A - BE::AttShipsLeft;
                 ForceID = 1; // Defenders
             }
 
             // Get unit values depending on ForceID
-            if(ForceID == 0) {
+            if (ForceID == 0)
+            {
                 temp_str = BE::SpecialA[B]; // TODO: Make this local to the loop scope.  May not be necessary if a function is build.
-                tmp = BE::CurTorpA[B]; // TODO: Make this local to the loop scope.  May not be necessary if a function is build.
+                tmp = BE::CurTorpA[B];      // TODO: Make this local to the loop scope.  May not be necessary if a function is build.
             }
-            else {
+            else
+            {
                 temp_str = BE::SpecialB[B];
                 tmp = BE::CurTorpB[B];
             }
 
             // Check if the unit is crippled or is suprised.  If either is true, then skip the unit
-            if(IsCrippled(temp_str) || IsSurprise(temp_str)) {
+            if (IsCrippled(temp_str) || IsSurprise(temp_str))
+            {
                 continue;
             }
 
             // Check for batteries in the special string
-            if(HasBatteries(temp_str) > 0) {
+            if (HasBatteries(temp_str) > 0)
+            {
                 // Check if any of the batteries has a `misXXXX` tag
-                if(!HasMissileWT(temp_str)) {
+                if (!HasMissileWT(temp_str))
+                {
                     // Skip the unit since there is no missile tag in a bracket
                     continue;
                 }
 
-                tmp = 0; // TODO: Make this a local variable
+                tmp = 0;            // TODO: Make this a local variable
                 int SalvoCount = 0; // FIXME: This might not be local?
-                int sc = 0; // TODO: Make this local to the loop below
+                int sc = 0;         // TODO: Make this local to the loop below
                 // Reset the salvo array
-                for(sc = 0;sc < 200;sc++) {
+                for (sc = 0; sc < 200; sc++)
+                {
                     BE::Salvos[sc].MissileS = 0;
                     BE::Salvos[sc].DataStr = "";
                 }
@@ -1728,29 +2440,36 @@ void be_main() {
                 sc = 0; // TODO: Not sure what to do with this yet.
                 // Get the brackets for this unit
                 vector<string> brackets = GetBrackets(temp_str);
-                for(int i = 0;i < brackets.size();i++) {
+                for (int i = 0; i < brackets.size(); i++)
+                {
                     // Setup the salvo object
                     BE::Salvos[sc].DataStr = brackets[i];
                     BE::Salvos[sc].MissileS = 0;
 
                     // Does the bracket have a salvo tag?
-                    if(HasMissileWT(BE::Salvos[sc].DataStr)) {
+                    if (HasMissileWT(BE::Salvos[sc].DataStr))
+                    {
                         // Is the unit in reserve and without an artillery tag?
-                        if(HasReserve(temp_str) && HasArtilleryWT(BE::Salvos[sc].DataStr)) {
+                        if (HasReserve(temp_str) && HasArtilleryWT(BE::Salvos[sc].DataStr))
+                        {
                             // This unit is in reserve and doesn't have an artillery tag
                         }
-                        else {
+                        else
+                        {
                             // This unit is either NOT in the reserve or HAS an artillery tag
                             // Do the long range checks.
-                            if((BE::AttHasLongRange || BE::DefHasLongRange) && !HasLongWT(BE::Salvos[sc].DataStr)) {
+                            if ((BE::AttHasLongRange || BE::DefHasLongRange) && !HasLongWT(BE::Salvos[sc].DataStr))
+                            {
                                 // We are at long range BUT this unit does NOT have a long tag.
                                 // Do nothing.
                             }
-                            else {
+                            else
+                            {
                                 // Either we are at standard range or this unit has a long tag.
                                 // Does the unit have ammo?
                                 int ammo = HasAmmoWT(BE::Salvos[sc].DataStr);
-                                if(ammo > CBE::AMMO_EMPTY) {
+                                if (ammo > CBE::AMMO_EMPTY)
+                                {
                                     // The bracket has ammo OR doesn't use ammo
                                     // ORIGINAL is VAL(MID$(Salvo(sc).DataStr,2)) which is the numeric value of the substring from position 2 to end of string...I think
                                     // VAL(MID$("[2 mis0041 ammo 1 target 15]")) ==> VAL("2 mis0041 ammo 1 target 15]") ==> 2 (Wow...I really dislike QBASIC)
@@ -1759,36 +2478,41 @@ void be_main() {
                                     // TODO: Convert this mess to a regex extraction of the first number in the string
                                     int start = BE::Salvos[sc].DataStr.find("[");
                                     // If start is npos then there is no "[" in the string.  So the first item in the string should be the size of the salvo.
-                                    if(start == string::npos) {
+                                    if (start == string::npos)
+                                    {
                                         start = 0;
                                     }
-                                    else {
+                                    else
+                                    {
                                         start++;
                                     }
                                     string sizeStr = BE::Salvos[sc].DataStr.substr(start); // Grab everything past the openning bracket or the start of string
-                                    int size = stoi(sizeStr); // This will only grab the first number in the string and it must start with a string
-                                    #ifdef CBE_DEBUG
+                                    int size = stoi(sizeStr);                              // This will only grab the first number in the string and it must start with a string
+#ifdef CBE_DEBUG
                                     CBE::debugFile << "[INFO] Salvo Size: " << size << endl;
-                                    #endif
+#endif
                                     BE::Salvos[sc].MissileS = size; // This is simultaneously the number of missiles to launch and the volley size for non-missile salvos
                                 }
-                                else if(ammo == CBE::AMMO_INFINITE) {
+                                else if (ammo == CBE::AMMO_INFINITE)
+                                {
                                     // The bracket doesn't need ammo
                                     // Do the same things as above....which is a mess
                                     // TODO: Redo logic to collapse these two paths
                                     int start = BE::Salvos[sc].DataStr.find("[");
                                     // If start is npos then there is no "[" in the string.  So the first item in the string should be the size of the salvo.
-                                    if(start == string::npos) {
+                                    if (start == string::npos)
+                                    {
                                         start = 0;
                                     }
-                                    else {
+                                    else
+                                    {
                                         start++;
                                     }
                                     string sizeStr = BE::Salvos[sc].DataStr.substr(start); // Grab everything past the openning bracket or the start of string
-                                    int size = stoi(sizeStr); // This will only grab the first number in the string and it must start with a string
-                                    #ifdef CBE_DEBUG
+                                    int size = stoi(sizeStr);                              // This will only grab the first number in the string and it must start with a string
+#ifdef CBE_DEBUG
                                     CBE::debugFile << "[INFO] Salvo Size: " << size << endl;
-                                    #endif
+#endif
                                     BE::Salvos[sc].MissileS = size; // This is simultaneously the number of missiles to launch and the volley size for non-missile salvos
                                 }
                             }
@@ -1802,14 +2526,17 @@ void be_main() {
                 // Loop through the salvo count and spawn a missile 'unit' for each entity
                 SalvoCount = sc;
                 // TODO: Clean up the reused sc variable.  Poor thing, mistreated like that.
-                for(sc = 0;sc < SalvoCount;sc++) {
+                for (sc = 0; sc < SalvoCount; sc++)
+                {
                     // Does the salvo have a size greater than 0?  TODO: Move this check to the loop above?  Might mess with the [0] tags on units that shouldn't flee.  Maybe BRAVE tag.
                     int size = BE::Salvos[sc].MissileS;
-                    if(size > 0) {
+                    if (size > 0)
+                    {
                         // The salvo has a size.  Do all the things!!!
                         // But first, check to make sure the salvo size won't overflow the 9999 max unit limit
                         // TODO: Setup a preprocessor variable for maximum number of units
-                        if(size + TempAttShipsLeft + TempDefShipsLeft > 9999) {
+                        if (size + TempAttShipsLeft + TempDefShipsLeft > 9999)
+                        {
                             // There will be a problem.  We should throw an exception here rather than just exiting
                             // TODO: Throw an exception
                             cerr << "The 9999 ship limit has been exceeded while spawning missiles.  Simulation aborted." << endl;
@@ -1819,29 +2546,33 @@ void be_main() {
                         // Check for a missile tag and get the BSTH values from the tag
                         // TODO: Add a flags member to the SalvoInfo struct so these tests don't need to be constantly done over and over and over and over again...
                         // This also sets BE::MissileB, BE::MissileS, BE::MissileT, and BE:MissileH
-                        const string & special = BE::Salvos[sc].DataStr; // I got tired of accessing this variable in every function call....
-                        HasMissileWT(special); // FIXME: I can't describe how much I hate this line.
+                        const string &special = BE::Salvos[sc].DataStr; // I got tired of accessing this variable in every function call....
+                        HasMissileWT(special);                          // FIXME: I can't describe how much I hate this line.
                         // Check to see if the salvo need ammo.  See todo above...damn.
                         int ammo = HasAmmoWT(special);
-                        if(ammo > CBE::AMMO_EMPTY) {
-                            NewTag = "ammo " + (ammo - 1); // Decrement the ammo counter.  TODO: Make this a local variable
-                            NewTag += " "; // Had to make this a new line do to type converstion of the (ammo -1) expression.
-                            temp_str = RemoveTag(BE::Salvos[sc].DataStr,"ammo",1); // FIXME: This is so clunky to update the string in the middle of the round
-                            temp_str = AddTag(BE::Salvos[sc].DataStr,NewTag);
+                        if (ammo > CBE::AMMO_EMPTY)
+                        {
+                            NewTag = "ammo " + (ammo - 1);                           // Decrement the ammo counter.  TODO: Make this a local variable
+                            NewTag += " ";                                           // Had to make this a new line do to type converstion of the (ammo -1) expression.
+                            temp_str = RemoveTag(BE::Salvos[sc].DataStr, "ammo", 1); // FIXME: This is so clunky to update the string in the middle of the round
+                            temp_str = AddTag(BE::Salvos[sc].DataStr, NewTag);
                             BE::Salvos[sc].DataStr = temp_str; // FIXME: And this breaks my pointer above?  Maybe not.  We'll see!!!
                             // Remove the ammo string from missiles so there are no 'duds'
-                            missile_str = RemoveTag(BE::Salvos[sc].DataStr,"ammo",1); // Remove the ammo tag and save as missile_str.  TODO: Local?  I'm not sure where this is used next.
-                            missile_str = RemoveTag(missile_str,"shots",1); // Remove the shots tag because redundancy
+                            missile_str = RemoveTag(BE::Salvos[sc].DataStr, "ammo", 1); // Remove the ammo tag and save as missile_str.  TODO: Local?  I'm not sure where this is used next.
+                            missile_str = RemoveTag(missile_str, "shots", 1);           // Remove the shots tag because redundancy
                         }
-                        else if(ammo == CBE::AMMO_INFINITE) {
+                        else if (ammo == CBE::AMMO_INFINITE)
+                        {
                             missile_str = BE::Salvos[sc].DataStr; // Just use the salve string since there is no ammo
                         }
-                        
+
                         // Spawn those babies...
-                        for(int i = 0;i < size;i++) {
+                        for (int i = 0; i < size; i++)
+                        {
                             missile_counter = missile_counter + 1; // This is a global variable that was zeroed at the start of this section.  This tracks all missiles launched from both sides?
                             // Check the ForceID...TODO: Get rid of ForceID so that multiple fleets can be added.  Not to mention factions
-                            if(ForceID == 0) {
+                            if (ForceID == 0)
+                            {
                                 // VB sucks.  Where do MissileB, MissileS, MissileT, and Missile H come from?  From the call to HasMissileWT() about 20 lines up!
                                 // [JLL] This block of code makes me want to vomit.  No wonder tags jump between units.  Argh!!
                                 TempAttShipsLeft = TempAttShipsLeft + 1;
@@ -1870,12 +2601,13 @@ void be_main() {
                                 */
                                 int start = BE::SpecialA[TempAttShipsLeft].find(" ");
                                 BE::SpecialA[TempAttShipsLeft] = "[" + to_string(BE::MissileB + BE::MissileT) + BE::SpecialA[TempAttShipsLeft].substr(start); // Combine Beam and Torp rating for full salvo strength.  FIXME: This assumes that there is a closing ']'
-                                BE::SpecialA[TempAttShipsLeft] = RemoveTag(BE::SpecialA[TempAttShipsLeft],"mis",0); // Remove the missile tag or missiles will spawn missiles.  Could be used for submunitions...
-                                BE::SpecialA[TempAttShipsLeft] = AddTag(BE::SpecialA[TempAttShipsLeft],"MSL"); // Denotes the unit as a missile
-                                BE::SpecialA[TempAttShipsLeft] = AddTag(BE::SpecialA[TempAttShipsLeft],"SUICIDE"); // Suicide denotes that the unit should be removed at end of combat
+                                BE::SpecialA[TempAttShipsLeft] = RemoveTag(BE::SpecialA[TempAttShipsLeft], "mis", 0);                                         // Remove the missile tag or missiles will spawn missiles.  Could be used for submunitions...
+                                BE::SpecialA[TempAttShipsLeft] = AddTag(BE::SpecialA[TempAttShipsLeft], "MSL");                                               // Denotes the unit as a missile
+                                BE::SpecialA[TempAttShipsLeft] = AddTag(BE::SpecialA[TempAttShipsLeft], "SUICIDE");                                           // Suicide denotes that the unit should be removed at end of combat
                                 // [JLL] TODO: Remove all of the above and use bitwise flags
                             }
-                            else {
+                            else
+                            {
                                 // Do the other foce
                                 // [JLL] TODO: Make this a function
                                 TempDefShipsLeft = TempDefShipsLeft + 1;
@@ -1892,9 +2624,9 @@ void be_main() {
                                 BE::SpecialB[TempDefShipsLeft] = missile_str; // Use the missile string the the salvos array ~20-25 lines up.
                                 int start = BE::SpecialB[TempDefShipsLeft].find(" ");
                                 BE::SpecialB[TempDefShipsLeft] = "[" + to_string(BE::MissileB + BE::MissileT) + BE::SpecialB[TempDefShipsLeft].substr(start); // Combine Beam and Torp rating for full salvo strength.  FIXME: This assumes that there is a closing ']'
-                                BE::SpecialB[TempDefShipsLeft] = RemoveTag(BE::SpecialB[TempDefShipsLeft],"mis",0); // Remove the missile tag or missiles will spawn missiles.  Could be used for submunitions...
-                                BE::SpecialB[TempDefShipsLeft] = AddTag(BE::SpecialB[TempDefShipsLeft],"MSL"); // Denotes the unit as a missile
-                                BE::SpecialB[TempDefShipsLeft] = AddTag(BE::SpecialB[TempDefShipsLeft],"SUICIDE"); // Suicide denotes that the unit should be removed at end of combat
+                                BE::SpecialB[TempDefShipsLeft] = RemoveTag(BE::SpecialB[TempDefShipsLeft], "mis", 0);                                         // Remove the missile tag or missiles will spawn missiles.  Could be used for submunitions...
+                                BE::SpecialB[TempDefShipsLeft] = AddTag(BE::SpecialB[TempDefShipsLeft], "MSL");                                               // Denotes the unit as a missile
+                                BE::SpecialB[TempDefShipsLeft] = AddTag(BE::SpecialB[TempDefShipsLeft], "SUICIDE");                                           // Suicide denotes that the unit should be removed at end of combat
                             }
                         }
                     }
@@ -1904,10 +2636,12 @@ void be_main() {
                 // Get the Specail tag from the special array.  Again with the ForceID junk.  Functions are your friend...
                 // [JLL] This is why string manipulation is bad.  A well built class or struct will render a lot of this code useless.
                 // Check ForceID
-                if(ForceID == 0) {
+                if (ForceID == 0)
+                {
                     temp_str = BE::SpecialA[B]; // [JLL] TODO: Stop global variable abuse!
                 }
-                else {
+                else
+                {
                     temp_str = BE::SpecialB[B];
                 }
 
@@ -1918,14 +2652,18 @@ void be_main() {
                 // Or does it remove the first salvo from the string?
                 // [JLL] This removes all salvos from the string!  Because they will be rebuilt from the Salvos array below.
                 // [JLL] This builds a new string for the unit, sans salvos, character by character.  Vomit inducing...
-                for(swt = 0;swt < temp_str.size();swt++) {
-                    if(temp_str[swt] == '[') {
+                for (swt = 0; swt < temp_str.size(); swt++)
+                {
+                    if (temp_str[swt] == '[')
+                    {
                         Strip = true;
                     }
-                    if(Strip == false) {
+                    if (Strip == false)
+                    {
                         new_str = new_str + temp_str[swt];
                     }
-                    if(temp_str[swt] == ']') {
+                    if (temp_str[swt] == ']')
+                    {
                         Strip = false;
                     }
                 }
@@ -1935,8 +2673,10 @@ void be_main() {
                 // See the code below this block.  The salvos array is per unit, I think.
                 // [JLL] The Salvos array is per unit.
                 // [JLL] FIXME: This is why salvos jump units some times.  This loops through all 200 Salvos.
-                for(sc = 0;sc < 200;sc++) {
-                    if(BE::Salvos[sc].DataStr == "") {
+                for (sc = 0; sc < 200; sc++)
+                {
+                    if (BE::Salvos[sc].DataStr == "")
+                    {
                         break;
                     }
                     new_str = new_str + BE::Salvos[sc].DataStr;
@@ -1944,19 +2684,22 @@ void be_main() {
 
                 // Assign the new specials string to the SpecialA or SpecialB array for the unit in question depending on ForceID
                 // [JLL] FIXME: This explains why the salvo string jumps from attackers to defenders and vice versa.
-                if(ForceID == 0) {
+                if (ForceID == 0)
+                {
                     BE::SpecialA[B] = new_str;
                 }
-                else {
+                else
+                {
                     BE::SpecialB[B] = new_str;
                 }
             } // End of HasBatteries If Block
-            else { // This unit has no batteries.
-                // [JLL] TODO: Discontinue use of non-battery weapons
-                // Check unit torpedo rating and for Missile
-                // [JLL] I am skipping this for now pending response from the FOTS group - 2023-01-11
+            else
+            { // This unit has no batteries.
+              // [JLL] TODO: Discontinue use of non-battery weapons
+              // Check unit torpedo rating and for Missile
+              // [JLL] I am skipping this for now pending response from the FOTS group - 2023-01-11
             }
-        }// End of spawn missile loop....
+        } // End of spawn missile loop....
 
         // [JLL] Since missiles are added at the end of the units array the code below keeps other units from targeting them.
         AttNumValidTargets = BE::AttShipsLeft;
@@ -1965,7 +2708,8 @@ void be_main() {
         BE::DefShipsLeft = TempDefShipsLeft; // [JLL] Need to keep track of missiles
 
         // Copy real values to temp fields so that combat will be fair
-        for(int i = 0;i < BE::AttShipsLeft;i++) {
+        for (int i = 0; i < BE::AttShipsLeft; i++)
+        {
             BE::TempAttCritStr[i] = BE::AttCritStr[i];
             BE::TempCurBeamA[i] = BE::CurBeamA[i];
             BE::TempCurShieldA[i] = BE::CurShieldA[i];
@@ -1976,7 +2720,8 @@ void be_main() {
             BE::TempCurDamA[i] = BE::CurDamA[i];
             BE::TempSpecialA[i] = BE::SpecialA[i];
         }
-        for(int i = 0;i < BE::DefShipsLeft;i++) {
+        for (int i = 0; i < BE::DefShipsLeft; i++)
+        {
             BE::TempDefCritStr[i] = BE::DefCritStr[i];
             BE::TempCurBeamB[i] = BE::CurBeamB[i];
             BE::TempCurShieldB[i] = BE::CurShieldB[i];
@@ -1988,20 +2733,23 @@ void be_main() {
             BE::TempSpecialB[i] = BE::SpecialB[i];
         }
 
-        // ------------------------------------------------------------------------------------------
-        // Attack Routine
-        #ifdef CBE_DEBUG
+// ------------------------------------------------------------------------------------------
+// Attack Routine
+#ifdef CBE_DEBUG
         CBE::debugFile << "[INFO] Beginning the attack look" << endl;
-        #endif
-        for(BE::A = 0;BE::A < (BE::AttShipsLeft + BE::DefShipsLeft);BE::A++) {
+#endif
+        for (BE::A = 0; BE::A < (BE::AttShipsLeft + BE::DefShipsLeft); BE::A++)
+        {
             // The same BS about ForceID...
             int B = BE::A;
             ForceID = 0;
-            if(BE::A > BE::AttShipsLeft) {
+            if (BE::A > BE::AttShipsLeft)
+            {
                 B = BE::A - BE::AttShipsLeft;
                 ForceID = 1;
             }
-            if(BE::A = BE::AttShipsLeft + 1) {
+            if (BE::A = BE::AttShipsLeft + 1)
+            {
                 // Print a space in the report file
                 reportFile << endl;
             }
@@ -2010,8 +2758,8 @@ void be_main() {
             Special2 = 0;
             FirePower1 = 0;
             FirePower2 = 0;
-            
-            /* 
+
+            /*
                 OK, here's the problem in a nut shell.  Each ship can have multiple
                 attacks.  In the past, the firepower was added up and the damage
                 spread out.  But that won't work with the new multi's, Special
@@ -2025,257 +2773,705 @@ void be_main() {
                 individual attacks is enough to drive most individual units.
             */
 
-           // Clear the firepower and TempSpecial attributes arrays.
-           for(int i = 0;i < 200;i++) {
-            Hits[i].firepower = 0;
-            Hits[i].special = 0;
-            Hits[i].tag = "";
-           }
-           number_of_attacks = 0; // Assume the attacker has no weapons
+            // Clear the firepower and TempSpecial attributes arrays.
+            for (int i = 0; i < 200; i++)
+            {
+                Hits[i].firepower = 0;
+                Hits[i].special = 0;
+                Hits[i].tag = "";
+            }
+            number_of_attacks = 0; // Assume the attacker has no weapons
 
-           // Determine eligibility and the number of attacks (if any)
-           switch(ForceID) {
+            // Determine eligibility and the number of attacks (if any)
+            switch (ForceID)
+            {
             case 0: // Attacking fleet
-            if(BE::AttShipStr[B].find("missile") != string::npos) {
-                // [JLL] Why the hell do we care if the name of the unit has "missile" in it?
-                BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " is a drone or decoy."; // Check the name of the ship for missile?  Assume it is a drone or decoy.
-            }
-            else {
-                BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " did not fire beams or torps."; // If missile is not in the name then the unit did not fire?
-            }
-            // [JLL] I am so confused by the if/else blocks above.  TODO: Can I remove these?
-
-            // Check if the unit is NOT drifting AND NOT nomove
-            if(!IsDrifting(BE::SpecialA[B]) && !IsNoMove(BE::SpecialA[B])) {
-                // The unit is neither drifting nor nomove
-                // Check if the unit is fleeing
-                if(IsFlee(BE::SpecialA[B])) {
-                    // The unit is fleeing.  Remove flee and add fled
-                    BE::TempSpecialA[B] = RemoveTag(BE::TempSpecialA[B],"FLEE",0);
-                    BE::TempSpecialA[B] = AddTag(BE::TempSpecialA[B],"FLED");
-                    // Check for a DEFENSE tag
-                    int defense = HasDefense(BE::TempSpecialA[B]);
-                    if(defense != std::numeric_limits<int>::min()) { // TODO: Replace the limit call with a constant for clarity and consistancy
-                        BE::TempSpecialA[B] = RemoveTag(BE::TempSpecialA[B],"DEFENSE",1); // Remove the defense tag
-                    }
-                    NewTag = "DEFENSE " + int(defense + BaseAccuracy/2); // TODO: Replace with local variable.
-                    BE::TempSpecialA[B] = AddTag(BE::TempSpecialA[B],NewTag);
-
-                    // Check if the unit has a TARGET tag
-                    int target = HasTarget(BE::TempSpecialA[B]);
-                    if(target != std::numeric_limits<int>::min()) { // TODO: Replace the limit::min call with a constant
-                        BE::TempSpecialA[B] = RemoveTag(BE::TempSpecialA[B],"TARGET",1);
-                    }
-                    NewTag = "TARGET " + int(target + BaseAccuracy/2); // TODO: Replace with local variable.  TODO: Replace BaseAccuracy/2 with a constant
-                    BE::TempSpecialA[B] = AddTag(BE::TempSpecialA[B],NewTag);
-                    #ifdef CBE_DEBUG
-                    CBE::debugFile << "[INFO] Checking unit \"" << BE::AttShipStr[B] << "\" is fleeing." << endl;
-                    CBE::debugFile << "[INFO] Old Special String: \"" << BE::SpecialA[B] << "\"" << endl;
-                    CBE::debugFile << "[INFO] New Special String: \"" << BE::TempSpecialA[B] << "\"" << endl;
-                    #endif
-                    BE:: SpecialA[B] = BE::TempSpecialA[B]; // Replace the unit's special string NOTE: Why is this replaced now?
+                if (BE::AttShipStr[B].find("missile") != string::npos)
+                {
+                    // [JLL] Why the hell do we care if the name of the unit has "missile" in it?
+                    BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " is a drone or decoy."; // Check the name of the ship for missile?  Assume it is a drone or decoy.
                 }
-            }
-            // Check if the unit is drifting
-            // NOTE: [JLL] This appears to be linked with the flee/fled check above.  Meaning, a unit can not flee if it is drifting.  Not really connected to the checks below to see if the unit is skipped.
-            if(IsDrifting(BE::SpecialA[B])) {
-                // Remove the DRIFTING tag.  NOTE: This must be a transitory tag
-                BE::TempSpecialA[B] = RemoveTag(BE::TempSpecialA[B],"DRIFTING",0);
-                #ifdef CBE_DEBUG
-                CBE::debugFile << "[INFO] " << BE::AttShipStr[B] << " is no longer drifting." << endl;
-                #endif
-            }
-            // Check if the unit is surprised!
-            if(IsSurprise(BE::SpecialA[B])) {
-                // Print the unit is suprised message
-                BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " is surprised!";
-                // Skip the rest of this unit's round
-                break; // TODO: This might need to be continue but I don't think so.
-            }
-            // Check if the unit is captured! TODO: Have the capture mechanic move the unit to the opposing fleet
-            if(IsCaptured(BE::SpecialA[B])) {
-                // Print the unit has been captured
-                BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " has been captured and can not attack!";
-                // Skip the rest of this unit's round
-                break;
-            }
-            // Check if the unit is crippled!
-            if(IsCrippled(BE::SpecialA[B])) {
-                // Print the unit is crippled
-                BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " is crippled and can not attack!";
-                // Skip the rest of this unit's round
-                break;
-            }
-            // Check if the defending fleet has a cloak
-            if(BE::DefIsCloaked == 1) {
-                // TODO: This needs to be generalized to are there targets availabled?  Move to target selection code!
-                BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " can not lock onto a target!";
-                // Skip the rest of the unit's round
-                break;
-            }
-            // This is the start of the battery processing
-            // Check if the unit has batteries
-            if(HasBatteries(BE::SpecialA[B])) {
-                // Check if the unit is in the RESERVE and NOT ARTILLERY
-                if(HasReserve(BE::SpecialA[B]) > 0 && !HasArtilleryWT(BE::SpecialA[B])) {
-                    // The unit can not fire from the reserve
-                    BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " is being held in reserve!";
+                else
+                {
+                    BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " did not fire beams or torps."; // If missile is not in the name then the unit did not fire?
+                }
+                // [JLL] I am so confused by the if/else blocks above.  TODO: Can I remove these?
+
+                // Check if the unit is NOT drifting AND NOT nomove
+                if (!IsDrifting(BE::SpecialA[B]) && !IsNoMove(BE::SpecialA[B]))
+                {
+                    // The unit is neither drifting nor nomove
+                    // Check if the unit is fleeing
+                    if (IsFlee(BE::SpecialA[B]))
+                    {
+                        // The unit is fleeing.  Remove flee and add fled
+                        BE::TempSpecialA[B] = RemoveTag(BE::TempSpecialA[B], "FLEE", 0);
+                        BE::TempSpecialA[B] = AddTag(BE::TempSpecialA[B], "FLED");
+                        // Check for a DEFENSE tag
+                        int defense = HasDefense(BE::TempSpecialA[B]);
+                        if (defense != std::numeric_limits<int>::min())
+                        {                                                                       // TODO: Replace the limit call with a constant for clarity and consistancy
+                            BE::TempSpecialA[B] = RemoveTag(BE::TempSpecialA[B], "DEFENSE", 1); // Remove the defense tag
+                        }
+                        NewTag = "DEFENSE " + int(defense + BaseAccuracy / 2); // TODO: Replace with local variable.
+                        BE::TempSpecialA[B] = AddTag(BE::TempSpecialA[B], NewTag);
+
+                        // Check if the unit has a TARGET tag
+                        int target = HasTarget(BE::TempSpecialA[B]);
+                        if (target != std::numeric_limits<int>::min())
+                        { // TODO: Replace the limit::min call with a constant
+                            BE::TempSpecialA[B] = RemoveTag(BE::TempSpecialA[B], "TARGET", 1);
+                        }
+                        NewTag = "TARGET " + int(target + BaseAccuracy / 2); // TODO: Replace with local variable.  TODO: Replace BaseAccuracy/2 with a constant
+                        BE::TempSpecialA[B] = AddTag(BE::TempSpecialA[B], NewTag);
+#ifdef CBE_DEBUG
+                        CBE::debugFile << "[INFO] Checking unit \"" << BE::AttShipStr[B] << "\" is fleeing." << endl;
+                        CBE::debugFile << "[INFO] Old Special String: \"" << BE::SpecialA[B] << "\"" << endl;
+                        CBE::debugFile << "[INFO] New Special String: \"" << BE::TempSpecialA[B] << "\"" << endl;
+#endif
+                        BE::SpecialA[B] = BE::TempSpecialA[B]; // Replace the unit's special string NOTE: Why is this replaced now?
+                    }
+                }
+                // Check if the unit is drifting
+                // NOTE: [JLL] This appears to be linked with the flee/fled check above.  Meaning, a unit can not flee if it is drifting.  Not really connected to the checks below to see if the unit is skipped.
+                if (IsDrifting(BE::SpecialA[B]))
+                {
+                    // Remove the DRIFTING tag.  NOTE: This must be a transitory tag
+                    BE::TempSpecialA[B] = RemoveTag(BE::TempSpecialA[B], "DRIFTING", 0);
+#ifdef CBE_DEBUG
+                    CBE::debugFile << "[INFO] " << BE::AttShipStr[B] << " is no longer drifting." << endl;
+#endif
+                }
+                // Check if the unit is surprised!
+                if (IsSurprise(BE::SpecialA[B]))
+                {
+                    // Print the unit is suprised message
+                    BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " is surprised!";
+                    // Skip the rest of this unit's round
+                    break; // TODO: This might need to be continue but I don't think so.
+                }
+                // Check if the unit is captured! TODO: Have the capture mechanic move the unit to the opposing fleet
+                if (IsCaptured(BE::SpecialA[B]))
+                {
+                    // Print the unit has been captured
+                    BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " has been captured and can not attack!";
+                    // Skip the rest of this unit's round
+                    break;
+                }
+                // Check if the unit is crippled!
+                if (IsCrippled(BE::SpecialA[B]))
+                {
+                    // Print the unit is crippled
+                    BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " is crippled and can not attack!";
+                    // Skip the rest of this unit's round
+                    break;
+                }
+                // Check if the defending fleet has a cloak
+                if (BE::DefIsCloaked == 1)
+                {
+                    // TODO: This needs to be generalized to are there targets availabled?  Move to target selection code!
+                    BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " can not lock onto a target!";
                     // Skip the rest of the unit's round
                     break;
                 }
-                
-                // Getting the bracket attacks and adding them to the Salvos array
-                number_of_attacks = 0; // TODO: Replace with a local variable
-                temp_str = BE::SpecialA[B]; // TODO: Replace with a local variable
-                old_start = temp_str.find("["); // TODO: Replace with a local variable
-                sc = 0; // TODO: Replace with a local variable?  This may be used later
-                #ifdef CBE_DEBUG
-                CBE::debugFile << "[INFO] " << BE::AttRaceName << " " << BE::AttShipStr[B] << " looking for batteries: " << temp_str << endl;
-                #endif
-                // TODO: Turn the code below into a function?
-                while(old_start != string::npos) {
-                    start = temp_str.find("[",old_start); // TODO: Replace with a local variable
-                    start1 = temp_str.find("]",start); // TODO: Replace with a local variable
-                    // NOTE: [JLL] Not sure what the below does
-                    if(start1 == string::npos) {
-                        old_start = int(string::npos); // Set to no position so that the loop stops NOTE: [JLL] Explicit typecast to int causes this to be -1.
-                        start1 = temp_str.size(); // Get the whole string since there is no closing bracket TODO: This should be handled at load with a validation check.
+                // This is the start of the battery processing
+                // Check if the unit has batteries
+                if (HasBatteries(BE::SpecialA[B]))
+                {
+                    // Check if the unit is in the RESERVE and NOT ARTILLERY
+                    if (HasReserve(BE::SpecialA[B]) > 0 && !HasArtilleryWT(BE::SpecialA[B]))
+                    {
+                        // The unit can not fire from the reserve
+                        BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " is being held in reserve!";
+                        // Skip the rest of the unit's round
+                        break;
                     }
-                    else {
-                        old_start = temp_str.find("[",start1); // Find the start of the next salvo string
+
+                    // Getting the bracket attacks and adding them to the Salvos array
+                    number_of_attacks = 0;          // TODO: Replace with a local variable
+                    temp_str = BE::SpecialA[B];     // TODO: Replace with a local variable
+                    old_start = temp_str.find("["); // TODO: Replace with a local variable
+                    sc = 0;                         // TODO: Replace with a local variable?  This may be used later
+#ifdef CBE_DEBUG
+                    CBE::debugFile << "[INFO] " << BE::AttRaceName << " " << BE::AttShipStr[B] << " looking for batteries: " << temp_str << endl;
+#endif
+                    // TODO: Turn the code below into a function?
+                    while (old_start != string::npos)
+                    {
+                        start = temp_str.find("[", old_start); // TODO: Replace with a local variable
+                        start1 = temp_str.find("]", start);    // TODO: Replace with a local variable
+                        // NOTE: [JLL] Not sure what the below does
+                        if (start1 == string::npos)
+                        {
+                            old_start = int(string::npos); // Set to no position so that the loop stops NOTE: [JLL] Explicit typecast to int causes this to be -1.
+                            start1 = temp_str.size();      // Get the whole string since there is no closing bracket TODO: This should be handled at load with a validation check.
+                        }
+                        else
+                        {
+                            old_start = temp_str.find("[", start1); // Find the start of the next salvo string
+                        }
+                        // Increment the salvo count
+                        sc = sc + 1;
+                        // Save the bracket string
+                        BE::Salvos[sc].DataStr = temp_str.substr(start, start1 - start + 1);
+                        BE::Salvos[sc].MissileS = stoi(temp_str.substr(1));
+#ifdef CBE_DEBUG
+                        CBE::debugFile << "[INFO] " << BE::AttRaceName << " " << BE::AttShipStr[B] << " has battery: " << BE::Salvos[sc].DataStr << endl;
+#endif
                     }
-                    // Increment the salvo count
-                    sc = sc + 1;
-                    // Save the bracket string
-                    BE::Salvos[sc].DataStr = temp_str.substr(start,start1 - start + 1);
-                    BE::Salvos[sc].MissileS = stoi(temp_str.substr(1));
-                    #ifdef CBE_DEBUG
-                    CBE::debugFile << "[INFO] " << BE::AttRaceName << " " << BE::AttShipStr[B] << " has battery: " << BE::Salvos[sc].DataStr << endl;
-                    #endif
+
+                    // Did we find any salvos?
+                    if (sc > 0)
+                    {
+                        for (int i = 0; i < sc; i++)
+                        {
+                            // Do everything we can to set the firepower to zero [JLL] Meaning, if there is a reason to set the firepower to 0 do so.  Such as missile, lack long, ROF, offline, etc.
+                            // Check if this is a missile battery which was taken care of earlier
+                            if (HasMissileWT(BE::Salvos[i].DataStr))
+                            {
+                                BE::Salvos[i].MissileS = 0; // TODO: Can I move these checks to building the salvo array above?
+                            }
+                            // Check if the battery is offline
+                            else if (IsOffline(BE::Salvos[i].DataStr))
+                            {
+                                BE::Salvos[i].MissileS = 0;
+                            }
+                            // Check for a firing delay in the ROF tag
+                            else if (GetROFDelayWT(BE::Salvos[i].DataStr) > 0)
+                            {
+                                BE::Salvos[i].MissileS = 0;
+                            }
+                            // Check if only LR attacks are valid and if the battery is NOT long
+                            else if ((BE::AttHasLongRange || BE::DefHasLongRange) && !HasLongWT(BE::Salvos[i].DataStr))
+                            {
+                                BE::Salvos[i].MissileS = 0;
+                            }
+                            // Check for reserve and artillery tags
+                            // TODO: Can't this be removed?  The checks before salvos are built should skip this
+                            else if (HasReserve(BE::SpecialA[B]) && !HasArtilleryWT(BE::Salvos[i].DataStr))
+                            {
+                                BE::Salvos[i].MissileS = 0;
+                            }
+                            // Check if the battery needs ammo and has some
+                            else if (HasAmmoWT(BE::Salvos[i].DataStr) != CBE::AMMO_EMPTY)
+                            {
+                                BE::Salvos[i].MissileS = 0;
+                            }
+
+                            // Cycle weapons updating counters and removing offline tags
+                            // TODO: Check for offline tag first?
+                            BE::Salvos[i].DataStr = RemoveTag(BE::Salvos[i].DataStr, "offline", 0);
+                            // Update the ROF tag if it is present
+                            int rate = GetROFRateWT(BE::Salvos[i].DataStr);
+                            if (rate > 0)
+                            {
+                                // Weapon is cycling using ROF rate
+                                int delay = GetROFDelayWT(BE::Salvos[i].DataStr);
+                                string newROF = "";
+                                if (delay > 0)
+                                {
+                                    // Compute a new ROF tag by decrementing the delay value by 1.
+                                    newROF = "rof " + to_string(rate) + " " + to_string(delay - 1);
+                                }
+                                else
+                                {
+                                    // Compute a new ROF tag by setting the delay value to the rate value
+                                    newROF = "rof " + to_string(rate) + " " + to_string(rate - 1); // Minus 1 because a rate of 2 is fire every other turn
+                                }
+                                string temp = RemoveTag(BE::Salvos[i].DataStr, "rof", 2); // Remove the old ROF tag
+                                temp = AddTag(temp, newROF);                              // Add the new ROF tag
+                                BE::Salvos[i].DataStr = temp;
+                            }
+
+                            // [JLL] Now that the salvo strings have been updated (offline & rof)
+                            // [JLL] rebuild the battery tags in the unit special string
+                            // [JLL] FIXME: This should only happen at the end of processing this unit.
+                            string temp = RebuildBatteryTags(BE::TempSpecialA[B], BE::Salvos, sc);
+                            BE::TempSpecialA[B] = temp;
+                            BE::SpecialA[B] = temp;
+
+                            // Does the salvo have firepower?
+                            if (BE::Salvos[i].MissileS > 0)
+                            {
+                                // Does the battery have FLAK and does the defense have fighters?
+                                if (HasFlakWT(BE::Salvos[i].DataStr) && BE::DefHasFighters > 0)
+                                {
+                                    // Create the flak packets
+                                    for (int j = 0; j < BE::Salvos[i].MissileS; j++)
+                                    {
+                                        number_of_attacks = number_of_attacks + 1;                                                            // Increment the number of attacks
+                                        Hits[number_of_attacks].firepower = 1;                                                                // Fill out the hits array, with the firepower split into packets of 1
+                                        Hits[number_of_attacks].special = BE::saMulti;                                                        // Batteries are multi-targetting
+                                        Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, Hits[number_of_attacks].special); // Combine any bitwise flags
+                                        Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                                                  // Set the tags for the `hit` [JLL] Really this is a possible hit at this point.  More like shots.
+                                    }
+                                }
+                                else if (HasMultiWT(BE::Salvos[i].DataStr) > 0)
+                                { // TODO: Use a constant here
+                                    // This is a multi attack
+                                    packet_size = HasMultiWT(BE::Salvos[i].DataStr); // TODO: Convert to local variable TODO: Differentiate HasMulti and GetMulti functions
+                                    for (int j = 0; j < int(BE::Salvos[i].MissileS / packet_size); j++)
+                                    {
+                                        number_of_attacks = number_of_attacks + 1; // Incremet the number of attacks
+                                        Hits[number_of_attacks].firepower = packet_size;
+                                        Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, BE::saMulti); // Start with multi because batteries
+                                        Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                              // Set the tags for the hit
+                                    }
+                                    // Check for left over firepower due to packet sizing
+                                    if ((BE::Salvos[i].MissileS % packet_size) > 0)
+                                    {
+                                        // Yep, there is a remainder
+                                        number_of_attacks = number_of_attacks + 1; // Incremet the number of attacks
+                                        Hits[number_of_attacks].firepower = BE::Salvos[i].MissileS % packet_size;
+                                        Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, BE::saMulti); // Start with multi because batteries
+                                        Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                              // Set the tags for the hit
+                                    }
+                                }
+                                else
+                                {
+                                    // If it is not flak and not multi then it must be a single target attack!
+                                    number_of_attacks = number_of_attacks + 1;                                        // Incremet the number of attacks
+                                    Hits[number_of_attacks].firepower = BE::Salvos[i].MissileS;                       // Set the firepower from the salvo
+                                    Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, BE::saMulti); // Start with multi because batteries
+                                    Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                              // Set the tags for the hit
+                                }
+                            }
+
+                            // Check for ammo
+                            int ammo = HasAmmoWT(BE::Salvos[i].DataStr);
+                            if (ammo != CBE::AMMO_INFINITE)
+                            {
+                                // We are using ammo
+                                // Create a new ammo tag
+                                string newTag = "ammo " + (ammo - 1);
+                                string tempStr = RemoveTag(BE::Salvos[i].DataStr, "ammmo", 1);
+                                tempStr = AddTag(tempStr, newTag);
+                                BE::Salvos[i].DataStr = tempStr;
+
+                                // Reassemble the weapon tags again for the unit
+                                // TODO: Why are we doing this again so soon?  Why not at the end?  Need to check the logic in the hit building above.
+                                string temp = RebuildBatteryTags(BE::TempSpecialA[B], BE::Salvos, sc);
+                                BE::TempSpecialA[B] = temp;
+                                BE::SpecialA[B] = temp;
+                            }
+                        }
+                    }
                 }
+                break;
+            case 1: // Defending fleet //////////////////////////////////////////////////////////////////////////////////////////////
+                if (BE::DefShipStr[B].find("missile") != string::npos)
+                {
+                    // [JLL] Why the hell do we care if the name of the unit has "missile" in it?
+                    BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " is a drone or decoy."; // Check the name of the ship for missile?  Assume it is a drone or decoy.
+                }
+                else
+                {
+                    BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " did not fire beams or torps."; // If missile is not in the name then the unit did not fire?
+                }
+                // [JLL] I am so confused by the if/else blocks above.  TODO: Can I remove these?
 
-                // Did we find any salvos?
-                if(sc > 0) {
-                    for(int i = 0;i < sc;i++) {
-                        // Do everything we can to set the firepower to zero [JLL] Meaning, if there is a reason to set the firepower to 0 do so.  Such as missile, lack long, ROF, offline, etc.
-                        // Check if this is a missile battery which was taken care of earlier
-                        if(HasMissileWT(BE::Salvos[i].DataStr)) {
-                            BE::Salvos[i].MissileS = 0; // TODO: Can I move these checks to building the salvo array above?
+                // Check if the unit is NOT drifting AND NOT nomove
+                if (!IsDrifting(BE::SpecialB[B]) && !IsNoMove(BE::SpecialB[B]))
+                {
+                    // The unit is neither drifting nor nomove
+                    // Check if the unit is fleeing
+                    if (IsFlee(BE::SpecialB[B]))
+                    {
+                        // The unit is fleeing.  Remove flee and add fled
+                        BE::TempSpecialB[B] = RemoveTag(BE::TempSpecialB[B], "FLEE", 0);
+                        BE::TempSpecialB[B] = AddTag(BE::TempSpecialB[B], "FLED");
+                        // Check for a DEFENSE tag
+                        int defense = HasDefense(BE::TempSpecialB[B]);
+                        if (defense != std::numeric_limits<int>::min())
+                        {                                                                       // TODO: Replace the limit call with a constant for clarity and consistancy
+                            BE::TempSpecialB[B] = RemoveTag(BE::TempSpecialB[B], "DEFENSE", 1); // Remove the defense tag
                         }
-                        // Check if the battery is offline
-                        else if(IsOffline(BE::Salvos[i].DataStr)) {
-                            BE::Salvos[i].MissileS = 0;
-                        }
-                        // Check for a firing delay in the ROF tag
-                        else if(GetROFDelayWT(BE::Salvos[i].DataStr) > 0) {
-                            BE::Salvos[i].MissileS = 0;
-                        }
-                        // Check if only LR attacks are valid and if the battery is NOT long
-                        else if((BE::AttHasLongRange || BE::DefHasLongRange) && !HasLongWT(BE::Salvos[i].DataStr)) {
-                            BE::Salvos[i].MissileS = 0;
-                        }
-                        // Check for reserve and artillery tags
-                        // TODO: Can't this be removed?  The checks before salvos are built should skip this
-                        else if(HasReserve(BE::SpecialA[B]) && !HasArtilleryWT(BE::Salvos[i].DataStr)) {
-                            BE::Salvos[i].MissileS = 0;
-                        }
-                        // Check if the battery needs ammo and has some
-                        else if(HasAmmoWT(BE::Salvos[i].DataStr) != CBE::AMMO_EMPTY) {
-                            BE::Salvos[i].MissileS = 0;
-                        }
+                        NewTag = "DEFENSE " + int(defense + BaseAccuracy / 2); // TODO: Replace with local variable.
+                        BE::TempSpecialB[B] = AddTag(BE::TempSpecialB[B], NewTag);
 
-                        // Cycle weapons updating counters and removing offline tags
-                        // TODO: Check for offline tag first?
-                        BE::Salvos[i].DataStr = RemoveTag(BE::Salvos[i].DataStr,"offline",0);
-                        // Update the ROF tag if it is present
-                        int rate = GetROFRateWT(BE::Salvos[i].DataStr);
-                        if(rate > 0) {
-                            // Weapon is cycling using ROF rate
-                            int delay = GetROFDelayWT(BE::Salvos[i].DataStr);
-                            string newROF = "";
-                            if(delay > 0) {
-                                // Compute a new ROF tag by decrementing the delay value by 1.
-                                newROF = "rof " + to_string(rate) + " " + to_string(delay - 1);
-                            }
-                            else {
-                                // Compute a new ROF tag by setting the delay value to the rate value
-                                newROF = "rof " + to_string(rate) + " " + to_string(rate - 1);  // Minus 1 because a rate of 2 is fire every other turn
-                            }
-                            string temp = RemoveTag(BE::Salvos[i].DataStr,"rof",2); // Remove the old ROF tag
-                            temp = AddTag(temp,newROF); // Add the new ROF tag
-                            BE::Salvos[i].DataStr = temp;
+                        // Check if the unit has a TARGET tag
+                        int target = HasTarget(BE::TempSpecialB[B]);
+                        if (target != std::numeric_limits<int>::min())
+                        { // TODO: Replace the limit::min call with a constant
+                            BE::TempSpecialB[B] = RemoveTag(BE::TempSpecialB[B], "TARGET", 1);
                         }
-
-                        // [JLL] Now that the salvo strings have been updated (offline & rof)
-                        // [JLL] rebuild the battery tags in the unit special string
-                        string temp = RebuildBatteryTags(BE::SpecialA[B],BE::Salvos,sc);
+                        NewTag = "TARGET " + int(target + BaseAccuracy / 2); // TODO: Replace with local variable.  TODO: Replace BaseAccuracy/2 with a constant
+                        BE::TempSpecialB[B] = AddTag(BE::TempSpecialB[B], NewTag);
+#ifdef CBE_DEBUG
+                        CBE::debugFile << "[INFO] Checking unit \"" << BE::DefShipStr[B] << "\" is fleeing." << endl;
+                        CBE::debugFile << "[INFO] Old Special String: \"" << BE::SpecialB[B] << "\"" << endl;
+                        CBE::debugFile << "[INFO] New Special String: \"" << BE::TempSpecialB[B] << "\"" << endl;
+#endif
+                        BE::SpecialB[B] = BE::TempSpecialB[B]; // Replace the unit's special string NOTE: Why is this replaced now?
                     }
+                }
+                // Check if the unit is drifting
+                // NOTE: [JLL] This appears to be linked with the flee/fled check above.  Meaning, a unit can not flee if it is drifting.  Not really connected to the checks below to see if the unit is skipped.
+                if (IsDrifting(BE::SpecialB[B]))
+                {
+                    // Remove the DRIFTING tag.  NOTE: This must be a transitory tag
+                    BE::TempSpecialB[B] = RemoveTag(BE::TempSpecialB[B], "DRIFTING", 0);
+#ifdef CBE_DEBUG
+                    CBE::debugFile << "[INFO] " << BE::DefShipStr[B] << " is no longer drifting." << endl;
+#endif
+                }
+                // Check if the unit is surprised!
+                if (IsSurprise(BE::SpecialB[B]))
+                {
+                    // Print the unit is suprised message
+                    BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " is surprised!";
+                    // Skip the rest of this unit's round
+                    break; // TODO: This might need to be continue but I don't think so.
+                }
+                // Check if the unit is captured! TODO: Have the capture mechanic move the unit to the opposing fleet
+                if (IsCaptured(BE::SpecialB[B]))
+                {
+                    // Print the unit has been captured
+                    BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " has been captured and can not attack!";
+                    // Skip the rest of this unit's round
+                    break;
+                }
+                // Check if the unit is crippled!
+                if (IsCrippled(BE::SpecialB[B]))
+                {
+                    // Print the unit is crippled
+                    BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " is crippled and can not attack!";
+                    // Skip the rest of this unit's round
+                    break;
+                }
+                // Check if the defending fleet has a cloak
+                if (BE::DefIsCloaked == 1)
+                {
+                    // TODO: This needs to be generalized to are there targets availabled?  Move to target selection code!
+                    BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " can not lock onto a target!";
+                    // Skip the rest of the unit's round
+                    break;
+                }
+                // This is the start of the battery processing
+                // Check if the unit has batteries
+                if (HasBatteries(BE::SpecialB[B]))
+                {
+                    // Check if the unit is in the RESERVE and NOT ARTILLERY
+                    if (HasReserve(BE::SpecialB[B]) > 0 && !HasArtilleryWT(BE::SpecialB[B]))
+                    {
+                        // The unit can not fire from the reserve
+                        BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " is being held in reserve!";
+                        // Skip the rest of the unit's round
+                        break;
+                    }
+
+                    // Getting the bracket attacks and adding them to the Salvos array
+                    number_of_attacks = 0;          // TODO: Replace with a local variable
+                    temp_str = BE::SpecialB[B];     // TODO: Replace with a local variable
+                    old_start = temp_str.find("["); // TODO: Replace with a local variable
+                    sc = 0;                         // TODO: Replace with a local variable?  This may be used later
+#ifdef CBE_DEBUG
+                    CBE::debugFile << "[INFO] " << BE::DefRaceName << " " << BE::DefShipStr[B] << " looking for batteries: " << temp_str << endl;
+#endif
+                    // TODO: Turn the code below into a function?
+                    while (old_start != string::npos)
+                    {
+                        start = temp_str.find("[", old_start); // TODO: Replace with a local variable
+                        start1 = temp_str.find("]", start);    // TODO: Replace with a local variable
+                        // NOTE: [JLL] Not sure what the below does
+                        if (start1 == string::npos)
+                        {
+                            old_start = int(string::npos); // Set to no position so that the loop stops NOTE: [JLL] Explicit typecast to int causes this to be -1.
+                            start1 = temp_str.size();      // Get the whole string since there is no closing bracket TODO: This should be handled at load with a validation check.
+                        }
+                        else
+                        {
+                            old_start = temp_str.find("[", start1); // Find the start of the next salvo string
+                        }
+                        // Increment the salvo count
+                        sc = sc + 1;
+                        // Save the bracket string
+                        BE::Salvos[sc].DataStr = temp_str.substr(start, start1 - start + 1);
+                        BE::Salvos[sc].MissileS = stoi(temp_str.substr(1));
+#ifdef CBE_DEBUG
+                        CBE::debugFile << "[INFO] " << BE::DefRaceName << " " << BE::DefShipStr[B] << " has battery: " << BE::Salvos[sc].DataStr << endl;
+#endif
+                    }
+
+                    // Did we find any salvos?
+                    if (sc > 0)
+                    {
+                        for (int i = 0; i < sc; i++)
+                        {
+                            // Do everything we can to set the firepower to zero [JLL] Meaning, if there is a reason to set the firepower to 0 do so.  Such as missile, lack long, ROF, offline, etc.
+                            // Check if this is a missile battery which was taken care of earlier
+                            if (HasMissileWT(BE::Salvos[i].DataStr))
+                            {
+                                BE::Salvos[i].MissileS = 0; // TODO: Can I move these checks to building the salvo array above?
+                            }
+                            // Check if the battery is offline
+                            else if (IsOffline(BE::Salvos[i].DataStr))
+                            {
+                                BE::Salvos[i].MissileS = 0;
+                            }
+                            // Check for a firing delay in the ROF tag
+                            else if (GetROFDelayWT(BE::Salvos[i].DataStr) > 0)
+                            {
+                                BE::Salvos[i].MissileS = 0;
+                            }
+                            // Check if only LR attacks are valid and if the battery is NOT long
+                            else if ((BE::DefHasLongRange || BE::DefHasLongRange) && !HasLongWT(BE::Salvos[i].DataStr))
+                            {
+                                BE::Salvos[i].MissileS = 0;
+                            }
+                            // Check for reserve and artillery tags
+                            // TODO: Can't this be removed?  The checks before salvos are built should skip this
+                            else if (HasReserve(BE::SpecialB[B]) && !HasArtilleryWT(BE::Salvos[i].DataStr))
+                            {
+                                BE::Salvos[i].MissileS = 0;
+                            }
+                            // Check if the battery needs ammo and has some
+                            else if (HasAmmoWT(BE::Salvos[i].DataStr) != CBE::AMMO_EMPTY)
+                            {
+                                BE::Salvos[i].MissileS = 0;
+                            }
+
+                            // Cycle weapons updating counters and removing offline tags
+                            // TODO: Check for offline tag first?
+                            BE::Salvos[i].DataStr = RemoveTag(BE::Salvos[i].DataStr, "offline", 0);
+                            // Update the ROF tag if it is present
+                            int rate = GetROFRateWT(BE::Salvos[i].DataStr);
+                            if (rate > 0)
+                            {
+                                // Weapon is cycling using ROF rate
+                                int delay = GetROFDelayWT(BE::Salvos[i].DataStr);
+                                string newROF = "";
+                                if (delay > 0)
+                                {
+                                    // Compute a new ROF tag by decrementing the delay value by 1.
+                                    newROF = "rof " + to_string(rate) + " " + to_string(delay - 1);
+                                }
+                                else
+                                {
+                                    // Compute a new ROF tag by setting the delay value to the rate value
+                                    newROF = "rof " + to_string(rate) + " " + to_string(rate - 1); // Minus 1 because a rate of 2 is fire every other turn
+                                }
+                                string temp = RemoveTag(BE::Salvos[i].DataStr, "rof", 2); // Remove the old ROF tag
+                                temp = AddTag(temp, newROF);                              // Add the new ROF tag
+                                BE::Salvos[i].DataStr = temp;
+                            }
+
+                            // [JLL] Now that the salvo strings have been updated (offline & rof)
+                            // [JLL] rebuild the battery tags in the unit special string
+                            // [JLL] FIXME: This should only happen at the end of processing this unit.
+                            string temp = RebuildBatteryTags(BE::TempSpecialB[B], BE::Salvos, sc);
+                            BE::TempSpecialB[B] = temp;
+                            BE::SpecialB[B] = temp;
+
+                            // Does the salvo have firepower?
+                            if (BE::Salvos[i].MissileS > 0)
+                            {
+                                // Does the battery have FLAK and does the defense have fighters?
+                                if (HasFlakWT(BE::Salvos[i].DataStr) && BE::DefHasFighters > 0)
+                                {
+                                    // Create the flak packets
+                                    for (int j = 0; j < BE::Salvos[i].MissileS; j++)
+                                    {
+                                        number_of_attacks = number_of_attacks + 1;                                                            // Increment the number of attacks
+                                        Hits[number_of_attacks].firepower = 1;                                                                // Fill out the hits array, with the firepower split into packets of 1
+                                        Hits[number_of_attacks].special = BE::saMulti;                                                        // Batteries are multi-targetting
+                                        Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, Hits[number_of_attacks].special); // Combine any bitwise flags
+                                        Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                                                  // Set the tags for the `hit` [JLL] Really this is a possible hit at this point.  More like shots.
+                                    }
+                                }
+                                else if (HasMultiWT(BE::Salvos[i].DataStr) > 0)
+                                { // TODO: Use a constant here
+                                    // This is a multi attack
+                                    packet_size = HasMultiWT(BE::Salvos[i].DataStr); // TODO: Convert to local variable TODO: Differentiate HasMulti and GetMulti functions
+                                    for (int j = 0; j < int(BE::Salvos[i].MissileS / packet_size); j++)
+                                    {
+                                        number_of_attacks = number_of_attacks + 1; // Incremet the number of attacks
+                                        Hits[number_of_attacks].firepower = packet_size;
+                                        Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, BE::saMulti); // Start with multi because batteries
+                                        Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                              // Set the tags for the hit
+                                    }
+                                    // Check for left over firepower due to packet sizing
+                                    if ((BE::Salvos[i].MissileS % packet_size) > 0)
+                                    {
+                                        // Yep, there is a remainder
+                                        number_of_attacks = number_of_attacks + 1; // Incremet the number of attacks
+                                        Hits[number_of_attacks].firepower = BE::Salvos[i].MissileS % packet_size;
+                                        Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, BE::saMulti); // Start with multi because batteries
+                                        Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                              // Set the tags for the hit
+                                    }
+                                }
+                                else
+                                {
+                                    // If it is not flak and not multi then it must be a single target attack!
+                                    number_of_attacks = number_of_attacks + 1;                                        // Incremet the number of attacks
+                                    Hits[number_of_attacks].firepower = BE::Salvos[i].MissileS;                       // Set the firepower from the salvo
+                                    Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, BE::saMulti); // Start with multi because batteries
+                                    Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                              // Set the tags for the hit
+                                }
+                            }
+
+                            // Check for ammo
+                            int ammo = HasAmmoWT(BE::Salvos[i].DataStr);
+                            if (ammo != CBE::AMMO_INFINITE)
+                            {
+                                // We are using ammo
+                                // Create a new ammo tag
+                                string newTag = "ammo " + (ammo - 1);
+                                string tempStr = RemoveTag(BE::Salvos[i].DataStr, "ammmo", 1);
+                                tempStr = AddTag(tempStr, newTag);
+                                BE::Salvos[i].DataStr = tempStr;
+
+                                // Reassemble the weapon tags again for the unit
+                                // TODO: Why are we doing this again so soon?  Why not at the end?  Need to check the logic in the hit building above.
+                                string temp = RebuildBatteryTags(BE::TempSpecialB[B], BE::Salvos, sc);
+                                BE::TempSpecialB[B] = temp;
+                                BE::SpecialB[B] = temp;
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+            // ROLL ATTACKS
+            HasRaided = 0;
+            if (number_of_attacks == 0)
+            {
+// Skip the rest of the unit's round
+#ifdef CBE_DEBUG
+                CBE::debugFile << "[INFO] Unit has no attackes! Skipping rest of unit's turn." << endl;
+#endif
+                continue;
+            }
+            // Handle the attacks
+            for (int i = 0; i < number_of_attacks; i++)
+            {
+                int firepower = Hits[i].firepower;
+                // Is the firepower greater than 1
+                if (firepower > 1)
+                {
+                    int AbortCounter = 0;
+                    do
+                    {
+                        AbortCounter++;
+                        if (AbortCounter >= 10)
+                        {
+                            // We have tried 10 times with this attack.  Skip it.
+                            // Check forceID
+                            if (ForceID == 0)
+                            {
+                                BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " aborts attack!";
+                            }
+                            else
+                            {
+                                BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " aborts attack!";
+                            }
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO] Unit has aborted an attack after 10 times!" << endl;
+#endif
+                            continue;
+                        }
+
+                        // This section of code sets Target1.  The variable is set/reset if it is
+                        // the first attack roll (i = 0) or bit 16 is set for scatter pack targetting.
+                        if (i == 0 || (Hits[i].special & BE::saMulti) == BE::saMulti)
+                        {
+                            int HullTarget = 0;
+                            if (ForceID == 0)
+                            { // Attackers
+                                string CombatStr = Hits[i].tag;
+                                int HullScope = 0;
+                                // Does the fleet have a target priority?
+                                if (BE::AttTargetPriority > 0)
+                                {
+                                    HullTarget = BE::AttTargetPriority;
+                                }
+                                HasHull(CombatStr, HullTarget, HullScope);
+                                HasScan(CombatStr, HullTarget, HullScope);
+                                int dlGroup = -1; // TODO: Replace -1 with constant
+                                if (HasDatalinkWT(CombatStr, dlGroup))
+                                {
+                                    BE::Target1 = DataLinkA[dlGroup];
+                                    // [JLL] Check if there is a target for the datalink group already
+                                    if (BE::Target1 == -1)
+                                    { // TODO: Replace -1 with a constant
+                                        if (HasScan(CombatStr, HullTarget, HullScope))
+                                        {
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } while (AbortCounter < 10); // FIXME: This is a placeholder until I finished this loops code
                 }
             }
-            break;
-            case 1: // Defending fleet
-            break;
-           }
-           // Check ForceID to print the correct message
-           if(ForceID == 0) {
-              // TODO: Change AttBattleStr and DefBattleStr to a single local variable.  Unless these get added to later in the loop. (Written at the Salvos point)
-              if(BE::AttBattleStr.size() > 0) {
-                 reportFile << BE::AttBattleStr << "\n";                  
-              }
-              else {
-              }
-           }
+            // Check ForceID to print the correct message
+            if (ForceID == 0)
+            {
+                // TODO: Change AttBattleStr and DefBattleStr to a single local variable.  Unless these get added to later in the loop. (Written at the Salvos point)
+                if (BE::AttBattleStr.size() > 0)
+                {
+                    reportFile << BE::AttBattleStr << "\n";
+                }
+                else
+                {
+                }
+            }
         }
 
         // END OF ROUND!!!!
         writeTempFiles();
 
-        //FIXME: Memory cleanup?
-        
+        // FIXME: Memory cleanup?
+
         reportFile << "\n";
         reportFile.flush();
         damageFile.flush();
-    } while (BE::CombatRound < 100/* condition | TODO: replace true with variable.  Perhaps AttackLoop? */);
-    
+    } while (BE::CombatRound < 100 /* condition | TODO: replace true with variable.  Perhaps AttackLoop? */);
 }
 
 /*
-* valid command line arguments are:
-* -a <string> - the filename for the attacking fleet csv
-* -d <string> - the filename for the defending fleet csv
-* -g <string> - the group name for this simulation (default is Fleets)
-* -u <string> - the unit name for this simulation (default is Ships)
-*/
-int main(int argc, char *argv[]) {
-    #ifdef CBE_DEBUG
+ * valid command line arguments are:
+ * -a <string> - the filename for the attacking fleet csv
+ * -d <string> - the filename for the defending fleet csv
+ * -g <string> - the group name for this simulation (default is Fleets)
+ * -u <string> - the unit name for this simulation (default is Ships)
+ */
+int main(int argc, char *argv[])
+{
+#ifdef CBE_DEBUG
     CBE::debugFile << "############################## DEBUG ##############################" << endl;
-    #endif
+#endif
     int i = 1;
     string fname = "";
-    while(i < argc) {
+    while (i < argc)
+    {
         string cmd = argv[i];
-        if(cmd == "-a") {
+        if (cmd == "-a")
+        {
             // Move to the next argument
             i++;
             // Load the attacking fleet
             fname = argv[i];
             loadAttackingFleet(fname);
         }
-        else if (cmd == "-d") {
+        else if (cmd == "-d")
+        {
             // Move to the next argument
             i++;
             // Load the defending fleet
             fname = argv[i];
             loadDefendingFleet(fname);
         }
-        else if (cmd == "-hit") {
+        else if (cmd == "-hit")
+        {
             // Move to the next argument
             i++;
             // Set the to hit
             CBE::baseAccuracy = stof(argv[i]);
         }
-        else {
-            cout << "Unknown command: " << cmd << endl;
+        else
+        {
+            std::cout << "Unknown command: " << cmd << endl;
         }
         i++;
     }
@@ -2283,62 +3479,68 @@ int main(int argc, char *argv[]) {
     // Present the menu to the user
     bool done = false;
     int choice = 0;
-    while(!done) {
+    while (!done)
+    {
         // Display the menu
-        cout << "BattleEngine 1.1" << endl;
-        if(CBE::attackerLoaded) {
-            cout << "\t1: Attacking Fleet: " << BE::AttFleetStr << endl;
+        std::cout << "BattleEngine 1.1" << endl;
+        if (CBE::attackerLoaded)
+        {
+            std::cout << "\t1: Attacking Fleet: " << BE::AttFleetStr << endl;
         }
-        else {
-            cout << "\t1: Load Attacking Fleet" << endl;
+        else
+        {
+            std::cout << "\t1: Load Attacking Fleet" << endl;
         }
-        if(CBE::defenderLoaded) {
-            cout << "\t2: Defending Fleet: " << BE::DefFleetStr << endl;
+        if (CBE::defenderLoaded)
+        {
+            std::cout << "\t2: Defending Fleet: " << BE::DefFleetStr << endl;
         }
-        else {
-            cout << "\t2: Load Defending Fleet" << endl;
+        else
+        {
+            std::cout << "\t2: Load Defending Fleet" << endl;
         }
-        cout << "\t3: Update Settings" << endl;
-        cout << "\t4: One Turn" << endl;
-        cout << "\t5: Fight!" << endl;
-        cout << "\t6: Debug Output" << endl;
-        cout << "\t0: Exit" << endl;
-        cout << "Selection: ";
+        std::cout << "\t3: Update Settings" << endl;
+        std::cout << "\t4: One Turn" << endl;
+        std::cout << "\t5: Fight!" << endl;
+        std::cout << "\t6: Debug Output" << endl;
+        std::cout << "\t0: Exit" << endl;
+        std::cout << "Selection: ";
 
         // Wait for user input
-        cin >> choice;
+        std::cin >> choice;
 
         // What did the user choose?
-        switch(choice) {
-            case 1:
-                // Load the attacking fleet
-                cout << "Attackers File Name: ";
-                cin >> fname;
-                loadAttackingFleet(fname);
-                break;
-            case 2:
-                // Load the defending fleet
-                cout << "Defenders File Name: ";
-                cin >> fname;
-                loadDefendingFleet(fname);
-                break;
-            case 4:
-                cout << "Doing one round of combat" << endl;
-                break;
-            case 5:
-                // Do the thing!
-                cout << "Starting combat" << endl;
-                be_main();
-                break;
-            case 6:
-                debugPrintUnits();
-                break;
-            default:
-                done = true;
+        switch (choice)
+        {
+        case 1:
+            // Load the attacking fleet
+            std::cout << "Attackers File Name: ";
+            std::cin >> fname;
+            loadAttackingFleet(fname);
+            break;
+        case 2:
+            // Load the defending fleet
+            std::cout << "Defenders File Name: ";
+            std::cin >> fname;
+            loadDefendingFleet(fname);
+            break;
+        case 4:
+            std::cout << "Doing one round of combat" << endl;
+            break;
+        case 5:
+            // Do the thing!
+            std::cout << "Starting combat" << endl;
+            be_main();
+            break;
+        case 6:
+            debugPrintUnits();
+            break;
+        default:
+            done = true;
         }
     }
 
-    cout << "Goodbye!" << endl;
+    std::cout << "Goodbye!" << endl;
 
     // Close the debug file
     CBE::debugFile.close();

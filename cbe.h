@@ -4,7 +4,8 @@
 
 #define CBE_DEBUG
 
-namespace CBE {
+namespace CBE
+{
     bool attackerLoaded = false;
     bool defenderLoaded = false;
     float baseAccuracy = 50.1;

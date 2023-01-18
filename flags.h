@@ -1,4 +1,5 @@
-namespace BE {
+namespace BE
+{
     // Status codes
     const unsigned long valNormal = 0x0;
     const unsigned long valFighter = 0x1;
