@@ -499,7 +499,8 @@ int GetHullTarget(int forceId, const string &UnitData, int UnitTarget, int UnitS
         targetsHull = BE::MaxHullA;
     }
 
-    // Try to get a valid target
+    // Try to get a valid target.  Do this 20 times...
+    // TODO: Verify with group that this is the desired behavior.
     int targetIndex = -1;
     for (int i = 0; i < 20; i++)
     {
