@@ -405,6 +405,8 @@ int GetDatalinkIndex(char label)
     if (label >= 65 && label <= 90)
     {
     }
+
+    return index;
 }
 
 int GetROFDelayWT(const string &special)
@@ -471,8 +473,44 @@ int GetRandomTarget(int numTargets)
 }
 
 /*
+ * =============================================================================
+ * GetHullTarget returns the index for a randomly chosen target that meets the hull constraints
+ * [JLL] This is complete rewrite of the original.  It was so convoluted and
+ * the logic errors rampent enough that I decided to scrap it
+ * =============================================================================
+ */
+
+int GetHullTarget(int forceId, const string &UnitData, int UnitTarget, int UnitScope, int NumTargets)
+{
+    int TargetSize = 0;
+    string TargetData;
+    string *targetsData;
+    long *targetsHull;
+    // int ValidTargets[9999] = {0}; // FIXME: Change to dynamic array.  Most battles will not have 10k units.  Can use NumTargets!
+    int *ValidTargets{new int[NumTargets]{}};
+    // int *test = new int(NumTargets);
+
+    // Check the force ID and get the appropriate target info
+    if (forceId == 0)
+    {
+        targetsData = BE::SpecialB;
+        targetsHull = BE::MaxHullB;
+    }
+    else
+    {
+        targetsData = BE::SpecialA;
+        targetsHull = BE::MaxHullA;
+    }
+
+    // Clean up after ourselves
+    delete[] ValidTargets;
+
+    return 0;
+}
+
+/*
  * ============================================================================
- * GetScanTarget returns the index for a randomly chosen target that meets the scan constraints
+ * GetScanTarget returns the index for a randomly chosen target from a list of targets that meet the scan constraints
  * [JLL] This is a complete rewrite of the original.  It was so convoluted
  *  and had logic errors that I decided to scrap it.
  * ============================================================================
@@ -481,18 +519,12 @@ int GetScanTarget(int forceId, const string &UnitData, int UnitTarget, int UnitS
 {
     int ValidTarget = 0, TargetSize = 0;
     string TargetData;
-    int ValidTargets[9999]; // FIXME: Change to dynamic array.  Most battles will not have 10k units.  Can use NumTargets!
+    // int ValidTargets[9999] = {0}; // FIXME: Change to dynamic array.  Most battles will not have 10k units.  Can use NumTargets!
+    int *ValidTargets{new int[NumTargets]{}};
     int target = 0;
-
-    // Zero out valid target array
-    // FIXME: Change the upper bound to the same used in the dynamic array above.
-    for (int i = 0; i < 9999; i++)
-    {
-        ValidTargets[i] = 0;
-    }
-
     string *targetsData;
     long *targetsHull;
+
     if (forceId == 0)
     {
         targetsData = BE::SpecialB;
@@ -553,6 +585,9 @@ int GetScanTarget(int forceId, const string &UnitData, int UnitTarget, int UnitS
         // Roll a random target from the list of valid targets
         target = GetRandomTarget(NumTargets);
     }
+
+    // Cleanup after ourselves
+    delete[] ValidTargets;
 
     // Return the index of the targetted unit
     return target;
@@ -3366,42 +3401,49 @@ void be_main()
                                 BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " aborts attack!";
                             }
 #ifdef CBE_DEBUG
-                            CBE::debugFile << "[INFO] Unit has aborted an attack after 10 times!" << endl;
+                            CBE::debugFile << "[INFO] Unit has aborted an attack after 10 tries!" << endl;
 #endif
                             continue;
                         }
 
                         // This section of code sets Target1.  The variable is set/reset if it is
                         // the first attack roll (i = 0) or bit 16 is set for scatter pack targetting.
-                        if (i == 0 || (Hits[i].special & BE::saMulti) == BE::saMulti)
+                        // [JLL] I removed the logic tests for first hit and for bit 16 as all hits now have bit 16 set
+                        int HullTarget = 0;
+                        if (ForceID == 0) // Attackers
                         {
-                            int HullTarget = 0;
-                            if (ForceID == 0)
-                            { // Attackers
-                                string CombatStr = Hits[i].tag;
-                                int HullScope = 0;
-                                // Does the fleet have a target priority?
-                                if (BE::AttTargetPriority > 0)
+                            string CombatStr = Hits[i].tag;
+                            int HullScope = 0;
+                            // Does the fleet have a target priority?
+                            if (BE::AttTargetPriority > 0)
+                            {
+                                HullTarget = BE::AttTargetPriority;
+                            }
+                            HasHull(CombatStr, HullTarget, HullScope);
+                            HasScan(CombatStr, HullTarget, HullScope);
+                            int dlGroup = -1; // TODO: Replace -1 with constant
+                            if (HasDatalinkWT(CombatStr, dlGroup))
+                            {
+                                BE::Target1 = DataLinkA[dlGroup];
+                                // [JLL] Check if there is a target for the datalink group already
+                                if (BE::Target1 == -1) // TODO: Replace -1 with a constant
                                 {
-                                    HullTarget = BE::AttTargetPriority;
-                                }
-                                HasHull(CombatStr, HullTarget, HullScope);
-                                HasScan(CombatStr, HullTarget, HullScope);
-                                int dlGroup = -1; // TODO: Replace -1 with constant
-                                if (HasDatalinkWT(CombatStr, dlGroup))
-                                {
-                                    BE::Target1 = DataLinkA[dlGroup];
-                                    // [JLL] Check if there is a target for the datalink group already
-                                    if (BE::Target1 == -1)
-                                    { // TODO: Replace -1 with a constant
-                                        if (HasScan(CombatStr, HullTarget, HullScope))
-                                        {
-                                        }
+                                    if (HasScan(CombatStr, HullTarget, HullScope))
+                                    {
+                                        BE::Target1 = GetScanTarget(ForceID, CombatStr, HullTarget, HullScope, DefNumValidTargets);
+                                    }
+                                    else
+                                    {
                                     }
                                 }
                             }
                         }
-                    } while (AbortCounter < 10); // FIXME: This is a placeholder until I finished this loops code
+                        else // Defenders
+                        {
+                        }
+
+                        SeekTarget = 0;
+                    } while (SeekTarget == 1);
                 }
             }
             // Check ForceID to print the correct message

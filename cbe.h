@@ -14,3 +14,5 @@ namespace CBE
     const int AMMO_EMPTY = 0;
     const int AMMO_INFINITE = -1;
 }
+
+extern bool IsMissile(const string &special);
