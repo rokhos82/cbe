@@ -486,9 +486,6 @@ int GetHullTarget(int forceId, const string &UnitData, int UnitTarget, int UnitS
     string TargetData;
     string *targetsData;
     long *targetsHull;
-    // int ValidTargets[9999] = {0}; // FIXME: Change to dynamic array.  Most battles will not have 10k units.  Can use NumTargets!
-    int *ValidTargets{new int[NumTargets]{}};
-    // int *test = new int(NumTargets);
 
     // Check the force ID and get the appropriate target info
     if (forceId == 0)
@@ -502,10 +499,37 @@ int GetHullTarget(int forceId, const string &UnitData, int UnitTarget, int UnitS
         targetsHull = BE::MaxHullA;
     }
 
-    // Clean up after ourselves
-    delete[] ValidTargets;
+    // Try to get a valid target
+    int targetIndex = -1;
+    for (int i = 0; i < 20; i++)
+    {
+        targetIndex = GetRandomTarget(NumTargets);
+        TargetData = targetsData[targetIndex];
+        TargetSize = targetsHull[targetIndex];
+        // Don't shoot at missiles
+        if (IsMissile(TargetData))
+        {
+            // Do the avoidance check
+            if (UnitTarget < 0 && (TargetSize < (-UnitTarget - UnitScope) || TargetSize > (-UnitTarget + UnitScope)))
+            {
+                // We found our target and it is outside the avoidance range
+                break;
+            }
+            else if (UnitTarget > 0 && (TargetSize >= (UnitTarget - UnitScope) && TargetSize <= (UnitTarget + UnitScope)))
+            {
+                // We found our target and it is inside the priority range
+                break;
+            }
+            else
+            {
+                // Just use the first non-missile target since hull is 0
+                break;
+            }
+        }
+    }
 
-    return 0;
+    // Return the target index we found
+    return targetIndex;
 }
 
 /*
