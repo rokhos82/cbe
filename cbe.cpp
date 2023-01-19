@@ -3455,10 +3455,18 @@ void be_main()
                                 {
                                     if (HasScan(CombatStr, HullTarget, HullScope))
                                     {
+                                        // Get a scan target
                                         BE::Target1 = GetScanTarget(ForceID, CombatStr, HullTarget, HullScope, DefNumValidTargets);
+                                    }
+                                    else if (HasHull(CombatStr, HullTarget, HullScope))
+                                    {
+                                        // Get a hull target
+                                        BE::Target1 = GetHullTarget(ForceID, CombatStr, HullTarget, HullScope, DefNumValidTargets);
                                     }
                                     else
                                     {
+                                        // Get a random target
+                                        BE::Target1 = GetRandomTarget(DefNumValidTargets);
                                     }
                                 }
                             }
