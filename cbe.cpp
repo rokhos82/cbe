@@ -464,11 +464,38 @@ int GetROFRateWT(const string &special)
  * GetRandomTarget returns the index for a randomly chosen target.
  * =============================================================================
  */
-int GetRandomTarget(int numTargets)
+int GetRandomTarget(int forceId, const string &unitData, int numTargets)
 {
-    // Generate the random index given the numTargets
-    int targetIndex = int(rand() * numTargets);
+    // Setup the target data point
+    string *targetsData;
+
+    if (forceId == 0)
+    {
+        // Set targets to the list of defenders
+        targetsData = BE::SpecialB;
+    }
+    else
+    {
+        // Set targets to the list of attackers
+        targetsData = BE::SpecialA;
+    }
+
+    int targetIndex = -1;
+    for (int i = 0; i < 20; i++) // TODO: Replace 20 with a constant
+    {
+        // Generate the random index given the numTargets
+        targetIndex = int(rand() * numTargets);
+        string targetData = targetsData[targetIndex];
+        if (!IsMissile(targetData) && (!HasReserve(targetData) || IsGlobal(unitData)))
+        {
+            // Since this is not a missile and not in reserve unless the hit is global
+            // We will take this target
+            break;
+        }
+    }
+
     // Return that random index
+    // This will be -1 if no valid target is found in 20 tries
     return targetIndex;
 }
 
@@ -501,14 +528,14 @@ int GetHullTarget(int forceId, const string &UnitData, int UnitTarget, int UnitS
 
     // Try to get a valid target.  Do this 20 times...
     // TODO: Verify with group that this is the desired behavior.
-    int targetIndex = -1;
+    int targetIndex = -1; // TODO: Replace -1 with constant
     for (int i = 0; i < 20; i++)
     {
-        targetIndex = GetRandomTarget(NumTargets);
+        targetIndex = int(rand() * NumTargets);
         TargetData = targetsData[targetIndex];
         TargetSize = targetsHull[targetIndex];
-        // Don't shoot at missiles
-        if (IsMissile(TargetData))
+        // Don't shoot at missiles or at reserve units unless the hit is global
+        if (!IsMissile(TargetData) && (!HasReserve(TargetData) || IsGlobal(UnitData)))
         {
             // Do the avoidance check
             if (UnitTarget < 0 && (TargetSize < (-UnitTarget - UnitScope) || TargetSize > (-UnitTarget + UnitScope)))
@@ -521,7 +548,7 @@ int GetHullTarget(int forceId, const string &UnitData, int UnitTarget, int UnitS
                 // We found our target and it is inside the priority range
                 break;
             }
-            else
+            else if (UnitTarget == 0)
             {
                 // Just use the first non-missile target since hull is 0
                 break;
@@ -569,9 +596,9 @@ int GetScanTarget(int forceId, const string &UnitData, int UnitTarget, int UnitS
         TargetData = targetsData[i];
 
         // Is the target a missile? Those get skipped entirely
-        if (!IsMissile(TargetData))
+        // Also skip units in reserve unless the hit is global
+        if (!IsMissile(TargetData) && (!HasReserve(TargetData) || IsGlobal(UnitData)))
         {
-            // Nope, not a missile.  Not check if it fits in the scope
             bool keeper = false;
             // First, is the base negative?
             if (UnitTarget < 0 && (TargetSize < (-UnitTarget - UnitScope) || TargetSize > (-UnitTarget + UnitScope)))
@@ -588,6 +615,11 @@ int GetScanTarget(int forceId, const string &UnitData, int UnitTarget, int UnitS
                 // Since we are here, this is a keeper.
                 keeper = true;
             }
+            else if (UnitTarget == 0)
+            {
+                // Incase someone sets base scan as 0
+                keeper = true;
+            }
 
             // Is this unit a keeper?
             if (keeper)
@@ -602,13 +634,13 @@ int GetScanTarget(int forceId, const string &UnitData, int UnitTarget, int UnitS
     if (ValidTarget == 0)
     {
         // Roll a random target, from all available targets, since there are no valid targets
-        int targetIndex = GetRandomTarget(ValidTarget);
+        int targetIndex = int(rand() * ValidTarget); // This generates a random number from 0 to ValidTargets-1
         target = ValidTargets[targetIndex];
     }
     else
     {
         // Roll a random target from the list of valid targets
-        target = GetRandomTarget(NumTargets);
+        target = GetRandomTarget(forceId, UnitData, NumTargets);
     }
 
     // Cleanup after ourselves
@@ -1087,6 +1119,33 @@ bool HasPenWT(const string &special)
 
 #ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] HasPenWT(" << res << ")" << endl;
+#endif
+
+    return res;
+}
+
+bool HasPointDefense(const string &special, int &pd)
+{
+    bool res = false;
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasPointDefense(\"" << special << "\")" << endl;
+#endif
+
+    // Look for `pen` in the special string
+    int start = special.find("pd");
+    if (start != string::npos)
+    {
+        // Found it!  Set the result to TRUE
+        res = true;
+        // Now get the actual PD value
+        start = special.find(" ", start);
+        int end = special.find(" ", start + 1);
+        pd = stoi(special.substr(start, end - start + 1));
+    }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasPointDefense(res:" << res << ",pd:" << pd << ")" << endl;
 #endif
 
     return res;
@@ -3466,17 +3525,73 @@ void be_main()
                                     else
                                     {
                                         // Get a random target
-                                        BE::Target1 = GetRandomTarget(DefNumValidTargets);
+                                        BE::Target1 = GetRandomTarget(ForceID, CombatStr, DefNumValidTargets);
                                     }
                                 }
                             }
                         }
                         else // Defenders
                         {
+                            string CombatStr = Hits[i].tag;
+                            int HullScope = 0;
+                            // Does the fleet have a target priority?
+                            if (BE::DefTargetPriority > 0)
+                            {
+                                HullTarget = BE::DefTargetPriority;
+                            }
+                            int dlGroup = -1;
+                            if (HasDatalinkWT(CombatStr, dlGroup))
+                            {
+                                BE::Target1 = DataLinkB[dlGroup];
+                                // Check if there is a target for the datalink group already
+                                if (BE::Target1 == -1)
+                                {
+                                    // No, get a target
+                                    // Check for scan tag
+                                    if (HasScan(CombatStr, HullTarget, HullScope))
+                                    {
+                                        // Yes to scan tag
+                                        BE::Target1 = GetScanTarget(ForceID, CombatStr, HullTarget, HullScope, AttNumValidTargets);
+                                    }
+                                    // Check for hull tag
+                                    else if (HasHull(CombatStr, HullTarget, HullScope))
+                                    {
+                                        // Yes to hull tag
+                                        BE::Target1 = GetHullTarget(ForceID, CombatStr, HullTarget, HullScope, AttNumValidTargets);
+                                    }
+                                    else
+                                    {
+                                        // Get a random target if all else failes
+                                        BE::Target1 = GetRandomTarget(ForceID, CombatStr, AttNumValidTargets);
+                                    }
+                                }
+                            }
                         }
 
                         SeekTarget = 0;
+                        // Reject captured, just captured, and cloaked targets
+                        if (ForceID == 0)
+                        {
+                            // TODO: Replace 99 with a constance (See next line)
+                            if (IsCaptured(BE::SpecialB[BE::Target1]) || BE::BPAttackCritB[BE::Target1] > 99 || IsCloak(BE::SpecialB[BE::Target1]))
+                            {
+                                SeekTarget = 1;
+                            }
+                        }
+                        else
+                        {
+                            // TODO: Replace 99 with a constance (See next line)
+                            if (IsCaptured(BE::SpecialA[BE::Target1]) || BE::BPAttackCritA[BE::Target1] > 99 || IsCloak(BE::SpecialA[BE::Target1]))
+                            {
+                                SeekTarget = 1;
+                            }
+                        }
                     } while (SeekTarget == 1);
+
+                    //  Since target selection is not done until now, point defense can not engage missiles until now
+                    if (ForceID == 0)
+                    {
+                    }
                 }
             }
             // Check ForceID to print the correct message
