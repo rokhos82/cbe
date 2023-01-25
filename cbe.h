@@ -16,3 +16,5 @@ namespace CBE
 }
 
 extern bool IsMissile(const string &special);
+extern bool IsGlobal(const string &special);
+extern int HasReserve(const string &special);

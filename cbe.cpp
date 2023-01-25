@@ -314,8 +314,11 @@ string AddTag(const string &source, const string &target)
     {
         // The target does not exist in the source.
         // Check if the source starts with a bracket
-        if (*(source.begin()) == '[' && *(source.end()) == ']')
+        if (source[0] == '[' && source[source.size() - 1] == ']')
         {
+#ifdef CBE_DEBUG
+            CBE::debugFile << "[INFO] AddTag: This is a weapon bracket" << endl;
+#endif
             // Yep, this is a weapon bracket
             // Now check if the target tag is uppercase
             if (isupper(target[0]))
@@ -323,7 +326,7 @@ string AddTag(const string &source, const string &target)
                 // The target tag is upper case.  Make sure it goes OUTSIDE any brackets.
                 // This leads to an intersting case of being able to add a tag to a salvo string...
                 // Test for an ' ' at the end of the string first
-                if (*(source.end()) != ' ')
+                if (source[source.size() - 1] != ' ')
                 {
                     // Add the target tag to the end of the source string with a ' '
                     res = source + " " + target;
@@ -345,7 +348,7 @@ string AddTag(const string &source, const string &target)
         {
             // Not a bracket so add to the end...working with strings is so dumb.
             // Check for a space and add if necessary.
-            if (*(source.end()) != ' ')
+            if (source[source.size() - 1] != ' ')
             {
                 res = source + " " + target;
             }
@@ -392,6 +395,10 @@ vector<string> GetBrackets(const string &special)
         // Get the next openning bracket if it exists
         old_start = special.find("[", start1);
     }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] GetBrackets => " << brackets.size() << " brackets" << endl;
+#endif
 
     // Return the bracket strings array
     return brackets;
@@ -741,7 +748,7 @@ int HasBatteries(const string &special)
     }
 
 #ifdef CBE_DEBUG
-    CBE::debugFile << "HasBatteries(" << res << ")" << endl;
+    CBE::debugFile << "[INFO] HasBatteries => " << res << endl;
 #endif
 
     return res;
@@ -1009,12 +1016,20 @@ bool HasLongWT(const string &special)
 {
     bool res = false;
 
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasLongWT(special:\"" + special + "\")" << endl;
+#endif
+
     // IF the position of "long" is NOT npos (no position)
     if (special.find("long") != string::npos)
     {
         // Then it must have a long range weapon bracket
         res = true;
     }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasLongWT => " << res << endl;
+#endif
 
     return res;
 }
@@ -1070,7 +1085,7 @@ bool HasMissileWT(const string &special)
     }
 
 #ifdef CBE_DEBUG
-    CBE::debugFile << "[INFO] HasMissileWT(" << res << ")" << endl;
+    CBE::debugFile << "[INFO] HasMissileWT => " << res << endl;
 #endif
 
     return res;
@@ -1095,7 +1110,7 @@ int HasMultiWT(const string &special)
     }
 
 #ifdef CBE_DEBUG
-    CBE::debugFile << "[INFO] HasMultiWT(" << res << ")" << endl;
+    CBE::debugFile << "[INFO] HasMultiWT => " << res << endl;
 #endif
 
     return res;
@@ -1166,11 +1181,13 @@ int HasReserve(const string &special)
         int end = special.find(" ", middle + 1);
         int len = end - middle;
         string reserve = special.substr(middle, len);
-#ifdef CBE_DEBUG
-        CBE::debugFile << "[INFO] HasReserve(reserve:" << reserve << ")" << endl;
-#endif
+
         res = stoi(reserve);
     }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasReserve => " << res << endl;
+#endif
 
     return res;
 }
@@ -1309,12 +1326,20 @@ bool IsCloak(const string &special)
 {
     bool res = false;
 
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] IsCloak(special:\"" << special << "\")" << endl;
+#endif
+
     // IF the position of "CLOAK" is NOT npos (no position)
     if (special.find("CLOAK") != string::npos)
     {
         // The it must be cloaked
         res = true;
     }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] IsCloak => " << res << endl;
+#endif
 
     return res;
 }
@@ -1323,12 +1348,20 @@ bool IsCrippled(const string &special)
 {
     bool res = false;
 
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] IsCripple(special:\"" << special << "\")" << endl;
+#endif
+
     // IF the position of "CRIPPLE" is NOT npos (no position)
     if (special.find("CRIPPLE") != string::npos)
     {
         // Then it must be crippled
         res = true;
     }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] IsCripple => " << res << endl;
+#endif
 
     return res;
 }
@@ -1349,7 +1382,7 @@ bool IsDrifting(const string &special)
     }
 
 #ifdef CBE_DEBUG
-    CBE::debugFile << "[INFO] IsDrifting(" << res << ")" << endl;
+    CBE::debugFile << "[INFO] IsDrifting => " << res << endl;
 #endif
 
     return res;
@@ -1368,6 +1401,10 @@ bool IsFighter(const string &special)
         // Then it must be a fighter
         res = true;
     }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] IsFighter => " << res << endl;
+#endif
 
     return res;
 }
@@ -1490,7 +1527,7 @@ bool IsSurprise(const string &special)
     }
 
 #ifdef CBE_DEBUG
-    CBE::debugFile << "[INFO] IsSurprise(" << res << ")" << endl;
+    CBE::debugFile << "[INFO] IsSurprise => " << res << endl;
 #endif
 
     return res;
@@ -1498,6 +1535,13 @@ bool IsSurprise(const string &special)
 
 string RebuildBatteryTags(const string &special, const BE::SalvoInfo *salvos, int count)
 {
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] RebuildBatteryTags(\"" + special + "\")" << endl;
+    for (int i = 0; i < count; i++)
+    {
+        CBE::debugFile << "[INFO] RebuildBatteryTags(salvo" + to_string(i) + ":\"" + salvos[i].DataStr + "\")" << endl;
+    }
+#endif
     string res = "";
     bool strip = false;
 
@@ -1521,7 +1565,7 @@ string RebuildBatteryTags(const string &special, const BE::SalvoInfo *salvos, in
     // Now build the new battery tags from the salvos
     for (int i = 0; i < count; i++)
     {
-        res = res + salvos[i].DataStr;
+        res = salvos[i].DataStr + res;
     }
 
     return res;
@@ -2175,7 +2219,7 @@ void be_main()
         reportFile << "Battle Round: " << BE::CombatRound << "\n";
 
         // Write the attackers to the report file
-        reportFile << "Attackers are the " << BE::AttRaceName << ", " << BE::AttFleetName << " " << BE::GroupName << ".\n";
+        reportFile << "\nAttackers are the " << BE::AttRaceName << ", " << BE::AttFleetName << " " << BE::GroupName << ".\n";
         reportFile << "Current group Break-off level is " << BE::AttBreakOff << "%\n";
         reportFile << "The " << BE::UnitName << " are currently listed as:\n";
 
@@ -2185,7 +2229,7 @@ void be_main()
         }
 
         // Write the defenders to the report file
-        reportFile << "Defenders are the " << BE::DefRaceName << ", " << BE::DefFleetName << " " << BE::GroupName << ".\n";
+        reportFile << "\nDefenders are the " << BE::DefRaceName << ", " << BE::DefFleetName << " " << BE::GroupName << ".\n";
         reportFile << "Current group Break-off level is " << BE::DefBreakOff << "%\n";
         reportFile << "The " << BE::UnitName << " are currently listed as:\n";
 
@@ -2226,6 +2270,10 @@ void be_main()
         BE::DefHasLongRange = 0;
         BE::DefHasFighters = 0;
 
+#ifdef CBE_DEBUG
+        CBE::debugFile << "[INFO] Beginning round " << BE::CombatRound << endl;
+#endif
+
         if (BE::CombatRound == 1)
         {
             // Several special things can happen in turn one.
@@ -2235,6 +2283,7 @@ void be_main()
 
 #ifdef CBE_DEBUG
             CBE::debugFile << "[INFO] Doing Combat Round 0 Special Checks" << endl;
+            CBE::debugFile << "[INFO] Checking attacking units" << endl;
 #endif
 
             // Check the attacking fleet
@@ -2247,10 +2296,10 @@ void be_main()
                 }
                 // Count if the unit has a long range tag
                 // TODO: Add a check for DefHasLongRange so that once it is true the checking can stop
-                if (HasLong(BE::SpecialA[a]))
+                /*if (HasLong(BE::SpecialA[a]))
                 {
                     BE::AttHasLongRange = true;
-                }
+                }//*/
                 // This checks all weapon tags since we pass it all weapon tags
                 if (HasLongWT(BE::SpecialA[a]))
                 {
@@ -2279,6 +2328,10 @@ void be_main()
                 }
             }
 
+#ifdef CBE_DEBUG
+            CBE::debugFile << "[INFO] Checking defending units" << endl;
+#endif
+
             // Check the defending fleet
             for (int a = 0; a < BE::DefShipsLeft; a++)
             {
@@ -2289,10 +2342,10 @@ void be_main()
                 }
                 // Count if the unit has a long rangew tag
                 // TODO: Add a check for DefHasLongRange so that once it is true the checking can stop
-                if (HasLong(BE::SpecialB[a]))
+                /*if (HasLong(BE::SpecialB[a]))
                 {
                     BE::DefHasLongRange = true;
-                }
+                }//*/
                 // This checks all weapon tags since we pass it all weapon tags
                 if (HasLongWT(BE::SpecialB[a]))
                 {
@@ -2323,6 +2376,10 @@ void be_main()
         }
         else
         {
+#ifdef CBE_DEBUG
+            CBE::debugFile << "[INFO] Doing Combat Round " << BE::CombatRound << " Regular Checks" << endl;
+            CBE::debugFile << "[INFO] Checking attacking units for DELAY" << endl;
+#endif
             // Remove RESERVE tags from delayed units
             for (int a = 0; a < BE::AttShipsLeft; a++)
             {
@@ -2338,6 +2395,9 @@ void be_main()
                 }
             }
 
+#ifdef CBE_DEBUG
+            CBE::debugFile << "[INFO] Checking defending units for DELAY" << endl;
+#endif
             // Remove RESERVE tags from delayed units
             for (int b = 0; b < BE::DefShipsLeft; b++)
             {
@@ -2371,12 +2431,17 @@ void be_main()
             }
         }
 
+#ifdef CBE_DEBUG
+        CBE::debugFile << "[INFO] Pre-round Checks are done" << endl;
+        CBE::debugFile << "[INFO] Checking attackers screen and reserve" << endl;
+#endif
+
         // Check for attacker reserve & screen
         AttHasScreen = false;       // TODO: Move to BE namespace
         AttHasReserveUnits = false; // TODO: Move to BE namespace
         for (int a = 0; a < BE::AttShipsLeft; a++)
         {
-            // TODO: What kind of mechanic should there be for not enough screen?v
+            // TODO: What kind of mechanic should there be for not enough screen?
             // The unit is either in the reserve or is part of the screen
             if (HasReserve(BE::SpecialA[a]))
             {
@@ -2393,6 +2458,10 @@ void be_main()
                 break;
             }
         }
+
+#ifdef CBE_DEBUG
+        CBE::debugFile << "[INFO] Checking defenders screen and reserve" << endl;
+#endif
 
         // Check for the defender reserve & screen
         // TODO: Turn this into a function: CheckFleetReserveAndScreen(special[],shipsLeft)
@@ -2425,6 +2494,10 @@ void be_main()
         // Check to see if the attackers have a reserve.
         if (AttHasReserveUnits)
         {
+#ifdef CBE_DEBUG
+            CBE::debugFile << "[INFO] Attackers have reserve units" << endl;
+            CBE::debugFile << "[INFO] Checking for attackers that need to come out of reserve" << endl;
+#endif
             // Check those reserve units for BreakOff and for screen
             for (int a = 0; a < BE::AttShipsLeft; a++)
             {
@@ -2437,6 +2510,9 @@ void be_main()
                     if (reserve >= 0)
                     {
                         // Remove the reserve tag
+#ifdef CBE_DEBUG
+                        CBE::debugFile << "[INFO] Unit leaving reserve because there is no screen" << endl;
+#endif
                         BE::SpecialA[a] = RemoveTag(BE::SpecialA[a], "RESERVE", 1);
                         AttHasReserveUnits = false;
                     }
@@ -2447,6 +2523,9 @@ void be_main()
                     if (BE::BO_Att >= reserve && reserve >= 0)
                     {
                         // Remove the reserve tag
+#ifdef CBE_DEBUG
+                        CBE::debugFile << "[INFO] Unit leaving reserve because reserve is less than break off" << endl;
+#endif
                         BE::SpecialA[a] = RemoveTag(BE::SpecialA[a], "RESERVE", 1);
                     }
                 }
@@ -2455,6 +2534,10 @@ void be_main()
 
         if (DefHasReserveUnits)
         {
+#ifdef CBE_DEBUG
+            CBE::debugFile << "[INFO] Defenders have reserve units" << endl;
+            CBE::debugFile << "[INFO] Checking for defenders that need to come out of reserve" << endl;
+#endif
             // Check those reserve units for BreakOff and for screen
             for (int b = 0; b < BE::AttShipsLeft; b++)
             {
@@ -2466,6 +2549,9 @@ void be_main()
                     // Does the ship have a reserve value?
                     if (reserve >= 0)
                     {
+#ifdef CBE_DEBUG
+                        CBE::debugFile << "[INFO] Unit leaving reserve because there is no screen" << endl;
+#endif
                         // Remove the reserve tag
                         BE::SpecialB[b] = RemoveTag(BE::SpecialB[b], "RESERVE", 1);
                     }
@@ -2475,6 +2561,9 @@ void be_main()
                     // Is the reserve tag equal to or less than the defenders BreakOff?
                     if (BE::BO_Def >= reserve && reserve >= 0)
                     {
+#ifdef CBE_DEBUG
+                        CBE::debugFile << "[INFO] Unit leaving reserve because reserve is less than break off" << endl;
+#endif
                         // Remove the reserve tag
                         BE::SpecialB[b] = RemoveTag(BE::SpecialB[b], "RESERVE", 1);
                     }
@@ -2495,6 +2584,10 @@ void be_main()
             }
         }
 
+#ifdef CBE_DEBUG
+        CBE::debugFile << "[INFO] Begin spawning missiles" << endl;
+#endif
+
         // Spawn missiles routine
         TempAttShipsLeft = BE::AttShipsLeft;
         TempDefShipsLeft = BE::DefShipsLeft;
@@ -2510,20 +2603,33 @@ void be_main()
             int B = A;
             ForceID = 0; // TODO: Make this a local scope variable
             // Are we done with attackers?
-            if (A > BE::AttShipsLeft)
+            if (A >= BE::AttShipsLeft)
             {
                 B = A - BE::AttShipsLeft;
                 ForceID = 1; // Defenders
             }
 
+#ifdef CBE_DEBUG
+            CBE::debugFile << "[INFO] Unit index B " << B << endl;
+#endif
+
+            // Reset temp_str
+            temp_str = "";
+
             // Get unit values depending on ForceID
             if (ForceID == 0)
             {
-                temp_str = BE::SpecialA[B]; // TODO: Make this local to the loop scope.  May not be necessary if a function is build.
-                tmp = BE::CurTorpA[B];      // TODO: Make this local to the loop scope.  May not be necessary if a function is build.
+#ifdef CBE_DEBUG
+                CBE::debugFile << "[INFO] Doing missile check for " << BE::AttShipStr[B] << "," << BE::SpecialA[B] << endl;
+#endif
+                temp_str = BE::SpecialA[B]; // TODO: Make this local to the loop scope.  May not be necessary if a function is built.
+                tmp = BE::CurTorpA[B];      // TODO: Make this local to the loop scope.  May not be necessary if a function is built.
             }
             else
             {
+#ifdef CBE_DEBUG
+                CBE::debugFile << "[INFO] Doing missile check for " << BE::DefShipStr[B] << "," << BE::SpecialB[B] << endl;
+#endif
                 temp_str = BE::SpecialB[B];
                 tmp = BE::CurTorpB[B];
             }
@@ -2531,24 +2637,36 @@ void be_main()
             // Check if the unit is crippled or is suprised.  If either is true, then skip the unit
             if (IsCrippled(temp_str) || IsSurprise(temp_str))
             {
+#ifdef CBE_DEBUG
+                CBE::debugFile << "[INFO] Unit is crippled or suprised.  Skipping missiles spawning." << endl;
+#endif
                 continue;
             }
 
             // Check for batteries in the special string
+            // TODO: Get batteries then do missile test on each bracket?
+            // TODO: Separate HasMissileWT and GetMissileStats
             if (HasBatteries(temp_str) > 0)
             {
                 // Check if any of the batteries has a `misXXXX` tag
                 if (!HasMissileWT(temp_str))
                 {
+#ifdef CBE_DEBUG
+                    CBE::debugFile << "[INFO] Unit doesn't have a missile salvo.  Skipping missile spawning." << endl;
+#endif
                     // Skip the unit since there is no missile tag in a bracket
                     continue;
                 }
+
+#ifdef CBE_DEBUG
+                CBE::debugFile << "[INFO] Unit has a missile savlo." << endl;
+#endif
 
                 tmp = 0;            // TODO: Make this a local variable
                 int SalvoCount = 0; // FIXME: This might not be local?
                 int sc = 0;         // TODO: Make this local to the loop below
                 // Reset the salvo array
-                for (sc = 0; sc < 200; sc++)
+                for (sc = 0; sc < 200; sc++) // TODO: Replace 200 with constant
                 {
                     BE::Salvos[sc].MissileS = 0;
                     BE::Salvos[sc].DataStr = "";
@@ -2565,20 +2683,34 @@ void be_main()
                     BE::Salvos[sc].DataStr = brackets[i];
                     BE::Salvos[sc].MissileS = 0;
 
-                    // Does the bracket have a salvo tag?
+#ifdef CBE_DEBUG
+                    CBE::debugFile << "[INFO] Creating savlo for: " << brackets[i] << endl;
+#endif
+
+                    // Does the bracket have a missile tag?
                     if (HasMissileWT(BE::Salvos[sc].DataStr))
                     {
+#ifdef CBE_DEBUG
+                        CBE::debugFile << "[INFO] Salvo has a missile tag" << endl;
+#endif
                         // Is the unit in reserve and without an artillery tag?
-                        if (HasReserve(temp_str) && HasArtilleryWT(BE::Salvos[sc].DataStr))
+                        if (HasReserve(temp_str) > 0 && !HasArtilleryWT(BE::Salvos[sc].DataStr))
                         {
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO] Salvo does not have an artillery tag and the unit has a reserve tag.  No missile spawnning" << endl;
+#endif
                             // This unit is in reserve and doesn't have an artillery tag
                         }
                         else
                         {
+
                             // This unit is either NOT in the reserve or HAS an artillery tag
                             // Do the long range checks.
                             if ((BE::AttHasLongRange || BE::DefHasLongRange) && !HasLongWT(BE::Salvos[sc].DataStr))
                             {
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Salvo does not have a long range tag and the combat is at long range" << endl;
+#endif
                                 // We are at long range BUT this unit does NOT have a long tag.
                                 // Do nothing.
                             }
@@ -2589,6 +2721,9 @@ void be_main()
                                 int ammo = HasAmmoWT(BE::Salvos[sc].DataStr);
                                 if (ammo > CBE::AMMO_EMPTY)
                                 {
+#ifdef CBE_DEBUG
+                                    CBE::debugFile << "[INFO] Salvo has ammo" << endl;
+#endif
                                     // The bracket has ammo OR doesn't use ammo
                                     // ORIGINAL is VAL(MID$(Salvo(sc).DataStr,2)) which is the numeric value of the substring from position 2 to end of string...I think
                                     // VAL(MID$("[2 mis0041 ammo 1 target 15]")) ==> VAL("2 mis0041 ammo 1 target 15]") ==> 2 (Wow...I really dislike QBASIC)
@@ -2634,6 +2769,12 @@ void be_main()
 #endif
                                     BE::Salvos[sc].MissileS = size; // This is simultaneously the number of missiles to launch and the volley size for non-missile salvos
                                 }
+#ifdef CBE_DEBUG
+                                else
+                                {
+                                    CBE::debugFile << "[INFO] Salvo is out of ammo" << endl;
+                                }
+#endif
                             }
                         }
                     }
@@ -2651,6 +2792,10 @@ void be_main()
                     int size = BE::Salvos[sc].MissileS;
                     if (size > 0)
                     {
+#ifdef CBE_DEBUG
+                        CBE::debugFile << "[INFO] Spawning " << size << " missiles" << endl;
+                        CBE::debugFile << "[INFO] " << size + TempAttShipsLeft + TempDefShipsLeft << " total units" << endl;
+#endif
                         // The salvo has a size.  Do all the things!!!
                         // But first, check to make sure the salvo size won't overflow the 9999 max unit limit
                         // TODO: Setup a preprocessor variable for maximum number of units
@@ -2671,10 +2816,10 @@ void be_main()
                         int ammo = HasAmmoWT(special);
                         if (ammo > CBE::AMMO_EMPTY)
                         {
-                            NewTag = "ammo " + (ammo - 1);                           // Decrement the ammo counter.  TODO: Make this a local variable
-                            NewTag += " ";                                           // Had to make this a new line do to type converstion of the (ammo -1) expression.
+                            NewTag = "ammo " + to_string((ammo - 1)) + " "; // Decrement the ammo counter.  TODO: Make this a local variable
+                            // NewTag += " ";                                           // Had to make this a new line do to type converstion of the (ammo -1) expression.
                             temp_str = RemoveTag(BE::Salvos[sc].DataStr, "ammo", 1); // FIXME: This is so clunky to update the string in the middle of the round
-                            temp_str = AddTag(BE::Salvos[sc].DataStr, NewTag);
+                            temp_str = AddTag(temp_str, NewTag);
                             BE::Salvos[sc].DataStr = temp_str; // FIXME: And this breaks my pointer above?  Maybe not.  We'll see!!!
                             // Remove the ammo string from missiles so there are no 'duds'
                             missile_str = RemoveTag(BE::Salvos[sc].DataStr, "ammo", 1); // Remove the ammo tag and save as missile_str.  TODO: Local?  I'm not sure where this is used next.
@@ -2689,6 +2834,9 @@ void be_main()
                         for (int i = 0; i < size; i++)
                         {
                             missile_counter = missile_counter + 1; // This is a global variable that was zeroed at the start of this section.  This tracks all missiles launched from both sides?
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO] Spawnning missile " << missile_counter << endl;
+#endif
                             // Check the ForceID...TODO: Get rid of ForceID so that multiple fleets can be added.  Not to mention factions
                             if (ForceID == 0)
                             {
@@ -2755,6 +2903,7 @@ void be_main()
                 // Get the Specail tag from the special array.  Again with the ForceID junk.  Functions are your friend...
                 // [JLL] This is why string manipulation is bad.  A well built class or struct will render a lot of this code useless.
                 // Check ForceID
+                // TODO: Replace this with a call to RebuildBatteryTags
                 if (ForceID == 0)
                 {
                     temp_str = BE::SpecialA[B]; // [JLL] TODO: Stop global variable abuse!
@@ -2798,7 +2947,7 @@ void be_main()
                     {
                         break;
                     }
-                    new_str = new_str + BE::Salvos[sc].DataStr;
+                    new_str = BE::Salvos[sc].DataStr + " " + new_str;
                 }
 
                 // Assign the new specials string to the SpecialA or SpecialB array for the unit in question depending on ForceID
@@ -2813,10 +2962,14 @@ void be_main()
                 }
             } // End of HasBatteries If Block
             else
-            { // This unit has no batteries.
-              // [JLL] TODO: Discontinue use of non-battery weapons
-              // Check unit torpedo rating and for Missile
-              // [JLL] I am skipping this for now pending response from the FOTS group - 2023-01-11
+            {
+                // This unit has no batteries.
+                // [JLL] TODO: Discontinue use of non-battery weapons
+                // Check unit torpedo rating and for Missile
+                // [JLL] I am skipping this for now pending response from the FOTS group - 2023-01-11
+#ifdef CBE_DEBUG
+                CBE::debugFile << "[WARNING] Unit has no batteries" << endl;
+#endif
             }
         } // End of spawn missile loop....
 
@@ -2855,19 +3008,19 @@ void be_main()
 // ------------------------------------------------------------------------------------------
 // Attack Routine
 #ifdef CBE_DEBUG
-        CBE::debugFile << "[INFO] Beginning the attack look" << endl;
+        CBE::debugFile << "[INFO] Beginning the attack loop" << endl;
 #endif
         for (BE::A = 0; BE::A < (BE::AttShipsLeft + BE::DefShipsLeft); BE::A++)
         {
             // The same BS about ForceID...
             int B = BE::A;
             ForceID = 0;
-            if (BE::A > BE::AttShipsLeft)
+            if (BE::A >= BE::AttShipsLeft)
             {
                 B = BE::A - BE::AttShipsLeft;
                 ForceID = 1;
             }
-            if (BE::A = BE::AttShipsLeft + 1)
+            if (BE::A == BE::AttShipsLeft)
             {
                 // Print a space in the report file
                 reportFile << endl;
@@ -2877,6 +3030,10 @@ void be_main()
             Special2 = 0;
             FirePower1 = 0;
             FirePower2 = 0;
+
+#ifdef CBE_DEBUG
+            CBE::debugFile << "[INFO] Attack Loop Index B " << B << endl;
+#endif
 
             /*
                 OK, here's the problem in a nut shell.  Each ship can have multiple
@@ -2905,6 +3062,10 @@ void be_main()
             switch (ForceID)
             {
             case 0: // Attacking fleet
+#ifdef CBE_DEBUG
+                CBE::debugFile << "[INFO] Attack Loop for: " + BE::AttRaceName + " " + BE::AttShipStr[B] << endl;
+#endif
+
                 if (BE::AttShipStr[B].find("missile") != string::npos)
                 {
                     // [JLL] Why the hell do we care if the name of the unit has "missile" in it?
@@ -3162,7 +3323,7 @@ void be_main()
                             {
                                 // We are using ammo
                                 // Create a new ammo tag
-                                string newTag = "ammo " + (ammo - 1);
+                                string newTag = "ammo " + to_string((ammo - 1));
                                 string tempStr = RemoveTag(BE::Salvos[i].DataStr, "ammmo", 1);
                                 tempStr = AddTag(tempStr, newTag);
                                 BE::Salvos[i].DataStr = tempStr;
@@ -3178,6 +3339,9 @@ void be_main()
                 }
                 break;
             case 1: // Defending fleet //////////////////////////////////////////////////////////////////////////////////////////////
+#ifdef CBE_DEBUG
+                CBE::debugFile << "[INFO] Attack Loop for: " + BE::DefRaceName + " " + BE::DefShipStr[B] << endl;
+#endif
                 if (BE::DefShipStr[B].find("missile") != string::npos)
                 {
                     // [JLL] Why the hell do we care if the name of the unit has "missile" in it?
@@ -3312,11 +3476,18 @@ void be_main()
 #endif
                     }
 
+#ifdef CBE_DEBUG
+                    CBE::debugFile << "[INFO] Number of salvos " << sc << endl;
+#endif
+
                     // Did we find any salvos?
                     if (sc > 0)
                     {
                         for (int i = 0; i < sc; i++)
                         {
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO] Constructing hit " << i << endl;
+#endif
                             // Do everything we can to set the firepower to zero [JLL] Meaning, if there is a reason to set the firepower to 0 do so.  Such as missile, lack long, ROF, offline, etc.
                             // Check if this is a missile battery which was taken care of earlier
                             if (HasMissileWT(BE::Salvos[i].DataStr))
@@ -3435,7 +3606,7 @@ void be_main()
                             {
                                 // We are using ammo
                                 // Create a new ammo tag
-                                string newTag = "ammo " + (ammo - 1);
+                                string newTag = "ammo " + to_string((ammo - 1));
                                 string tempStr = RemoveTag(BE::Salvos[i].DataStr, "ammmo", 1);
                                 tempStr = AddTag(tempStr, newTag);
                                 BE::Salvos[i].DataStr = tempStr;
@@ -3471,6 +3642,9 @@ void be_main()
                     int AbortCounter = 0;
                     do
                     {
+#ifdef CBE_DEBUG
+                        CBE::debugFile << "[INFO] Finding a target" << endl;
+#endif
                         AbortCounter++;
                         if (AbortCounter >= 10)
                         {
@@ -3604,6 +3778,7 @@ void be_main()
                 }
                 else
                 {
+                    reportFile << BE::DefBattleStr << "\n";
                 }
             }
         }
