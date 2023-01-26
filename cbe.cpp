@@ -341,7 +341,7 @@ string AddTag(const string &source, const string &target)
             {
                 // The target tag is lower case.  It can go inside the bracket.
                 // We know that the ending character is ']'
-                res = source.substr(0, source.size() - 1) + " " + target + "]";
+                res = source.substr(0, source.size() - 1) + target + "]";
             }
         }
         else
@@ -2947,7 +2947,7 @@ void be_main()
                     {
                         break;
                     }
-                    new_str = BE::Salvos[sc].DataStr + " " + new_str;
+                    new_str = BE::Salvos[sc].DataStr + new_str;
                 }
 
                 // Assign the new specials string to the SpecialA or SpecialB array for the unit in question depending on ForceID
@@ -3324,7 +3324,7 @@ void be_main()
                                 // We are using ammo
                                 // Create a new ammo tag
                                 string newTag = "ammo " + to_string((ammo - 1));
-                                string tempStr = RemoveTag(BE::Salvos[i].DataStr, "ammmo", 1);
+                                string tempStr = RemoveTag(BE::Salvos[i].DataStr, "ammo", 1);
                                 tempStr = AddTag(tempStr, newTag);
                                 BE::Salvos[i].DataStr = tempStr;
 
@@ -3607,7 +3607,7 @@ void be_main()
                                 // We are using ammo
                                 // Create a new ammo tag
                                 string newTag = "ammo " + to_string((ammo - 1));
-                                string tempStr = RemoveTag(BE::Salvos[i].DataStr, "ammmo", 1);
+                                string tempStr = RemoveTag(BE::Salvos[i].DataStr, "ammo", 1);
                                 tempStr = AddTag(tempStr, newTag);
                                 BE::Salvos[i].DataStr = tempStr;
 

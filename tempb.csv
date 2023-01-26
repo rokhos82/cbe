@@ -1,6 +1,6 @@
 KSE,2nd Fleet,70,5,50,5,0,0,0
-S2001 (Fleet Destroyer Mk 1),9,9,2,2,8,8,12,12,0,0,0,[9 target 30][9 mis0041 target 15 long   ammo 0 ammo 0  ammo -1]                                                                                                                                                                                                         DEFENSE 15 RESIST 5
-S2002 (Fleet Destroyer Mk 1),9,9,2,2,8,8,12,12,0,0,0,[9 target 30][9 mis0041 target 15 long   ammo 0 ammo 0  ammo -1]                                                                                                                                                                                                         DEFENSE 15 RESIST 5
-S2003 (Fleet Destroyer Mk 1),9,9,2,2,8,8,12,12,0,0,0,[9 target 30][9 mis0041 target 15 long   ammo 0 ammo 0  ammo -1]                                                                                                                                                                                                         DEFENSE 15 RESIST 5
-S2004 (Fleet Destroyer Mk 1),9,9,2,2,8,8,12,12,0,0,0,[9 target 30][9 mis0041 target 15 long   ammo 0 ammo 0  ammo -1]                                                                                                                                                                                                         DEFENSE 15 RESIST 5
-S2005 (Fleet Destroyer Lead Mk 1),9,9,2,2,9,9,14,14,0,0,0,[9 target 30][9 mis0041 target 15 long   ammo 0 ammo 0  ammo -1]                                                                                                                                                                                                         DEFENSE 15 RESIST 5
+S2001 (Fleet Destroyer Mk 1),9,9,2,2,8,8,12,12,0,0,0,[9 target 30][9 mis0041 target 15 lo ammo -1] DEFENSE 15 RESIST 5
+S2002 (Fleet Destroyer Mk 1),9,9,2,2,8,8,12,12,0,0,0,[9 target 30][9 mis0041 target 15 lo ammo -1] DEFENSE 15 RESIST 5
+S2003 (Fleet Destroyer Mk 1),9,9,2,2,8,8,12,12,0,0,0,[9 target 30][9 mis0041 target 15 lo ammo -1] DEFENSE 15 RESIST 5
+S2004 (Fleet Destroyer Mk 1),9,9,2,2,8,8,12,12,0,0,0,[9 target 30][9 mis0041 target 15 lo ammo -1] DEFENSE 15 RESIST 5
+S2005 (Fleet Destroyer Lead Mk 1),9,9,2,2,9,9,14,14,0,0,0,[9 target 30][9 mis0041 target 15 lo ammo -1] DEFENSE 15 RESIST 5
