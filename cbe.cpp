@@ -341,7 +341,7 @@ string AddTag(const string &source, const string &target)
             {
                 // The target tag is lower case.  It can go inside the bracket.
                 // We know that the ending character is ']'
-                res = source.substr(0, source.size() - 1) + target + "]";
+                res = source.substr(0, source.size() - 1) + " " + target + "]";
             }
         }
         else
@@ -476,6 +476,16 @@ int GetRandomTarget(int forceId, const string &unitData, int numTargets)
     // Setup the target data point
     string *targetsData;
 
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] GetRandomTarget(forceId:"
+                   << forceId
+                   << ";unitData:\""
+                   << unitData
+                   << "\";numTargets:"
+                   << numTargets
+                   << endl;
+#endif
+
     if (forceId == 0)
     {
         // Set targets to the list of defenders
@@ -491,15 +501,32 @@ int GetRandomTarget(int forceId, const string &unitData, int numTargets)
     for (int i = 0; i < 20; i++) // TODO: Replace 20 with a constant
     {
         // Generate the random index given the numTargets
-        targetIndex = int(rand() * numTargets);
+        targetIndex = rand() % numTargets;
         string targetData = targetsData[targetIndex];
-        if (!IsMissile(targetData) && (!HasReserve(targetData) || IsGlobal(unitData)))
+#ifdef CBE_DEBUG
+        CBE::debugFile << "[INFO] GetRandomTarget: Try "
+                       << i
+                       << ", checking target "
+                       << targetIndex
+                       << ": \""
+                       << targetData
+                       << "\""
+                       << endl;
+#endif
+        if (!IsMissile(targetData) && (HasReserve(targetData) <= 0 || IsGlobal(unitData)))
         {
             // Since this is not a missile and not in reserve unless the hit is global
             // We will take this target
+#ifdef CBE_DEBUG
+            CBE::debugFile << "[INFO] GetRandomTarget: Target found" << endl;
+#endif
             break;
         }
     }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] GetRandomTarget => " << targetIndex << endl;
+#endif
 
     // Return that random index
     // This will be -1 if no valid target is found in 20 tries
@@ -520,6 +547,9 @@ int GetHullTarget(int forceId, const string &UnitData, int UnitTarget, int UnitS
     string TargetData;
     string *targetsData;
     long *targetsHull;
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] GetHullTarget(forceId:" << forceId << ";UnitData:\"" << UnitData << "\";UnitTarget:" << UnitTarget << ";UnitScope:" << UnitScope << ";NumTargets:" << NumTargets << ")" << endl;
+#endif
 
     // Check the force ID and get the appropriate target info
     if (forceId == 0)
@@ -538,30 +568,54 @@ int GetHullTarget(int forceId, const string &UnitData, int UnitTarget, int UnitS
     int targetIndex = -1; // TODO: Replace -1 with constant
     for (int i = 0; i < 20; i++)
     {
-        targetIndex = int(rand() * NumTargets);
+        targetIndex = rand() % NumTargets;
         TargetData = targetsData[targetIndex];
         TargetSize = targetsHull[targetIndex];
+#ifdef CBE_DEBUG
+        CBE::debugFile << "[INFO] GetHullTarget: Try "
+                       << (i + 1)
+                       << ", checking target "
+                       << targetIndex
+                       << ": "
+                       << TargetSize
+                       << ",\""
+                       << TargetData
+                       << "\"" << endl;
+#endif
         // Don't shoot at missiles or at reserve units unless the hit is global
-        if (!IsMissile(TargetData) && (!HasReserve(TargetData) || IsGlobal(UnitData)))
+        if (!IsMissile(TargetData) && (HasReserve(TargetData) <= 0 || IsGlobal(UnitData)))
         {
             // Do the avoidance check
             if (UnitTarget < 0 && (TargetSize < (-UnitTarget - UnitScope) || TargetSize > (-UnitTarget + UnitScope)))
             {
                 // We found our target and it is outside the avoidance range
+#ifdef CBE_DEBUG
+                CBE::debugFile << "[INFO] GetHullTarget: Target found outside range!" << endl;
+#endif
                 break;
             }
             else if (UnitTarget > 0 && (TargetSize >= (UnitTarget - UnitScope) && TargetSize <= (UnitTarget + UnitScope)))
             {
                 // We found our target and it is inside the priority range
+#ifdef CBE_DEBUG
+                CBE::debugFile << "[INFO] GetHullTarget: Target found inside range!" << endl;
+#endif
                 break;
             }
             else if (UnitTarget == 0)
             {
                 // Just use the first non-missile target since hull is 0
+#ifdef CBE_DEBUG
+                CBE::debugFile << "[INFO] GetHullTarget: Found any legal target" << endl;
+#endif
                 break;
             }
         }
     }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] GetHullTarget => " << targetIndex << endl;
+#endif
 
     // Return the target index we found
     return targetIndex;
@@ -604,7 +658,7 @@ int GetScanTarget(int forceId, const string &UnitData, int UnitTarget, int UnitS
 
         // Is the target a missile? Those get skipped entirely
         // Also skip units in reserve unless the hit is global
-        if (!IsMissile(TargetData) && (!HasReserve(TargetData) || IsGlobal(UnitData)))
+        if (!IsMissile(TargetData) && (HasReserve(TargetData) <= 0 || IsGlobal(UnitData)))
         {
             bool keeper = false;
             // First, is the base negative?
@@ -641,7 +695,7 @@ int GetScanTarget(int forceId, const string &UnitData, int UnitTarget, int UnitS
     if (ValidTarget == 0)
     {
         // Roll a random target, from all available targets, since there are no valid targets
-        int targetIndex = int(rand() * ValidTarget); // This generates a random number from 0 to ValidTargets-1
+        int targetIndex = rand() % ValidTarget; // This generates a random number from 0 to ValidTargets-1
         target = ValidTargets[targetIndex];
     }
     else
@@ -821,7 +875,7 @@ bool HasDatalinkWT(const string &special, int &group)
     }
 
 #ifdef CBE_DEBUG
-    CBE::debugFile << "[INFO] HasDatalinkWT(" << res << ")" << endl;
+    CBE::debugFile << "[INFO] HasDatalinkWT => " << res << endl;
 #endif
 
     return res;
@@ -1148,7 +1202,7 @@ bool HasPointDefense(const string &special, int &pd)
 #endif
 
     // Look for `pen` in the special string
-    int start = special.find("pd");
+    int start = special.find("PD");
     if (start != string::npos)
     {
         // Found it!  Set the result to TRUE
@@ -1214,7 +1268,7 @@ bool HasScan(const string &special, int &base, int &scope)
     }
 
 #ifdef CBE_DEBUG
-    CBE::debugFile << "[INFO] HasScan(" << res << ")" << endl;
+    CBE::debugFile << "[INFO] HasScan => " << res << endl;
 #endif
 
     return res;
@@ -1312,12 +1366,20 @@ bool IsCaptured(const string &special)
 {
     bool res = false;
 
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] IsCaptured(\"" << special << "\")" << endl;
+#endif
+
     // IF the position of "CAPTURED" is NOT npos (no position)
     if (special.find("CAPTURED") != string::npos)
     {
         // Then it must be captured
         res = true;
     }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] IsCaptured => " << res << endl;
+#endif
 
     return res;
 }
@@ -1468,6 +1530,48 @@ bool IsGlobal(const string &special)
     return res;
 }
 
+bool IsGround(const string &special)
+{
+    bool res = false;
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] IsGround(special:\"" << special << "\")" << endl;
+#endif
+
+    // IF the position of "SURPRISE" is NOT npos (no position)
+    if (special.find("GROUND") != string::npos)
+    {
+        res = true;
+    }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] IsGround => " << res << endl;
+#endif
+
+    return res;
+}
+
+bool IsMine(const string &special)
+{
+    bool res = false;
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] IsMine(special:\"" << special << "\")" << endl;
+#endif
+
+    // IF the position of "SURPRISE" is NOT npos (no position)
+    if (special.find("MINE") != string::npos)
+    {
+        res = true;
+    }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] IsMine => " << res << endl;
+#endif
+
+    return res;
+}
+
 bool IsNoMove(const string &special)
 {
     bool res = false;
@@ -1484,7 +1588,7 @@ bool IsNoMove(const string &special)
     }
 
 #ifdef CBE_DEBUG
-    CBE::debugFile << "[INFO] IsNoMove(" << res << ")" << endl;
+    CBE::debugFile << "[INFO] IsNoMove =>" << res << endl;
 #endif
 
     return res;
@@ -1512,6 +1616,48 @@ bool IsOffline(const string &special)
     return res;
 }
 
+bool IsSolid(const string &special)
+{
+    bool res = false;
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] IsSolid(special:\"" << special << "\")" << endl;
+#endif
+
+    // IF the position of "SURPRISE" is NOT npos (no position)
+    if (special.find("SOLID") != string::npos)
+    {
+        res = true;
+    }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] IsSolid => " << res << endl;
+#endif
+
+    return res;
+}
+
+bool IsScuicide(const string &special)
+{
+    bool res = false;
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] IsScuicide(special:\"" << special << "\")" << endl;
+#endif
+
+    // IF the position of "SURPRISE" is NOT npos (no position)
+    if (special.find("SUICIDE") != string::npos)
+    {
+        res = true;
+    }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] IsScuicide => " << res << endl;
+#endif
+
+    return res;
+}
+
 bool IsSurprise(const string &special)
 {
     bool res = false;
@@ -1528,6 +1674,27 @@ bool IsSurprise(const string &special)
 
 #ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] IsSurprise => " << res << endl;
+#endif
+
+    return res;
+}
+
+bool IsVehicle(const string &special)
+{
+    bool res = false;
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] IsVehicle(special:\"" << special << "\")" << endl;
+#endif
+
+    // IF the position of "SURPRISE" is NOT npos (no position)
+    if (special.find("VEHICLE") != string::npos)
+    {
+        res = true;
+    }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] IsVehicle => " << res << endl;
 #endif
 
     return res;
@@ -1718,6 +1885,14 @@ int SetFlagsWT(const string &special, int bit_flag)
     }
 
     return bit_flag;
+}
+
+void writeBattleString(ofstream &iostr, const string &str)
+{
+    if (str.size() > 0)
+    {
+        iostr << str << "\n";
+    }
 }
 
 void writeTempFiles()
@@ -2136,7 +2311,7 @@ void be_main()
     long SeekTarget = 0, HasRaided = 0;
     long AttVal = 0, DefVal = 0, BPDice = 0, SuicideBonus = 0;
     long FirePower1 = 0, FirePower2 = 0;
-    long DataLinkA[52], DataLinkB[52];
+    long DataLinkA[52] = {-1}, DataLinkB[52] = {-1};
     long AttGone = 0, DefGone = 0, Special1 = 0, Special2 = 0;
     long number_of_attacks = 0;
 
@@ -2659,7 +2834,7 @@ void be_main()
                 }
 
 #ifdef CBE_DEBUG
-                CBE::debugFile << "[INFO] Unit has a missile savlo." << endl;
+                CBE::debugFile << "[INFO] Unit has a missile savlo(s)." << endl;
 #endif
 
                 tmp = 0;            // TODO: Make this a local variable
@@ -2816,7 +2991,7 @@ void be_main()
                         int ammo = HasAmmoWT(special);
                         if (ammo > CBE::AMMO_EMPTY)
                         {
-                            NewTag = "ammo " + to_string((ammo - 1)) + " "; // Decrement the ammo counter.  TODO: Make this a local variable
+                            NewTag = "ammo " + to_string((ammo - 1)); // Decrement the ammo counter.  TODO: Make this a local variable
                             // NewTag += " ";                                           // Had to make this a new line do to type converstion of the (ammo -1) expression.
                             temp_str = RemoveTag(BE::Salvos[sc].DataStr, "ammo", 1); // FIXME: This is so clunky to update the string in the middle of the round
                             temp_str = AddTag(temp_str, NewTag);
@@ -2830,6 +3005,30 @@ void be_main()
                             missile_str = BE::Salvos[sc].DataStr; // Just use the salve string since there is no ammo
                         }
 
+                        // Modify missile_str here instead of below when building the missile units
+#ifdef CBE_DEBUG
+                        CBE::debugFile << "[INFO] missile_str(old): \"" << missile_str << "\"" << endl;
+#endif
+                        // [JLL] This converts the B and T portions of the missile to a single salvo so that it is processed correctly.
+                        // [JLL] For example, [4 mis0021] becomes 4 units that have [2] as their single salvo bracket
+                        /* [JLL] The original code looks for the first space in the special string.
+                                Then creates a salvo bracket and appends the original special string from the " " onward.
+                                This looses information from the missile_str...maybe the salvo size?
+                            1) Remove the "[\d+" from the missile special
+                            2) Add a "[" + (Beam+Torp) to the missile special
+                            3) Remove the "mis" tag from the missile special
+                            4) Add "MSL" to denote the unit is a missile
+                            5) Add "SUICIDE" to denote the unit should be destroyed at end of turn
+                        */
+                        int start = missile_str.find(" ");
+                        missile_str = "[" + to_string(BE::MissileB + BE::MissileT) + missile_str.substr(start); // Combine Beam and Torp from missile battery for total damage FIXME: This assumes that the string starts with a battery tag and has a closing ']'
+                        missile_str = RemoveTag(missile_str, "mis", 0);                                         // Remove the `mis` tag or missiles will spawn missiles.  Could be used for submunitions...
+                        missile_str = AddTag(missile_str, "MSL");                                               // Denotes the unit is a missile
+                        missile_str = AddTag(missile_str, "SUICIDE");                                           // Suicide denotes that the unit should be removed at the end of combat
+#ifdef CBE_DEBUG
+                        CBE::debugFile << "[INFO] missile_str(new): \"" << missile_str << "\"" << endl;
+#endif
+
                         // Spawn those babies...
                         for (int i = 0; i < size; i++)
                         {
@@ -2838,12 +3037,12 @@ void be_main()
                             CBE::debugFile << "[INFO] Spawnning missile " << missile_counter << endl;
 #endif
                             // Check the ForceID...TODO: Get rid of ForceID so that multiple fleets can be added.  Not to mention factions
+                            // TODO: Make a spawn missile function
                             if (ForceID == 0)
                             {
                                 // VB sucks.  Where do MissileB, MissileS, MissileT, and Missile H come from?  From the call to HasMissileWT() about 20 lines up!
                                 // [JLL] This block of code makes me want to vomit.  No wonder tags jump between units.  Argh!!
-                                TempAttShipsLeft = TempAttShipsLeft + 1;
-                                BE::AttShipStr[TempAttShipsLeft] = "missile " + missile_counter; // Global missile names too...
+                                BE::AttShipStr[TempAttShipsLeft] = "missile " + to_string(missile_counter); // Global missile names too...
                                 BE::MaxBeamA[TempAttShipsLeft] = BE::MissileB;
                                 BE::CurBeamA[TempAttShipsLeft] = BE::MissileB;
                                 BE::MaxShieldA[TempAttShipsLeft] = BE::MissileS;
@@ -2854,31 +3053,13 @@ void be_main()
                                 BE::CurHullA[TempAttShipsLeft] = BE::MissileH;
                                 // Inherit tags from the launcher and convert to a missile
                                 BE::SpecialA[TempAttShipsLeft] = missile_str; // Use the missile string the the salvos array ~20-25 lines up.
-                                // Change the beginning number to match the missile strength
-                                // [JLL] This converts the B and T portions of the missile to a single salvo so that it is processed correctly.
-                                // [JLL] For example, [4 mis0021] becomes 4 units that have [2] as their single salvo bracket
-                                /* [JLL] The original code looks for the first space in the special string.
-                                        Then creates a salvo bracket and appends the original special string from the " " onward.
-                                        This looses information from the missile_str...maybe the salvo size?
-                                    1) Remove the "[\d+" from the missile special
-                                    2) Add a "[" + (Beam+Torp) to the missile special
-                                    3) Remove the "mis" tag from the missile special
-                                    4) Add "MSL" to denote the unit is a missile
-                                    5) Add "SUICIDE" to denote the unit should be destroyed at end of turn
-                                */
-                                int start = BE::SpecialA[TempAttShipsLeft].find(" ");
-                                BE::SpecialA[TempAttShipsLeft] = "[" + to_string(BE::MissileB + BE::MissileT) + BE::SpecialA[TempAttShipsLeft].substr(start); // Combine Beam and Torp rating for full salvo strength.  FIXME: This assumes that there is a closing ']'
-                                BE::SpecialA[TempAttShipsLeft] = RemoveTag(BE::SpecialA[TempAttShipsLeft], "mis", 0);                                         // Remove the missile tag or missiles will spawn missiles.  Could be used for submunitions...
-                                BE::SpecialA[TempAttShipsLeft] = AddTag(BE::SpecialA[TempAttShipsLeft], "MSL");                                               // Denotes the unit as a missile
-                                BE::SpecialA[TempAttShipsLeft] = AddTag(BE::SpecialA[TempAttShipsLeft], "SUICIDE");                                           // Suicide denotes that the unit should be removed at end of combat
-                                // [JLL] TODO: Remove all of the above and use bitwise flags
+                                TempAttShipsLeft = TempAttShipsLeft + 1;
                             }
                             else
                             {
                                 // Do the other foce
                                 // [JLL] TODO: Make this a function
-                                TempDefShipsLeft = TempDefShipsLeft + 1;
-                                BE::DefShipStr[TempDefShipsLeft] = "missile " + missile_counter; // Global missile names too...
+                                BE::DefShipStr[TempDefShipsLeft] = "missile " + to_string(missile_counter); // Global missile names too...
                                 BE::MaxBeamB[TempDefShipsLeft] = BE::MissileB;
                                 BE::CurBeamB[TempDefShipsLeft] = BE::MissileB;
                                 BE::MaxShieldB[TempDefShipsLeft] = BE::MissileS;
@@ -2889,11 +3070,7 @@ void be_main()
                                 BE::CurHullB[TempDefShipsLeft] = BE::MissileH;
                                 // Inherit tags from the launcher and convert to a missile
                                 BE::SpecialB[TempDefShipsLeft] = missile_str; // Use the missile string the the salvos array ~20-25 lines up.
-                                int start = BE::SpecialB[TempDefShipsLeft].find(" ");
-                                BE::SpecialB[TempDefShipsLeft] = "[" + to_string(BE::MissileB + BE::MissileT) + BE::SpecialB[TempDefShipsLeft].substr(start); // Combine Beam and Torp rating for full salvo strength.  FIXME: This assumes that there is a closing ']'
-                                BE::SpecialB[TempDefShipsLeft] = RemoveTag(BE::SpecialB[TempDefShipsLeft], "mis", 0);                                         // Remove the missile tag or missiles will spawn missiles.  Could be used for submunitions...
-                                BE::SpecialB[TempDefShipsLeft] = AddTag(BE::SpecialB[TempDefShipsLeft], "MSL");                                               // Denotes the unit as a missile
-                                BE::SpecialB[TempDefShipsLeft] = AddTag(BE::SpecialB[TempDefShipsLeft], "SUICIDE");                                           // Suicide denotes that the unit should be removed at end of combat
+                                TempDefShipsLeft = TempDefShipsLeft + 1;
                             }
                         }
                     }
@@ -3163,6 +3340,9 @@ void be_main()
                     {
                         // The unit can not fire from the reserve
                         BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " is being held in reserve!";
+#ifdef CBE_DEBUG
+                        CBE::debugFile << "[INFO] " + BE::AttRaceName + " " + BE::AttShipStr[B] + " is being held in reserve" << endl;
+#endif
                         // Skip the rest of the unit's round
                         break;
                     }
@@ -3190,52 +3370,77 @@ void be_main()
                         {
                             old_start = temp_str.find("[", start1); // Find the start of the next salvo string
                         }
-                        // Increment the salvo count
-                        sc = sc + 1;
                         // Save the bracket string
                         BE::Salvos[sc].DataStr = temp_str.substr(start, start1 - start + 1);
                         BE::Salvos[sc].MissileS = stoi(temp_str.substr(1));
 #ifdef CBE_DEBUG
-                        CBE::debugFile << "[INFO] " << BE::AttRaceName << " " << BE::AttShipStr[B] << " has battery: " << BE::Salvos[sc].DataStr << endl;
+                        CBE::debugFile << "[INFO] " << BE::AttRaceName << " " << BE::AttShipStr[B] << " has battery[" << sc << "]: " << BE::Salvos[sc].DataStr << endl;
 #endif
+                        // Increment the salvo count
+                        sc = sc + 1;
                     }
 
+#ifdef CBE_DEBUG
+                    CBE::debugFile << "[INFO] Number of salvos " << sc << endl;
+#endif
                     // Did we find any salvos?
                     if (sc > 0)
                     {
                         for (int i = 0; i < sc; i++)
                         {
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO] Determining hits for: \"" << BE::Salvos[i].DataStr << "\"" << endl;
+#endif
                             // Do everything we can to set the firepower to zero [JLL] Meaning, if there is a reason to set the firepower to 0 do so.  Such as missile, lack long, ROF, offline, etc.
                             // Check if this is a missile battery which was taken care of earlier
+                            int ammo = HasAmmoWT(BE::Salvos[i].DataStr);
                             if (HasMissileWT(BE::Salvos[i].DataStr))
                             {
                                 BE::Salvos[i].MissileS = 0; // TODO: Can I move these checks to building the salvo array above?
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Is a missile battery.  That was handled earlier." << endl;
+#endif
                             }
                             // Check if the battery is offline
                             else if (IsOffline(BE::Salvos[i].DataStr))
                             {
                                 BE::Salvos[i].MissileS = 0;
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Battery is offline." << endl;
+#endif
                             }
                             // Check for a firing delay in the ROF tag
                             else if (GetROFDelayWT(BE::Salvos[i].DataStr) > 0)
                             {
                                 BE::Salvos[i].MissileS = 0;
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] ROF delay is not this round" << endl;
+#endif
                             }
                             // Check if only LR attacks are valid and if the battery is NOT long
                             else if ((BE::AttHasLongRange || BE::DefHasLongRange) && !HasLongWT(BE::Salvos[i].DataStr))
                             {
                                 BE::Salvos[i].MissileS = 0;
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Battery is not long range" << endl;
+#endif
                             }
                             // Check for reserve and artillery tags
                             // TODO: Can't this be removed?  The checks before salvos are built should skip this
-                            else if (HasReserve(BE::SpecialA[B]) && !HasArtilleryWT(BE::Salvos[i].DataStr))
+                            else if (HasReserve(BE::SpecialA[B]) > 0 && !HasArtilleryWT(BE::Salvos[i].DataStr))
                             {
                                 BE::Salvos[i].MissileS = 0;
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Battery is not artillery and unit is in reserve" << endl;
+#endif
                             }
                             // Check if the battery needs ammo and has some
-                            else if (HasAmmoWT(BE::Salvos[i].DataStr) != CBE::AMMO_EMPTY)
+                            else if (ammo == CBE::AMMO_EMPTY)
                             {
                                 BE::Salvos[i].MissileS = 0;
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Battery is out of ammo" << endl;
+#endif
                             }
 
                             // Cycle weapons updating counters and removing offline tags
@@ -3317,9 +3522,13 @@ void be_main()
                                 }
                             }
 
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO] (Att) Salvo has no firepower" << endl;
+#endif
+
                             // Check for ammo
-                            int ammo = HasAmmoWT(BE::Salvos[i].DataStr);
-                            if (ammo != CBE::AMMO_INFINITE)
+                            ammo = HasAmmoWT(BE::Salvos[i].DataStr);
+                            if (!HasMissileWT(BE::Salvos[i].DataStr) && ammo != CBE::AMMO_INFINITE && ammo > CBE::AMMO_EMPTY)
                             {
                                 // We are using ammo
                                 // Create a new ammo tag
@@ -3466,14 +3675,14 @@ void be_main()
                         {
                             old_start = temp_str.find("[", start1); // Find the start of the next salvo string
                         }
-                        // Increment the salvo count
-                        sc = sc + 1;
                         // Save the bracket string
                         BE::Salvos[sc].DataStr = temp_str.substr(start, start1 - start + 1);
                         BE::Salvos[sc].MissileS = stoi(temp_str.substr(1));
 #ifdef CBE_DEBUG
-                        CBE::debugFile << "[INFO] " << BE::DefRaceName << " " << BE::DefShipStr[B] << " has battery: " << BE::Salvos[sc].DataStr << endl;
+                        CBE::debugFile << "[INFO] " << BE::DefRaceName << " " << BE::DefShipStr[B] << " has battery[" << sc << "]: " << BE::Salvos[sc].DataStr << endl;
 #endif
+                        // Increment the salvo count
+                        sc = sc + 1;
                     }
 
 #ifdef CBE_DEBUG
@@ -3486,39 +3695,58 @@ void be_main()
                         for (int i = 0; i < sc; i++)
                         {
 #ifdef CBE_DEBUG
-                            CBE::debugFile << "[INFO] Constructing hit " << i << endl;
+                            CBE::debugFile << "[INFO] Determining hits for: \"" << BE::Salvos[i].DataStr << "\"" << endl;
 #endif
                             // Do everything we can to set the firepower to zero [JLL] Meaning, if there is a reason to set the firepower to 0 do so.  Such as missile, lack long, ROF, offline, etc.
                             // Check if this is a missile battery which was taken care of earlier
+                            int ammo = HasAmmoWT(BE::Salvos[i].DataStr);
                             if (HasMissileWT(BE::Salvos[i].DataStr))
                             {
                                 BE::Salvos[i].MissileS = 0; // TODO: Can I move these checks to building the salvo array above?
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Is a missile battery.  That was handled earlier." << endl;
+#endif
                             }
                             // Check if the battery is offline
                             else if (IsOffline(BE::Salvos[i].DataStr))
                             {
                                 BE::Salvos[i].MissileS = 0;
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Battery is offline." << endl;
+#endif
                             }
                             // Check for a firing delay in the ROF tag
                             else if (GetROFDelayWT(BE::Salvos[i].DataStr) > 0)
                             {
                                 BE::Salvos[i].MissileS = 0;
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] ROF delay is not this round" << endl;
+#endif
                             }
                             // Check if only LR attacks are valid and if the battery is NOT long
-                            else if ((BE::DefHasLongRange || BE::DefHasLongRange) && !HasLongWT(BE::Salvos[i].DataStr))
+                            else if ((BE::AttHasLongRange || BE::DefHasLongRange) && !HasLongWT(BE::Salvos[i].DataStr))
                             {
                                 BE::Salvos[i].MissileS = 0;
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Battery is not long range" << endl;
+#endif
                             }
                             // Check for reserve and artillery tags
                             // TODO: Can't this be removed?  The checks before salvos are built should skip this
-                            else if (HasReserve(BE::SpecialB[B]) && !HasArtilleryWT(BE::Salvos[i].DataStr))
+                            else if (HasReserve(BE::SpecialB[B]) > 0 && !HasArtilleryWT(BE::Salvos[i].DataStr))
                             {
                                 BE::Salvos[i].MissileS = 0;
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Battery is not artillery and unit is in reserve" << endl;
+#endif
                             }
                             // Check if the battery needs ammo and has some
-                            else if (HasAmmoWT(BE::Salvos[i].DataStr) != CBE::AMMO_EMPTY)
+                            else if (ammo == CBE::AMMO_EMPTY)
                             {
                                 BE::Salvos[i].MissileS = 0;
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Battery is out of ammo" << endl;
+#endif
                             }
 
                             // Cycle weapons updating counters and removing offline tags
@@ -3562,11 +3790,11 @@ void be_main()
                                     // Create the flak packets
                                     for (int j = 0; j < BE::Salvos[i].MissileS; j++)
                                     {
-                                        number_of_attacks = number_of_attacks + 1;                                                            // Increment the number of attacks
                                         Hits[number_of_attacks].firepower = 1;                                                                // Fill out the hits array, with the firepower split into packets of 1
                                         Hits[number_of_attacks].special = BE::saMulti;                                                        // Batteries are multi-targetting
                                         Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, Hits[number_of_attacks].special); // Combine any bitwise flags
                                         Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                                                  // Set the tags for the `hit` [JLL] Really this is a possible hit at this point.  More like shots.
+                                        number_of_attacks = number_of_attacks + 1;                                                            // Increment the number of attacks
                                     }
                                 }
                                 else if (HasMultiWT(BE::Salvos[i].DataStr) > 0)
@@ -3575,34 +3803,40 @@ void be_main()
                                     packet_size = HasMultiWT(BE::Salvos[i].DataStr); // TODO: Convert to local variable TODO: Differentiate HasMulti and GetMulti functions
                                     for (int j = 0; j < int(BE::Salvos[i].MissileS / packet_size); j++)
                                     {
-                                        number_of_attacks = number_of_attacks + 1; // Incremet the number of attacks
                                         Hits[number_of_attacks].firepower = packet_size;
                                         Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, BE::saMulti); // Start with multi because batteries
                                         Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                              // Set the tags for the hit
+                                        number_of_attacks = number_of_attacks + 1;                                        // Incremet the number of attacks
                                     }
                                     // Check for left over firepower due to packet sizing
                                     if ((BE::Salvos[i].MissileS % packet_size) > 0)
                                     {
                                         // Yep, there is a remainder
-                                        number_of_attacks = number_of_attacks + 1; // Incremet the number of attacks
                                         Hits[number_of_attacks].firepower = BE::Salvos[i].MissileS % packet_size;
                                         Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, BE::saMulti); // Start with multi because batteries
                                         Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                              // Set the tags for the hit
+                                        number_of_attacks = number_of_attacks + 1;                                        // Incremet the number of attacks
                                     }
                                 }
                                 else
                                 {
                                     // If it is not flak and not multi then it must be a single target attack!
-                                    number_of_attacks = number_of_attacks + 1;                                        // Incremet the number of attacks
                                     Hits[number_of_attacks].firepower = BE::Salvos[i].MissileS;                       // Set the firepower from the salvo
                                     Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, BE::saMulti); // Start with multi because batteries
                                     Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                              // Set the tags for the hit
+                                    number_of_attacks = number_of_attacks + 1;                                        // Incremet the number of attacks
                                 }
                             }
+#ifdef CBE_DEBUG
+                            else
+                            {
+                                CBE::debugFile << "[INFO] (DEF) Salvo has no firepower" << endl;
+                            }
+#endif
 
                             // Check for ammo
-                            int ammo = HasAmmoWT(BE::Salvos[i].DataStr);
-                            if (ammo != CBE::AMMO_INFINITE)
+                            ammo = HasAmmoWT(BE::Salvos[i].DataStr);
+                            if (!HasMissileWT(BE::Salvos[i].DataStr) && ammo != CBE::AMMO_INFINITE && ammo > CBE::AMMO_EMPTY)
                             {
                                 // We are using ammo
                                 // Create a new ammo tag
@@ -3635,6 +3869,9 @@ void be_main()
             // Handle the attacks
             for (int i = 0; i < number_of_attacks; i++)
             {
+#ifdef CBE_DEBUG
+                CBE::debugFile << "[INFO] Processing hit " << i << endl;
+#endif
                 int firepower = Hits[i].firepower;
                 // Is the firepower greater than 1
                 if (firepower > 1)
@@ -3643,7 +3880,7 @@ void be_main()
                     do
                     {
 #ifdef CBE_DEBUG
-                        CBE::debugFile << "[INFO] Finding a target" << endl;
+                        CBE::debugFile << "[INFO] Seeking a target" << endl;
 #endif
                         AbortCounter++;
                         if (AbortCounter >= 10)
@@ -3682,6 +3919,9 @@ void be_main()
                             int dlGroup = -1; // TODO: Replace -1 with constant
                             if (HasDatalinkWT(CombatStr, dlGroup))
                             {
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Hit has datalink, group " << dlGroup << endl;
+#endif
                                 BE::Target1 = DataLinkA[dlGroup];
                                 // [JLL] Check if there is a target for the datalink group already
                                 if (BE::Target1 == -1) // TODO: Replace -1 with a constant
@@ -3701,6 +3941,28 @@ void be_main()
                                         // Get a random target
                                         BE::Target1 = GetRandomTarget(ForceID, CombatStr, DefNumValidTargets);
                                     }
+                                }
+                            }
+                            else
+                            {
+                                // No datalink, just get a target
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] No datalink, just get a target" << endl;
+#endif
+                                if (HasScan(CombatStr, HullTarget, HullScope))
+                                {
+                                    // Get a scan target
+                                    BE::Target1 = GetScanTarget(ForceID, CombatStr, HullTarget, HullScope, DefNumValidTargets);
+                                }
+                                else if (HasHull(CombatStr, HullTarget, HullScope))
+                                {
+                                    // Get a hull target
+                                    BE::Target1 = GetHullTarget(ForceID, CombatStr, HullTarget, HullScope, DefNumValidTargets);
+                                }
+                                else
+                                {
+                                    // Get a random target
+                                    BE::Target1 = GetRandomTarget(ForceID, CombatStr, DefNumValidTargets);
                                 }
                             }
                         }
@@ -3740,6 +4002,28 @@ void be_main()
                                     }
                                 }
                             }
+                            else
+                            {
+                                // No datalink, just get a target
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] No datalink, just get a target" << endl;
+#endif
+                                if (HasScan(CombatStr, HullTarget, HullScope))
+                                {
+                                    // Get a scan target
+                                    BE::Target1 = GetScanTarget(ForceID, CombatStr, HullTarget, HullScope, DefNumValidTargets);
+                                }
+                                else if (HasHull(CombatStr, HullTarget, HullScope))
+                                {
+                                    // Get a hull target
+                                    BE::Target1 = GetHullTarget(ForceID, CombatStr, HullTarget, HullScope, DefNumValidTargets);
+                                }
+                                else
+                                {
+                                    // Get a random target
+                                    BE::Target1 = GetRandomTarget(ForceID, CombatStr, DefNumValidTargets);
+                                }
+                            }
                         }
 
                         SeekTarget = 0;
@@ -3762,9 +4046,121 @@ void be_main()
                         }
                     } while (SeekTarget == 1);
 
+#ifdef CBE_DEBUG
+                    CBE::debugFile << "[INFO] Target selected: index=" << BE::Target1 << endl;
+#endif
+
                     //  Since target selection is not done until now, point defense can not engage missiles until now
                     if (ForceID == 0)
                     {
+                        // Does the target have PD and is the attacker a missile?
+                        int pd = 0;
+                        if (HasPointDefense(BE::SpecialB[BE::Target1], pd) && IsMissile(BE::SpecialA[B]))
+                        {
+                            // Roll for a missile intercept
+                            int roll = rand() % 100;
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO] PD=" << pd << "; Roll=" << roll << endl;
+#endif
+                            // Check if the roll succeded: roll must be less than pd tag value
+                            if (roll < pd)
+                            {
+                                // The missile was intercepted
+                                BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " missile intercepted!";
+                                BE::CurHullA[B] = 0;
+                                writeBattleString(reportFile, BE::AttBattleStr);
+                                continue;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Does the target have PD and is the attacker a missile?
+                        int pd = 0;
+                        if (HasPointDefense(BE::SpecialA[BE::Target1], pd) && IsMissile(BE::SpecialB[B]))
+                        {
+                            // Roll for the missile intercept
+                            int roll = rand() % 100;
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO] PD=" << pd << "; Roll=" << roll << endl;
+#endif
+                            // Check if the roll succedded: roll must be less than pd tag value
+                            if (roll < pd)
+                            {
+                                // The missiles was intercepted
+                                BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " missile intercepted!";
+                                BE::CurHullB[B] = 0;
+                                writeBattleString(reportFile, BE::DefBattleStr);
+                                continue;
+                            }
+                        }
+                    }
+
+                    // Determine attack roll and damage inflicted
+
+                    /*
+                     * Base chance to hit is 100% modified by targeting and defense
+                     * Base damage multiplier (1d100 + yield - resistance + get_hit_bonus) [min 1, max 100]
+                     * Base damage is int((firepower * multiplier) / 100)
+                     * Suicide adds to hit which may add to the great_hit_bonus
+                     * BPs always 'hit' but may not be effective due to enemy shields or defenders
+                     */
+
+                    switch (ForceID)
+                    {
+                    case 0:
+                        if (Hits[i].special & BE::saBp == BE::saBp)
+                        {
+                            // This is a boarding party attack
+                            // Invalid targets are: solid, fighter, ground, vehicle, mine, and shielded targets unless the bp has pen
+                            bool attempt = true;
+                            if (IsSolid(BE::SpecialB[BE::Target1]))
+                            {
+                                attempt = false;
+                            }
+                            if (IsFighter(BE::SpecialB[BE::Target1]))
+                            {
+                                attempt = false;
+                            }
+                            if (IsGround(BE::SpecialB[BE::Target1]))
+                            {
+                                attempt = false;
+                            }
+                            if (IsVehicle(BE::SpecialB[BE::Target1]))
+                            {
+                                attempt = false;
+                            }
+                            if (IsMine(BE::SpecialB[BE::Target1]))
+                            {
+                                attempt = false;
+                            }
+                            if (BE::CurShieldB[BE::Target1] > 0 && Hits[i].special & BE::saPen != BE::saPen)
+                            {
+                                attempt = false;
+                            }
+                            if (attempt)
+                            {
+                                BE::dice1 = 100;
+                            }
+                            else
+                            {
+                                BE::dice1 = 0;
+                            }
+                        }
+                        else
+                        {
+                            // A non-boarding patry attack
+                            SuicideBonus = 0;
+                            CombatBonus = BE::AttTargetBonus;
+                            YieldBonus = 0;
+                            if (IsScuicide(BE::SpecialA[B]))
+                            {
+                                SuicideBonus = 1 + rand() % 99;
+                            }
+                        }
+                        break;
+                    case 1:
+                        break;
                     }
                 }
             }
