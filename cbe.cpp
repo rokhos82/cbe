@@ -6,6 +6,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <limits>
+#include <cmath>
 
 // #include "FleetInfo.h"
 #include "flags.h"
@@ -4175,6 +4176,9 @@ void be_main()
                         {
                             // This is a boarding party attack
                             // Invalid targets are: solid, fighter, ground, vehicle, mine, and shielded targets unless the bp has pen
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO] Boarding party attack" << endl;
+#endif
                             bool attempt = true;
                             if (IsSolid(BE::SpecialB[BE::Target1]))
                             {
@@ -4211,6 +4215,9 @@ void be_main()
                         }
                         else
                         {
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO] Regular attack" << endl;
+#endif
                             // A non-boarding patry attack
                             SuicideBonus = 0;
                             CombatBonus = BE::AttTargetBonus;
@@ -4237,6 +4244,7 @@ void be_main()
                             }
                             AutoHit = 0;
                             AutoMiss = 0;
+                            BE::dice1 = 1 + (rand() % 99);
                             if (BE::dice1 == 0)
                             {
                                 AutoMiss = 1;
@@ -4260,6 +4268,9 @@ void be_main()
                     case 1: // Defenders
                         if (Hits[i].special & BE::saBp == BE::saBp)
                         {
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO] Boarding party attack" << endl;
+#endif
                             // This is a boarding party attack
                             // Invalid targets are: solid, fighter, ground, vehicle, mine, and shielded targets unless the bp has pen
                             bool attempt = true;
@@ -4298,6 +4309,9 @@ void be_main()
                         }
                         else
                         {
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO] Regular attack" << endl;
+#endif
                             // A non-boarding patry attack
                             SuicideBonus = 0;
                             CombatBonus = BE::AttTargetBonus;
@@ -4324,6 +4338,7 @@ void be_main()
                             }
                             AutoHit = 0;
                             AutoMiss = 0;
+                            BE::dice1 = 1 + (rand() % 99);
                             if (BE::dice1 == 0)
                             {
                                 AutoMiss = 1;
@@ -4354,12 +4369,15 @@ void be_main()
                     if ((BE::dice1 <= (100 - BaseAccuracy) || AutoMiss == 1) && AutoHit == 0)
                     {
                         // Miss
+#ifdef CBE_DEBUG
+                        CBE::debugFile << "[INFO] The hit is a miss.  dice1:" << BE::dice1 << endl;
+#endif
                         BE::Damage3 = 0;
                     }
                     else
                     {
                         // Check if the MaximumDamage option is true
-                        if (BE::MaximumDamage) // TODO: Add to command line arguments
+                        if (BE::MaximumDamage == 1) // TODO: Add to command line arguments
                         {
                             BE::Damage3 = firepower;
 #ifdef CBE_DEBUG
@@ -4377,7 +4395,10 @@ void be_main()
                                 CBE::debugFile << "[INFO] Good hit bonus!" << endl;
 #endif
                             }
-                            BE::Damage3 = (1 + (rand() % (firepower - 1))) * (1.0 + (YieldBonus / 100.0));
+                            BE::Damage3 = long(round((1 + (rand() % (firepower - 1))) * (1.0f + (float(YieldBonus) / 100.0f))));
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO] Raw damage: " << BE::Damage3 << endl;
+#endif
                             if (BE::Damage3 < 1)
                             {
                                 BE::Damage3 = 0;
