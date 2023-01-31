@@ -4170,7 +4170,7 @@ void be_main()
 
                     switch (ForceID)
                     {
-                    case 0:
+                    case 0: // Attackers
                         if (Hits[i].special & BE::saBp == BE::saBp)
                         {
                             // This is a boarding party attack
@@ -4257,8 +4257,150 @@ void be_main()
 #endif
                         }
                         break;
-                    case 1:
+                    case 1: // Defenders
+                        if (Hits[i].special & BE::saBp == BE::saBp)
+                        {
+                            // This is a boarding party attack
+                            // Invalid targets are: solid, fighter, ground, vehicle, mine, and shielded targets unless the bp has pen
+                            bool attempt = true;
+                            if (IsSolid(BE::SpecialA[BE::Target1]))
+                            {
+                                attempt = false;
+                            }
+                            if (IsFighter(BE::SpecialA[BE::Target1]))
+                            {
+                                attempt = false;
+                            }
+                            if (IsGround(BE::SpecialA[BE::Target1]))
+                            {
+                                attempt = false;
+                            }
+                            if (IsVehicle(BE::SpecialA[BE::Target1]))
+                            {
+                                attempt = false;
+                            }
+                            if (IsMine(BE::SpecialA[BE::Target1]))
+                            {
+                                attempt = false;
+                            }
+                            if (BE::CurShieldA[BE::Target1] > 0 && Hits[i].special & BE::saPen != BE::saPen)
+                            {
+                                attempt = false;
+                            }
+                            if (attempt)
+                            {
+                                BE::dice1 = 100;
+                            }
+                            else
+                            {
+                                BE::dice1 = 0;
+                            }
+                        }
+                        else
+                        {
+                            // A non-boarding patry attack
+                            SuicideBonus = 0;
+                            CombatBonus = BE::AttTargetBonus;
+                            YieldBonus = 0;
+                            if (IsScuicide(BE::SpecialB[B]))
+                            {
+                                SuicideBonus = 1 + rand() % 99;
+                            }
+                            int target = HasTarget(CombatStr);
+                            if (target > 0)
+                            {
+                                CombatBonus = target; // FIXME: Should this not be additive to the fleet's target bonus?
+                            }
+                            HasYield(CombatStr, YieldBonus);
+                            long resist = 0;
+                            if (HasResist(BE::SpecialA[BE::Target1], resist))
+                            {
+                                YieldBonus -= resist;
+                            }
+                            long defense = HasDefense(BE::SpecialA[BE::Target1]);
+                            if (defense <= 0)
+                            {
+                                defense = 0;
+                            }
+                            AutoHit = 0;
+                            AutoMiss = 0;
+                            if (BE::dice1 == 0)
+                            {
+                                AutoMiss = 1;
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Automatic miss due to dice roll of 1" << endl;
+#endif
+                            }
+                            else if (BE::dice1 == 100)
+                            {
+                                AutoHit = 1;
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Automatic hit due to dice roll of 100" << endl;
+#endif
+                            }
+                            BE::dice1 = BE::dice1 + BE::DM_ToHitB + CombatBonus - defense;
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO] Target dice: " << BE::dice1 << endl;
+#endif
+                        }
                         break;
+                    }
+
+                    // Ok, dice1 < 1 is a miss.  Dice1 > 100 earns a Dice1-100 great_hit_bonus
+                    // Dice 1 to 100 is a normal hit
+#ifdef CBE_DEBUG
+                    CBE::debugFile << "[INFO] Calculating damage.  Firepower: " << firepower << endl;
+#endif
+                    if ((BE::dice1 <= (100 - BaseAccuracy) || AutoMiss == 1) && AutoHit == 0)
+                    {
+                        // Miss
+                        BE::Damage3 = 0;
+                    }
+                    else
+                    {
+                        // Check if the MaximumDamage option is true
+                        if (BE::MaximumDamage) // TODO: Add to command line arguments
+                        {
+                            BE::Damage3 = firepower;
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO] Using maximum damage" << endl;
+#endif
+                        }
+                        else
+                        {
+                            // We are not using max damage so roll damage
+                            if (BE::dice1 > 100)
+                            {
+                                // Calculate the good hit bonu
+                                YieldBonus += (BE::dice1 - 100);
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Good hit bonus!" << endl;
+#endif
+                            }
+                            BE::Damage3 = (1 + (rand() % (firepower - 1))) * (1.0 + (YieldBonus / 100.0));
+                            if (BE::Damage3 < 1)
+                            {
+                                BE::Damage3 = 0;
+                            }
+                            else if (BE::Damage3 > firepower)
+                            {
+                                BE::Damage3 = firepower;
+                            }
+                        }
+                    }
+                    BE::Damage2 = 0; // Clear pen damage
+                    BE::Damage1 = BE::Damage3;
+#ifdef CBE_DEBUG
+                    CBE::debugFile << "[INFO] damage: " << BE::Damage1 << endl;
+#endif
+                    if (ForceID == 0) // Attackers
+                    {
+                        if (BE::dice1 <= (100 - BaseAccuracy))
+                        {
+                            if (Hits[i].special & BE::saBp == BE::saBp)
+                            {
+                            }
+                        }
                     }
                 }
             }
@@ -4302,6 +4444,7 @@ int main(int argc, char *argv[])
 #endif
     int i = 1;
     string fname = "";
+    bool headless = false;
     while (i < argc)
     {
         string cmd = argv[i];
@@ -4328,6 +4471,11 @@ int main(int argc, char *argv[])
             // Set the to hit
             CBE::baseAccuracy = stof(argv[i]);
         }
+        else if (cmd == "-e" || cmd == "--fight")
+        {
+            // The simulation should run without user interaction
+            headless = true;
+        }
         else
         {
             std::cout << "Unknown command: " << cmd << endl;
@@ -4335,71 +4483,80 @@ int main(int argc, char *argv[])
         i++;
     }
 
-    // Present the menu to the user
-    bool done = false;
-    int choice = 0;
-    while (!done)
+    // Are we running headless?
+    if (headless)
     {
-        // Display the menu
-        std::cout << "BattleEngine 1.1" << endl;
-        if (CBE::attackerLoaded)
-        {
-            std::cout << "\t1: Attacking Fleet: " << BE::AttFleetStr << endl;
-        }
-        else
-        {
-            std::cout << "\t1: Load Attacking Fleet" << endl;
-        }
-        if (CBE::defenderLoaded)
-        {
-            std::cout << "\t2: Defending Fleet: " << BE::DefFleetStr << endl;
-        }
-        else
-        {
-            std::cout << "\t2: Load Defending Fleet" << endl;
-        }
-        std::cout << "\t3: Update Settings" << endl;
-        std::cout << "\t4: One Turn" << endl;
-        std::cout << "\t5: Fight!" << endl;
-        std::cout << "\t6: Debug Output" << endl;
-        std::cout << "\t0: Exit" << endl;
-        std::cout << "Selection: ";
-
-        // Wait for user input
-        std::cin >> choice;
-
-        // What did the user choose?
-        switch (choice)
-        {
-        case 1:
-            // Load the attacking fleet
-            std::cout << "Attackers File Name: ";
-            std::cin >> fname;
-            loadAttackingFleet(fname);
-            break;
-        case 2:
-            // Load the defending fleet
-            std::cout << "Defenders File Name: ";
-            std::cin >> fname;
-            loadDefendingFleet(fname);
-            break;
-        case 4:
-            std::cout << "Doing one round of combat" << endl;
-            break;
-        case 5:
-            // Do the thing!
-            std::cout << "Starting combat" << endl;
-            be_main();
-            break;
-        case 6:
-            debugPrintUnits();
-            break;
-        default:
-            done = true;
-        }
+        // Just run the simulation.
+        // TODO: Add some checks here
+        be_main();
     }
+    else
+    { // Present the menu to the user
+        bool done = false;
+        int choice = 0;
+        while (!done)
+        {
+            // Display the menu
+            std::cout << "BattleEngine 1.1" << endl;
+            if (CBE::attackerLoaded)
+            {
+                std::cout << "\t1: Attacking Fleet: " << BE::AttFleetStr << endl;
+            }
+            else
+            {
+                std::cout << "\t1: Load Attacking Fleet" << endl;
+            }
+            if (CBE::defenderLoaded)
+            {
+                std::cout << "\t2: Defending Fleet: " << BE::DefFleetStr << endl;
+            }
+            else
+            {
+                std::cout << "\t2: Load Defending Fleet" << endl;
+            }
+            std::cout << "\t3: Update Settings" << endl;
+            std::cout << "\t4: One Turn" << endl;
+            std::cout << "\t5: Fight!" << endl;
+            std::cout << "\t6: Debug Output" << endl;
+            std::cout << "\t0: Exit" << endl;
+            std::cout << "Selection: ";
 
-    std::cout << "Goodbye!" << endl;
+            // Wait for user input
+            std::cin >> choice;
+
+            // What did the user choose?
+            switch (choice)
+            {
+            case 1:
+                // Load the attacking fleet
+                std::cout << "Attackers File Name: ";
+                std::cin >> fname;
+                loadAttackingFleet(fname);
+                break;
+            case 2:
+                // Load the defending fleet
+                std::cout << "Defenders File Name: ";
+                std::cin >> fname;
+                loadDefendingFleet(fname);
+                break;
+            case 4:
+                std::cout << "Doing one round of combat" << endl;
+                break;
+            case 5:
+                // Do the thing!
+                std::cout << "Starting combat" << endl;
+                be_main();
+                break;
+            case 6:
+                debugPrintUnits();
+                break;
+            default:
+                done = true;
+            }
+        }
+
+        std::cout << "Goodbye!" << endl;
+    }
 
     // Close the debug file
     CBE::debugFile.close();
