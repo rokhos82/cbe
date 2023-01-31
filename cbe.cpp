@@ -924,7 +924,7 @@ int HasDefense(const string &special)
     }
 
 #ifdef CBE_DEBUG
-    CBE::debugFile << "[INFO] HasDefense(" << res << ")" << endl;
+    CBE::debugFile << "[INFO] HasDefense => " << res << endl;
 #endif
 
     return 0;
@@ -1246,6 +1246,37 @@ int HasReserve(const string &special)
     return res;
 }
 
+bool HasResist(const string &special, long &resist)
+{
+    bool res = false;
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasResist(\"" << special << "\")" << endl;
+#endif
+
+    // Look for `vibro` in the special string
+    int start = special.find("RESIST");
+    if (start != string::npos)
+    {
+        // Found it!  Set the result to TRUE
+        res = true;
+
+        // Now get the resist value
+        start = special.find(" ", start);
+        int end = special.find(" ", start + 1);
+        resist = stoi(special.substr(start + 1, end - start + 1));
+#ifdef CBE_DEBUG
+        CBE::debugFile << "[INFO] HasResist(resist:" << resist << ")" << endl;
+#endif
+    }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasResist => " << res << endl;
+#endif
+
+    return res;
+}
+
 bool HasScan(const string &special, int &base, int &scope)
 {
     bool res = false;
@@ -1343,6 +1374,37 @@ bool HasVibroWT(const string &special)
 
 #ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] HasVibroWT(" << res << ")" << endl;
+#endif
+
+    return res;
+}
+
+bool HasYield(const string &special, long &yield)
+{
+    bool res = false;
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasYield(\"" << special << "\")" << endl;
+#endif
+
+    // Look for `vibro` in the special string
+    int start = special.find("yield");
+    if (start != string::npos)
+    {
+        // Found it!  Set the result to TRUE
+        res = true;
+
+        // Now get the yield value
+        start = special.find(" ", start);
+        int end = special.find(" ", start + 1);
+        yield = stoi(special.substr(start + 1, end - start + 1));
+#ifdef CBE_DEBUG
+        CBE::debugFile << "[INFO] HasYield(yield:" << yield << ")" << endl;
+#endif
+    }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasYield => " << res << endl;
 #endif
 
     return res;
@@ -4157,6 +4219,42 @@ void be_main()
                             {
                                 SuicideBonus = 1 + rand() % 99;
                             }
+                            int target = HasTarget(CombatStr);
+                            if (target > 0)
+                            {
+                                CombatBonus = target; // FIXME: Should this not be additive to the fleet's target bonus?
+                            }
+                            HasYield(CombatStr, YieldBonus);
+                            long resist = 0;
+                            if (HasResist(BE::SpecialB[BE::Target1], resist))
+                            {
+                                YieldBonus -= resist;
+                            }
+                            long defense = HasDefense(BE::SpecialB[BE::Target1]);
+                            if (defense <= 0)
+                            {
+                                defense = 0;
+                            }
+                            AutoHit = 0;
+                            AutoMiss = 0;
+                            if (BE::dice1 == 0)
+                            {
+                                AutoMiss = 1;
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Automatic miss due to dice roll of 1" << endl;
+#endif
+                            }
+                            else if (BE::dice1 == 100)
+                            {
+                                AutoHit = 1;
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Automatic hit due to dice roll of 100" << endl;
+#endif
+                            }
+                            BE::dice1 = BE::dice1 + BE::DM_ToHitA + CombatBonus - defense;
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO] Target dice: " << BE::dice1 << endl;
+#endif
                         }
                         break;
                     case 1:
