@@ -372,6 +372,22 @@ string AddTag(const string &source, const string &target)
     return res;
 }
 
+long GetBPAttVal(const string &special)
+{
+    int start = 0;
+    long attVal = -1;
+    int end = 0;
+
+    start = special.find("bp");
+    if (start != string::npos)
+    {
+        start = special.find(" ", start);
+        end = special.find(" ", start + 1);
+    }
+
+    return attVal;
+}
+
 vector<string> GetBrackets(const string &special)
 {
 #ifdef CBE_DEBUG
@@ -4418,6 +4434,19 @@ void be_main()
                     {
                         if (BE::dice1 <= (100 - BaseAccuracy))
                         {
+                            // This is a miss.  Make the appropriate battle strings to write out later
+                            if (Hits[i].special & BE::saBp == BE::saBp)
+                            {
+                                BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " can not engage " + BE::DefRaceName + " " + BE::DefShipStr[BE::Target1] + " in boarding party combat.";
+                            }
+                            else
+                            {
+                                BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " fires on " + BE::DefRaceName + " " + BE::DefShipStr[BE::Target1] + " and missiles.";
+                            }
+                        }
+                        else
+                        {
+                            // This is a hit!
                             if (Hits[i].special & BE::saBp == BE::saBp)
                             {
                             }
