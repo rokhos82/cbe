@@ -388,6 +388,8 @@ long GetBPAttVal(const string &special)
     return attVal;
 }
 
+long GetBPDefVal(const string &special) {}
+
 vector<string> GetBrackets(const string &special)
 {
 #ifdef CBE_DEBUG
@@ -4449,6 +4451,7 @@ void be_main()
                             // This is a hit!
                             if (Hits[i].special & BE::saBp == BE::saBp)
                             {
+                                AttVal = firepower; // Can just use the bracket firepower as there is no need to check for unit BP attack value.
                             }
                         }
                     }
