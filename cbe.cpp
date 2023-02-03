@@ -378,7 +378,7 @@ long GetBPAttVal(const string &special)
     long attVal = -1;
     int end = 0;
 
-    start = special.find("bp");
+    start = special.find("BP");
     if (start != string::npos)
     {
         start = special.find(" ", start);
@@ -388,7 +388,23 @@ long GetBPAttVal(const string &special)
     return attVal;
 }
 
-long GetBPDefVal(const string &special) {}
+long GetBPDefVal(const string &special, long hull)
+{
+    int start = 0;
+    int end = 0;
+    long defVal = hull;
+
+    start = special.find("BP");
+    if (start != string::npos)
+    {
+        start = special.find(" ", start + 1);
+        start = special.find(" ", start + 1);
+        end = special.find(" ", start);
+        defVal += stol(special.substr(start, end));
+    }
+
+    return defVal;
+}
 
 vector<string> GetBrackets(const string &special)
 {
@@ -4452,6 +4468,14 @@ void be_main()
                             if (Hits[i].special & BE::saBp == BE::saBp)
                             {
                                 AttVal = firepower; // Can just use the bracket firepower as there is no need to check for unit BP attack value.
+
+                                // Calculate the targets defensive bp value
+                                DefVal = GetBPDefVal(BE::SpecialB[BE::Target1], BE::CurHullB[BE::Target1]);
+
+                                // Roll a random number between 1 and (DefVal + AttVal)
+                                // Then check if the random number is greater than the DefVal of the target
+                                // If the number is greater, then the attack party was successful
+                                BPDice = (rand() % (DefVal + AttVal - 1)) + 1;
                             }
                         }
                     }
