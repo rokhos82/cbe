@@ -4476,6 +4476,68 @@ void be_main()
                                 // Then check if the random number is greater than the DefVal of the target
                                 // If the number is greater, then the attack party was successful
                                 BPDice = (rand() % (DefVal + AttVal - 1)) + 1;
+                                if (BPDice > DefVal)
+                                {
+                                    // Now weee roll another die.  This is for the 25% chance that attacking
+                                    // boarding party captured the target
+                                    // TODO: This should not be a flat 25%.  Should scale with DefVal vs AttVal
+                                    int catpureDie = rand() % 4;
+                                    if (catpureDie == 0)
+                                    {
+                                        // The target was captured.  Setup the report string and the critical hit
+                                        BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " captures " + BE::DefShipStr[BE::Target1];
+                                        BE::BPAttackCritB[BE::Target1] += 100;                                                    // FIXME: Change this to a constant
+                                        BE::TempSpecialB[BE::Target1] = AddTag(BE::TempSpecialB[BE::Target1], "NOMOVE CAPTURED"); // The ship cannot run away
+                                        // FIXME: The BP should be expended
+                                    }
+                                    else
+                                    {
+                                        // The defend has suffered a normal BP crit rather than a capture
+                                        BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " is conducting a hit and run raid on " + BE::DefShipStr[BE::Target1];
+                                        BE::BPAttackCritB[BE::Target1] += 1;
+                                        // [JLL] TODO: I have no idea what this code is for and why it is here...
+                                        BE::Shields = 0;
+                                        BE::Crits = 0;
+                                        BE::Hull = BE::TempCurHullB[BE::Target1];
+                                        BE::X = BE::Target1;
+                                        if (BE::TempCurHullB[BE::Target1] == 0)
+                                        {
+                                            tmp = 0;
+                                        }
+                                        else
+                                        {
+                                            tmp = 100 - ((BE::TempCurHullB[BE::Target1] * 100) / BE::MaxHullB[BE::Target1]); // TODO: Clear up to Cur/Max * 100 for clarity.  Will need to do type casting for this to work well.
+                                        }
+                                        BE::Attacks[BE::AttacksIndex].AttackID = BE::A;
+                                        BE::Attacks[BE::AttacksIndex].TargetID = BE::Target1 + BE::AttShipsLeft;
+                                        BE::Attacks[BE::AttacksIndex].Damage = BE::Damage1;
+                                        BE::Attacks[BE::AttacksIndex].Weapon = Hits[i].special;
+                                        BE::Attacks[BE::AttacksIndex].Special = Hits[i].tag;
+                                        BE::AttacksIndex++;
+                                        // TODO: Better too many hit handling
+                                        if (BE::AttacksIndex >= BE::AttacksMax)
+                                        {
+#ifdef CBE_DEBUG
+                                            CBE::debugFile << "[ERROR] Number of attacks exceeded maximum number allowed.  Max is " << BE::AttacksMax << endl;
+#endif
+                                            cerr << "I have reached the maximum number of attacks I can handle." << endl;
+                                            exit(1);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    // Attackers repulsed
+                                    // TODO: This should scale with AttVal vs DefVal
+                                    if (rand() % 4 == 0)
+                                    {
+                                        // Defenders win and boarding party is expended
+                                        // FIXME: THE BP should be expended
+                                    }
+                                    else
+                                    {
+                                    }
+                                }
                             }
                         }
                     }
