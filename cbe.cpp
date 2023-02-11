@@ -3970,8 +3970,8 @@ void be_main()
                 CBE::debugFile << "[INFO] Processing hit " << i << endl;
 #endif
                 int firepower = Hits[i].firepower;
-                // Is the firepower greater than 1
-                if (firepower > 1)
+                // Is the firepower greater than 0
+                if (firepower > 0)
                 {
                     int AbortCounter = 0;
                     do
@@ -4465,6 +4465,7 @@ void be_main()
                         else
                         {
                             // This is a hit!
+                            // Check if this is a boarding party hit
                             if (Hits[i].special & BE::saBp == BE::saBp)
                             {
                                 AttVal = firepower; // Can just use the bracket firepower as there is no need to check for unit BP attack value.
@@ -4533,13 +4534,176 @@ void be_main()
                                     {
                                         // Defenders win and boarding party is expended
                                         // FIXME: THE BP should be expended
+                                        // TODO: Add which unit (Target1) ambushed the borders.
+                                        BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " borders ambushed, multiple causualties!";
                                     }
                                     else
                                     {
+                                        // Defenders win and boarding party is repulsed.  Boarding party can try again later
+                                        // TODO: Add which unit (Target1) repulsed the boarders
+                                        BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " borders repulsed!";
                                     }
                                 }
                             }
+                            else
+                            {
+                                BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " fires on " + BE::DefRaceName + " " + BE::DefShipStr[BE::Target1] + " scoring " + to_string(BE::Damage1) + " hits (" + to_string(BE::dice1) + "%)";
+                                BE::Attacks[BE::AttacksIndex].AttackID = BE::A;
+                                BE::Attacks[BE::AttacksIndex].TargetID = BE::Target1 + BE::AttShipsLeft;
+                                BE::Attacks[BE::AttacksIndex].Damage = BE::Damage1;
+                                BE::Attacks[BE::AttacksIndex].Weapon = Hits[i].special;
+                                BE::Attacks[BE::AttacksIndex].Special = Hits[i].tag;
+                                BE::AttacksIndex++;
+                                if (BE::AttacksIndex >= BE::AttacksMax)
+                                {
+#ifdef CBE_DEBUG
+                                    CBE::debugFile << "[ERROR] Maximum number of attacks exceeded." << endl;
+#endif
+                                    // TODO: Throw an exception to be caught
+                                    exit(1);
+                                }
+                            }
                         }
+                        if (number_of_attacks > 1)
+                        {
+                            // This is to indicate in the report file which attack this is from the unit
+                            BE::AttBattleStr = BE::AttBattleStr + "[" + to_string(i) + " of " + to_string(number_of_attacks) + "]";
+                        }
+                    }
+                    else
+                    {
+                        // ForceID == 1
+                        // Do all of the above again, but now for the defenders.
+                        if (BE::dice1 <= (100 - BaseAccuracy))
+                        {
+                            // This is a miss.  Make the appropriate battle strings to write out later
+                            if (Hits[i].special & BE::saBp == BE::saBp)
+                            {
+                                BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " can not engage " + BE::AttRaceName + " " + BE::AttShipStr[BE::Target1] + " in boarding party combat.";
+                            }
+                            else
+                            {
+                                BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " fires on " + BE::AttRaceName + " " + BE::AttShipStr[BE::Target1] + " and missiles.";
+                            }
+                        }
+                        else
+                        {
+                            // This is a hit!
+                            // Check if this is a boarding party hit
+                            if (Hits[i].special & BE::saBp == BE::saBp)
+                            {
+                                AttVal = firepower; // Can just use the bracket firepower as there is no need to check for unit BP attack value.
+
+                                // Calculate the targets defensive bp value
+                                DefVal = GetBPDefVal(BE::SpecialA[BE::Target1], BE::CurHullA[BE::Target1]);
+
+                                // Roll a random number between 1 and (DefVal + AttVal)
+                                // Then check if the random number is greater than the DefVal of the target
+                                // If the number is greater, then the attack party was successful
+                                BPDice = (rand() % (DefVal + AttVal - 1)) + 1;
+                                if (BPDice > DefVal)
+                                {
+                                    // Now weee roll another die.  This is for the 25% chance that attacking
+                                    // boarding party captured the target
+                                    // TODO: This should not be a flat 25%.  Should scale with DefVal vs AttVal
+                                    int catpureDie = rand() % 4;
+                                    if (catpureDie == 0)
+                                    {
+                                        // The target was captured.  Setup the report string and the critical hit
+                                        BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " captures " + BE::AttShipStr[BE::Target1];
+                                        BE::BPAttackCritA[BE::Target1] += 100;                                                    // FIXME: Change this to a constant
+                                        BE::TempSpecialA[BE::Target1] = AddTag(BE::TempSpecialA[BE::Target1], "NOMOVE CAPTURED"); // The ship cannot run away
+                                        // FIXME: The BP should be expended
+                                    }
+                                    else
+                                    {
+                                        // The defend has suffered a normal BP crit rather than a capture
+                                        BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " is conducting a hit and run raid on " + BE::AttShipStr[BE::Target1];
+                                        BE::BPAttackCritA[BE::Target1] += 1;
+                                        // [JLL] TODO: I have no idea what this code is for and why it is here...
+                                        BE::Shields = 0;
+                                        BE::Crits = 0;
+                                        BE::Hull = BE::TempCurHullA[BE::Target1];
+                                        BE::X = BE::Target1;
+                                        if (BE::TempCurHullA[BE::Target1] == 0)
+                                        {
+                                            tmp = 0;
+                                        }
+                                        else
+                                        {
+                                            tmp = 100 - ((BE::TempCurHullA[BE::Target1] * 100) / BE::MaxHullA[BE::Target1]); // TODO: Clear up to Cur/Max * 100 for clarity.  Will need to do type casting for this to work well.
+                                        }
+                                        BE::Attacks[BE::AttacksIndex].AttackID = BE::A;
+                                        BE::Attacks[BE::AttacksIndex].TargetID = BE::Target1 + BE::DefShipsLeft;
+                                        BE::Attacks[BE::AttacksIndex].Damage = BE::Damage1;
+                                        BE::Attacks[BE::AttacksIndex].Weapon = Hits[i].special;
+                                        BE::Attacks[BE::AttacksIndex].Special = Hits[i].tag;
+                                        BE::AttacksIndex++;
+                                        // TODO: Better too many hit handling
+                                        if (BE::AttacksIndex >= BE::AttacksMax)
+                                        {
+#ifdef CBE_DEBUG
+                                            CBE::debugFile << "[ERROR] Number of attacks exceeded maximum number allowed.  Max is " << BE::AttacksMax << endl;
+#endif
+                                            cerr << "I have reached the maximum number of attacks I can handle." << endl;
+                                            exit(1);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    // Attackers repulsed
+                                    // TODO: This should scale with AttVal vs DefVal
+                                    if (rand() % 4 == 0)
+                                    {
+                                        // Defenders win and boarding party is expended
+                                        // FIXME: THE BP should be expended
+                                        // TODO: Add which unit (Target1) ambushed the borders.
+                                        BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " borders ambushed, multiple causualties!";
+                                    }
+                                    else
+                                    {
+                                        // Defenders win and boarding party is repulsed.  Boarding party can try again later
+                                        // TODO: Add which unit (Target1) repulsed the boarders
+                                        BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " borders repulsed!";
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " fires on " + BE::AttRaceName + " " + BE::AttShipStr[BE::Target1] + " scoring " + to_string(BE::Damage1) + " hits (" + to_string(BE::dice1) + "%)";
+                                BE::Attacks[BE::AttacksIndex].AttackID = BE::A;
+                                BE::Attacks[BE::AttacksIndex].TargetID = BE::Target1;
+                                BE::Attacks[BE::AttacksIndex].Damage = BE::Damage1;
+                                BE::Attacks[BE::AttacksIndex].Weapon = Hits[i].special;
+                                BE::Attacks[BE::AttacksIndex].Special = Hits[i].tag;
+                                BE::AttacksIndex++;
+                                if (BE::AttacksIndex >= BE::AttacksMax)
+                                {
+#ifdef CBE_DEBUG
+                                    CBE::debugFile << "[ERROR] Maximum number of attacks exceeded." << endl;
+#endif
+                                    // TODO: Throw an exception to be caught
+                                    exit(1);
+                                }
+                            }
+                        }
+                        if (number_of_attacks > 1)
+                        {
+                            // This is to indicate in the report file which attack this is from the unit
+                            BE::DefBattleStr = BE::DefBattleStr + "[" + to_string(i) + " of " + to_string(number_of_attacks) + "]";
+                        }
+                    }
+                }
+                else // fire is less than or equal to 0?
+                {
+                    if (ForceID == 0)
+                    {
+                        BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " no normal attack. (Firepower is equal to 0)";
+                    }
+                    else
+                    {
+                        BE::DefBattleStr = BE::DefBattleStr + " " + BE::DefShipStr[B] + " no normal attack. (Firepower is equal to 0)";
                     }
                 }
             }
@@ -4554,6 +4718,46 @@ void be_main()
                 else
                 {
                     reportFile << BE::DefBattleStr << "\n";
+                }
+            }
+        }
+
+        reportFile << "\n";
+
+        // Damage routine
+        // Clear the battle strings for some reason
+        BE::AttBattleStr = "";
+        BE::DefBattleStr = "";
+
+#ifdef CBE_DEBUG
+        CBE::debugFile << "[INFO] Begining of damage routine" << endl;
+#endif
+
+        for (long A = 0; A < (BE::AttShipsLeft + BE::DefShipsLeft); A++)
+        {
+            // [JLL] Do the usual convoluted bullshit for attackers and defenders
+            long B = A;
+            ForceID = 0;
+            if (A >= BE::AttShipsLeft)
+            {
+                B = A - BE::AttShipsLeft;
+                ForceID = 1;
+            }
+            else if (A == BE::AttShipsLeft)
+            {
+                reportFile << "\n";
+            }
+
+            ShipHit = 0;
+            // Check to see if the ship has was attacked
+            // [JLL] Not sure why this is done
+            // This is done to collect all of the attacks against a specific unit
+            // for grouping in the report file
+            // TODO: Store hits by unit rather than globally
+            for (long E = 0; E < BE::AttacksIndex; E++)
+            {
+                if (BE::Attacks[E].TargetID == A)
+                {
                 }
             }
         }
