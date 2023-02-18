@@ -1036,6 +1036,35 @@ bool HasFlakWT(const string &special)
     return res;
 }
 
+bool HasFlicker(const string &special, long &flicker)
+{
+    bool res = false;
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasFlicker(\"" << special << "\")" << endl;
+#endif
+
+    // Look for `artillery` in the special string
+    int start = special.find("FLICKER");
+    if (start != string::npos)
+    {
+        // Found it!  Set the result to TRUE
+        start = special.find(" ", start);
+        int end = special.find(" ", start + 1);
+        flicker = stoi(special.substr(start, start - end));
+#ifdef CBE_DEBUG
+        CBE::debugFile << "[INFO] HasFlicker: flicker=" << flicker << endl;
+#endif
+        res = true;
+    }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasFlicker => " << res << endl;
+#endif
+
+    return res;
+}
+
 bool HasHeatWT(const string &special)
 {
     bool res = false;
@@ -1335,6 +1364,36 @@ bool HasScan(const string &special, int &base, int &scope)
 
 #ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] HasScan => " << res << endl;
+#endif
+
+    return res;
+}
+
+bool HasShields(const string &special, long &sr)
+{
+    // TODO: This function needs renamed.  It checks for SR and has nothing to do with Shield points remaining.
+    bool res = false;
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasShields(\"" << special << "\")" << endl;
+#endif
+
+    // Look for `hull` in the special string
+    int start = special.find("SR");
+    if (start != string::npos)
+    {
+        // Found it!  Now get the base and the scope
+        res = true;
+        start = special.find(" ", start);
+        int end = special.find(" ", start + 1);
+        sr = stoi(special.substr(start, start - end + 1));
+#ifdef CBE_DEBUG
+        CBE::debugFile << ("[INFO] HasShields: sr=" + sr) << endl;
+#endif
+    }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasShields => " << res << endl;
 #endif
 
     return res;
@@ -4756,8 +4815,178 @@ void be_main()
             // TODO: Store hits by unit rather than globally
             for (long E = 0; E < BE::AttacksIndex; E++)
             {
+                // Check for the target of the attack matching the current ship
+                // This is to group all attacks against this ship
+                // For grouping in the reports file
                 if (BE::Attacks[E].TargetID == A)
                 {
+                    B = BE::Attacks[E].AttackID;
+                    if (B >= BE::AttShipsLeft)
+                    {
+                        B = B - BE::AttShipsLeft;
+                        ForceID = 1;
+                        BE::Target1 = BE::Attacks[E].TargetID;
+                    }
+                    else
+                    {
+                        ForceID = 0;
+                        BE::Target1 = BE::Attacks[E].TargetID - BE::AttShipsLeft - 1;
+                    }
+
+                    BE::Damage1 = BE::Attacks[E].Damage;
+
+                    // [JLL] This set of if statements is used to print out the header for a block of attacks against
+                    // a specific ship.  I have collapsed the logic some from the original and placed the ShipHit check
+                    // first because it is the one that will change most frequently.
+                    if (ShipHit == 0 && ForceID == 0)
+                    {
+                        reportFile << BE::DefShipStr[BE::Target1] + " has been hit.\n";
+                        ShipHit = 1;
+                    }
+                    else if (ShipHit == 0 && ForceID == 1)
+                    {
+                        reportFile << BE::AttShipStr[BE::Target1] + " has been hit.\n";
+                    }
+
+                    if (BE::Attacks[E].Weapon & BE::saBp == BE::saBp)
+                    {
+                        reportFile << "  Boarding party attack is in progress.\n";
+                    }
+                    else
+                    {
+                        // TODO: Think about better logic than simply not boarding party
+                        reportFile << "  Takes " + to_string(BE::Damage1) + " points of damage.";
+                    }
+
+                    if (ForceID == 0)
+                    {
+                        long flicker = 0;
+                        if (HasFlicker(BE::SpecialB[BE::Target1], flicker))
+                        {
+                            long flickerRoll = 1 + (rand() % 99);
+                            if (flickerRoll <= flicker)
+                            {
+                                BE::Damage1 = 0;
+                                reportFile << " <attack deflected>";
+                            }
+                        }
+                        // FIXME: If flicker has already worked then why do we need to check for shields?
+                        if (BE::CurShieldB[BE::Target1] > 0)
+                        {
+                            long sr = 0;
+                            if (HasShields(BE::SpecialB[BE::Target1], sr))
+                            {
+                                BE::Damage1 -= sr;
+                                if (BE::Damage1 < 1)
+                                {
+                                    reportFile << " <attack deflected>\n";
+                                }
+                                else
+                                {
+                                    reportFile << " <" << sr << " pts deflected>\n";
+                                }
+                            }
+                            else
+                            {
+                                // [JLL] Crack only works if SR is not present?
+                                // TODO: Think about if crack weapons should effect targets with SR
+                                // FIXME: Need to move this around so that crack is check and damage increased
+                                // then have the SR checked.
+                                if (BE::Attacks[E].Weapon & BE::saCrack == BE::saCrack)
+                                {
+                                    long crackDamage = BE::Damage1 * 2;
+                                    if (crackDamage < BE::TempCurShieldB[BE::Target1])
+                                    {
+                                        // [JLL] Why would ret be set to Damage1 * 2?
+                                        BE::TempCurShieldB[BE::Target1] -= crackDamage;
+                                        BE::Damage1 = 0; // This keeps crack damage from overflowing to armor/hull
+                                        reportFile << " <shield disruption>\n";
+                                    }
+                                    else
+                                    {
+                                        // [JLL] ret here gets set to the remaining shields...
+                                        BE::TempCurShieldB[BE::Target1] = 0;
+                                        BE::Damage1 = 0; // This keeps crack damage from overflowing to armor/hull
+                                        reportFile << " <shield disrupted>\n";
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // No shields, check for crack so that damage can be set to 0.
+                            if (BE::Attacks[E].Weapon & BE::saCrack == BE::saCrack)
+                            {
+                                BE::Damage1 = 0;
+                                reportFile << " <attack dissipates>\n";
+                            }
+                        }
+                    }
+                    else // Defenders
+                    {
+                        long flicker = 0;
+                        if (HasFlicker(BE::SpecialA[BE::Target1], flicker))
+                        {
+                            long flickerRoll = 1 + (rand() % 99);
+                            if (flickerRoll <= flicker)
+                            {
+                                BE::Damage1 = 0;
+                                reportFile << " <attack deflected>";
+                            }
+                        }
+                        if (BE::CurShieldA[BE::Target1] > 0)
+                        {
+                            long sr = 0;
+                            if (HasShields(BE::SpecialA[BE::Target1], sr))
+                            {
+                                BE::Damage1 -= sr;
+                                if (BE::Damage1 < 1)
+                                {
+                                    reportFile << " <attack deflected>\n";
+                                }
+                                else
+                                {
+                                    reportFile << " <" << sr << " pts deflected>\n";
+                                }
+                            }
+                            else
+                            {
+                                // [JLL] Crack only works if SR is not present?
+                                // TODO: Think about if crack weapons should effect targets with SR
+                                // FIXME: Need to move this around so that crack is check and damage increased
+                                // then have the SR checked.
+                                if (BE::Attacks[E].Weapon & BE::saCrack == BE::saCrack)
+                                {
+                                    long crackDamage = BE::Damage1 * 2;
+                                    if (crackDamage < BE::TempCurShieldA[BE::Target1])
+                                    {
+                                        // [JLL] Why would ret be set to Damage1 * 2?
+                                        BE::TempCurShieldA[BE::Target1] -= crackDamage;
+                                        BE::Damage1 = 0; // This keeps crack damage from overflowing to armor/hull
+                                        reportFile << " <shield disruption>\n";
+                                    }
+                                    else
+                                    {
+                                        // [JLL] ret here gets set to the remaining shields...
+                                        BE::TempCurShieldA[BE::Target1] = 0;
+                                        BE::Damage1 = 0; // This keeps crack damage from overflowing to armor/hull
+                                        reportFile << " <shield disrupted>\n";
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // No shields, check for crack so that damage can be set to 0.
+                            if (BE::Attacks[E].Weapon & BE::saCrack == BE::saCrack)
+                            {
+                                BE::Damage1 = 0;
+                                reportFile << " <attack dissipates>\n";
+                            }
+                        }
+                    }
+
+                    // Do the pen damage checks
                 }
             }
         }
