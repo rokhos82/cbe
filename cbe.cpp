@@ -298,6 +298,17 @@ void loadDefendingFleet(string fname)
     }
 }
 
+void ParseTables()
+{
+    // This funciton loads the crit tables from the text file.
+}
+
+string FetchData(long cur_table)
+{
+    // This function get a random crit from the table specified by `cur_table`.
+    // `cur_table` is a table index
+}
+
 string AddTag(const string &source, const string &target)
 {
     // Add the target tag to the source string and return the modified string.
@@ -796,6 +807,36 @@ int HasAmmoWT(const string &special)
     return res;
 }
 
+bool HasArmor(const string &special, long &ar)
+{
+    // TODO: This function needs renamed.  It checks for SR and has nothing to do with Shield points remaining.
+    bool res = false;
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasArmor(\"" << special << "\")" << endl;
+#endif
+
+    // Look for `AR` in the special string
+    int start = special.find("AR");
+    if (start != string::npos)
+    {
+        // Found it!  Now get the base and the scope
+        res = true;
+        start = special.find(" ", start);
+        int end = special.find(" ", start + 1);
+        ar = stoi(special.substr(start, start - end + 1));
+#ifdef CBE_DEBUG
+        CBE::debugFile << ("[INFO] HasArmor: ar=" + ar) << endl;
+#endif
+    }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasArmor => " << res << endl;
+#endif
+
+    return res;
+}
+
 bool HasArtilleryWT(const string &special)
 {
     bool res = false;
@@ -813,7 +854,7 @@ bool HasArtilleryWT(const string &special)
     }
 
 #ifdef CBE_DEBUG
-    CBE::debugFile << "[INFO] HasArtilleryWT(" << res << ")" << endl;
+    CBE::debugFile << "[INFO] HasArtilleryWT => " << res << endl;
 #endif
 
     return res;
@@ -1809,6 +1850,27 @@ bool IsScuicide(const string &special)
 
 #ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] IsScuicide => " << res << endl;
+#endif
+
+    return res;
+}
+
+bool IsStatis(const string &special)
+{
+    bool res = false;
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] IsStatis(special:\"" << special << "\")" << endl;
+#endif
+
+    // IF the position of "SURPRISE" is NOT npos (no position)
+    if (special.find("STASIS") != string::npos)
+    {
+        res = true;
+    }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] IsStatis => " << res << endl;
 #endif
 
     return res;
@@ -4879,11 +4941,11 @@ void be_main()
                                 BE::Damage1 -= sr;
                                 if (BE::Damage1 < 1)
                                 {
-                                    reportFile << " <attack deflected>\n";
+                                    reportFile << " <attack deflected>";
                                 }
                                 else
                                 {
-                                    reportFile << " <" << sr << " pts deflected>\n";
+                                    reportFile << " <" << sr << " pts deflected>";
                                 }
                             }
                             else
@@ -4900,14 +4962,14 @@ void be_main()
                                         // [JLL] Why would ret be set to Damage1 * 2?
                                         BE::TempCurShieldB[BE::Target1] -= crackDamage;
                                         BE::Damage1 = 0; // This keeps crack damage from overflowing to armor/hull
-                                        reportFile << " <shield disruption>\n";
+                                        reportFile << " <shield disruption>";
                                     }
                                     else
                                     {
                                         // [JLL] ret here gets set to the remaining shields...
                                         BE::TempCurShieldB[BE::Target1] = 0;
                                         BE::Damage1 = 0; // This keeps crack damage from overflowing to armor/hull
-                                        reportFile << " <shield disrupted>\n";
+                                        reportFile << " <shield disrupted>";
                                     }
                                 }
                             }
@@ -4918,7 +4980,7 @@ void be_main()
                             if (BE::Attacks[E].Weapon & BE::saCrack == BE::saCrack)
                             {
                                 BE::Damage1 = 0;
-                                reportFile << " <attack dissipates>\n";
+                                reportFile << " <attack dissipates>";
                             }
                         }
                     }
@@ -4942,11 +5004,11 @@ void be_main()
                                 BE::Damage1 -= sr;
                                 if (BE::Damage1 < 1)
                                 {
-                                    reportFile << " <attack deflected>\n";
+                                    reportFile << " <attack deflected>";
                                 }
                                 else
                                 {
-                                    reportFile << " <" << sr << " pts deflected>\n";
+                                    reportFile << " <" << sr << " pts deflected>";
                                 }
                             }
                             else
@@ -4963,14 +5025,14 @@ void be_main()
                                         // [JLL] Why would ret be set to Damage1 * 2?
                                         BE::TempCurShieldA[BE::Target1] -= crackDamage;
                                         BE::Damage1 = 0; // This keeps crack damage from overflowing to armor/hull
-                                        reportFile << " <shield disruption>\n";
+                                        reportFile << " <shield disruption>";
                                     }
                                     else
                                     {
                                         // [JLL] ret here gets set to the remaining shields...
                                         BE::TempCurShieldA[BE::Target1] = 0;
                                         BE::Damage1 = 0; // This keeps crack damage from overflowing to armor/hull
-                                        reportFile << " <shield disrupted>\n";
+                                        reportFile << " <shield disrupted>";
                                     }
                                 }
                             }
@@ -4981,12 +5043,321 @@ void be_main()
                             if (BE::Attacks[E].Weapon & BE::saCrack == BE::saCrack)
                             {
                                 BE::Damage1 = 0;
-                                reportFile << " <attack dissipates>\n";
+                                reportFile << " <attack dissipates>";
                             }
                         }
                     }
 
                     // Do the pen damage checks
+                    long X = BE::Target1;
+                    string temp_str = "";
+                    BE::ShipCritStr = ""; // TODO: Change to local scope variable
+                    BE::Crits = 0;        // TODO: Change to local scope variable
+
+                    if (ForceID == 0)
+                    {
+                        if (BE::TempCurShieldB[X] < BE::Damage1)
+                        {
+                            BE::Shields = 0;                                       // TODO: Change to local scope variable
+                            BE::DamageLevel = BE::Damage1 - BE::TempCurShieldB[X]; // TODO: Change to local scope variable
+                        }
+                        else
+                        {
+                            BE::Shields = BE::TempCurShieldB[X] - BE::Damage1;
+                            BE::DamageLevel = 0;
+                        }
+
+                        BE::DamageLevel += BE::Damage2; // Penetrating damage bypass shields TODO: Rename variables for clearer code
+                        long ar = 0;
+
+                        if (BE::DamageLevel > 0 && HasArmor(BE::SpecialB[BE::Target1], ar))
+                        {
+                            BE::DamageLevel -= ar;
+                            if (BE::DamageLevel < 1)
+                            {
+                                reportFile << " <attack blocked>";
+                                BE::TempCurShieldB[X] = BE::Shields;
+                                // [JLL] FIXME: I have no idea what this code is here for
+                                if (BE::Attacks[E].Weapon & BE::saBp != BE::saBp)
+                                {
+                                    // [JLL] Something about marines get through.  But this isn't a test for BP, this is for the absence of BP...
+                                    reportFile << "\n";
+                                    continue;
+                                }
+                            }
+                            else
+                            {
+                                reportFile << " <" << to_string(ar) << " pts blocked>";
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (BE::TempCurShieldA[X] < BE::Damage1)
+                        {
+                            BE::Shields = 0;
+                            BE::DamageLevel = BE::Damage1 - BE::TempCurShieldA[X];
+                        }
+                        else
+                        {
+                            BE::Shields = BE::TempCurShieldA[X] - BE::Damage1;
+                            BE::DamageLevel = 0;
+                        }
+
+                        BE::DamageLevel += BE::Damage2;
+                        long ar = 0;
+
+                        if (BE::DamageLevel > 0 && HasArmor(BE::SpecialA[BE::Target1], ar))
+                        {
+                            BE::DamageLevel -= ar;
+                            if (BE::DamageLevel < 1)
+                            {
+                                reportFile << " <attack blocked>";
+                                BE::TempCurShieldA[X] = BE::Shields;
+                                if (BE::Attacks[E].Weapon & BE::saBp != BE::saBp)
+                                {
+                                    reportFile << "\n";
+                                    continue;
+                                }
+                            }
+                            else
+                            {
+                                reportFile << " <" << to_string(ar) << " pts blocked>";
+                            }
+                        }
+                    }
+
+                    reportFile << "\n";
+
+                    // Stasis snap shield logic
+                    // Statis shield only activates when the shield fails
+                    // so pen-hits get through unless the shield falls at the same time.
+                    if (ForceID == 0)
+                    {
+                        if (IsStatis(BE::SpecialB[X]))
+                        {
+                            if (BE::Shields == 0 && BE::CurShieldB[X] > 0 && BE::DamageLevel > 0)
+                            {
+                                BE::DamageLevel = 0;
+                                BE::TempCurShieldB[X] = 0;
+                                reportFile << "  Statis field activated.  Extra damage deflected.\n";
+                                continue;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (IsStatis(BE::SpecialA[X]))
+                        {
+                            if (BE::Shields == 0 && BE::CurShieldA[X] > 0 && BE::DamageLevel > 0)
+                            {
+                                BE::DamageLevel = 0;
+                                BE::TempCurShieldA[X] = 0;
+                                reportFile << "  Statis field activated.  Extra damage deflected.\n";
+                                continue;
+                            }
+                        }
+                    }
+
+                    // [JLL] I think this applies damage to the hull
+                    // [JLL] This is remaining hull, hull percentage, hull damage, and shield percentage.
+                    if (ForceID == 0)
+                    {
+                        if (BE::TempCurHullB[X] <= 0)
+                        {
+                            tmp = 0;
+                        }
+                        else
+                        {
+                            // This is the percentage of the max hull damage.  Used below for crit calculations
+                            tmp = 100 - (BE::TempCurHullB[X] * 100) / BE::MaxHullB[X];
+                        }
+
+                        BE::Hull = BE::TempCurHullB[X] - BE::DamageLevel;
+                        if (BE::Hull < 0)
+                        {
+                            BE::Hull = 0;
+                        }
+
+                        if (BE::MaxShieldB[X] == 0 || BE::Shields == 0)
+                        {
+                            BE::ShieldsPercent = 0;
+                        }
+                        else
+                        {
+                            BE::ShieldsPercent = BE::Shields * 100 / BE::MaxShieldB[X];
+                        }
+
+                        if (BE::MaxHullB[X] == 0 || BE::Hull == 0)
+                        {
+                            BE::HullPercent = 0;
+                        }
+                        else
+                        {
+                            BE::HullPercent = 100 - (BE::Hull * 100) / BE::MaxHullB[X];
+                        }
+                    }
+                    else
+                    {
+                        if (BE::TempCurHullA[X] <= 0)
+                        {
+                            tmp = 0;
+                        }
+                        else
+                        {
+                            // This is the percentage of the max hull damage.  Used below for crit calculations
+                            tmp = 100 - (BE::TempCurHullA[X] * 100) / BE::MaxHullA[X];
+                        }
+
+                        BE::Hull = BE::TempCurHullA[X] - BE::DamageLevel;
+                        if (BE::Hull < 0)
+                        {
+                            BE::Hull = 0;
+                        }
+
+                        if (BE::MaxShieldA[X] == 0 || BE::Shields == 0)
+                        {
+                            BE::ShieldsPercent = 0;
+                        }
+                        else
+                        {
+                            BE::ShieldsPercent = BE::Shields * 100 / BE::MaxShieldA[X];
+                        }
+
+                        if (BE::MaxHullA[X] == 0 || BE::Hull == 0)
+                        {
+                            BE::HullPercent = 0;
+                        }
+                        else
+                        {
+                            BE::HullPercent = 100 - (BE::Hull * 100) / BE::MaxHullA[X];
+                        }
+
+                        /*
+                         * OK, if we got this far we have inflicted some damage.  Possibly even ZERO damage
+                         * due to shield absorption.  But, it's enough to possibly trigger a special effect.
+                         *
+                         * Special attribute flags
+                         *      1   sa_dis
+                         *      2   sa_heat
+                         *      4   sa_meson
+                         *      8   sa_vibro
+                         *     16   sa_multi    scatter pack (user for targetting)
+                         *     32   sa_crack
+                         *     64   sa_bp       boarding party
+                         *    128   sa_pen
+                         */
+
+                        // TODO: Change all of these to local scope variables
+                        BE::Crits = 0;
+                        BE::CRIT_DIS = 0;
+                        BE::CRIT_HEAT = 0;
+                        BE::CRIT_MESON = 0;
+                        BE::CRIT_VIBRO = 0;
+                        BE::CRIT_BP = 0;
+                        BE::CRIT_SPECIAL = 0;
+
+                        // It's possible to have multiple special effect weapons, se each is rolled separately
+                        // Yes.  That means a heat/dis weapon has a 40% chance of causing a crit.  20% for each crit type.
+                        if (BE::Attacks[E].Weapon > 0)
+                        {
+                            BE::dice = rand() % 10;
+                            if (BE::dice < 2 && (BE::Attacks[E].Weapon & BE::saDis) == BE::saDis)
+                            {
+                                BE::CRIT_DIS = 1;
+                            }
+
+                            BE::dice = rand() % 10;
+                            if (BE::dice < 2 && (BE::Attacks[E].Weapon & BE::saHeat) == BE::saHeat)
+                            {
+                                BE::CRIT_HEAT = 1;
+                            }
+
+                            BE::dice = rand() % 10;
+                            if (BE::dice < 2 && (BE::Attacks[E].Weapon & BE::saMeson) == BE::saMeson)
+                            {
+                                BE::CRIT_MESON = 1;
+                            }
+
+                            BE::dice = rand() % 10;
+                            if (BE::dice < 2 && (BE::Attacks[E].Weapon & BE::saVibro) == BE::saVibro)
+                            {
+                                BE::CRIT_VIBRO = 1;
+                            }
+
+                            BE::dice = rand() % 10;
+                            if (BE::dice < 2 && (BE::Attacks[E].Weapon & BE::saSpecial) == BE::saSpecial)
+                            {
+                                BE::CRIT_SPECIAL = 1;
+                            }
+
+                            // Boarding parties always crit if they hit
+                            if ((BE::Attacks[E].Weapon & BE::saBp) == BE::saBp)
+                            {
+                                BE::CRIT_BP = 1;
+                            }
+                        }
+
+                        // Figure the damage threshold
+                        // [JLL] TODO: tmp is last references almost 100 lines above.  This needs a rename.
+                        if (tmp >= 0 && tmp <= 19)
+                        {
+                            if (BE::HullPercent >= 20)
+                            {
+                                BE::Crits = 1;
+                                if (BE::HullPercent >= 40)
+                                {
+                                    BE::Crits = 2;
+                                    if (BE::HullPercent >= 60)
+                                    {
+                                        BE::Crits = 3;
+                                        if (BE::HullPercent >= 80)
+                                        {
+                                            BE::Crits = 4;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else if (tmp >= 20 && tmp <= 39)
+                        {
+                            if (BE::HullPercent >= 40)
+                            {
+                                BE::Crits = 1;
+                                if (BE::HullPercent >= 60)
+                                {
+                                    BE::Crits = 2;
+                                    if (BE::HullPercent >= 80)
+                                    {
+                                        BE::Crits = 3;
+                                    }
+                                }
+                            }
+                        }
+                        else if (tmp >= 40 && tmp <= 59)
+                        {
+                            if (BE::HullPercent >= 60)
+                            {
+                                BE::Crits = 1;
+                                if (BE::HullPercent >= 80)
+                                {
+                                    BE::Crits = 2;
+                                }
+                            }
+                        }
+                        else if (tmp >= 60 && tmp <= 79)
+                        {
+                            if (BE::HullPercent >= 80)
+                            {
+                                BE::Crits = 1;
+                            }
+                        }
+
+                        BE::Crits = BE::Crits + BE::CRIT_DIS + BE::CRIT_HEAT + BE::CRIT_MESON + BE::CRIT_VIBRO + BE::CRIT_BP + BE::CRIT_SPECIAL; // Remeber, these are not flags just counters
+
+                        temp_str = "";
+                        BE::CriticalStr = "";
+                    }
                 }
             }
         }

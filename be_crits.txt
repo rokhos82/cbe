@@ -1,0 +1,515 @@
+# Battle Engine Custom Crit table                     version  2002.12.06
+#
+# Lines beginning with a '#' are comments and are ignored by the program.
+#
+# This file contains all the tables used for regular and custom critical
+# hits.  This includes unit crits (normal ships, buildings, etc.) and
+# special effects weapons (dis, heat, etc.)
+#
+# Each table is broken up into four comma delimited fields:
+#
+# table_ID   All tables with the same ID number are lumped together.
+#            Currently, the BE supports up to 99 tables.
+#
+# weight     The total weight of a table determines the number of faces
+#            that the die has.  If there are six entries with a weight
+#            of one each, this is the same as a six sided die with labels
+#            on each face.  The BE supports unusual dice types and bell
+#            curves as well.  A table with a total weight of 7 will use
+#            a 7 sided 'die' internally.  Variable weights can be used
+#            to create weighted results.
+#
+#            Example of a 2d6 bell curve for table 13:
+#
+#            13,1,0,"You rolled a 2."
+#            13,2,0,"You rolled a 3."
+#            13,3,0,"You rolled a 4."
+#            13,4,0,"You rolled a 5."
+#            13,5,0,"You rolled a 6."
+#            13,6,0,"You rolled a 7."
+#            13,5,0,"You rolled a 8."
+#            13,4,0,"You rolled a 9."
+#            13,3,0,"You rolled a 10."
+#            13,2,0,"You rolled a 11."
+#            13,1,0,"You rolled a 12."
+#
+# crit_ID    Some entries have special effects on a unit.  A value of
+#            zero means no special effect.  One to ten causes additional
+#            damage.  Eleven to 99 are flags used to trigger special
+#            code in the battle engine.  One hundred is for unit kills.
+#
+# text       The actual message that is displayed.  If you're adding
+#            special weapons, the current style is to preface the
+#            damage description with a weapon 'tag'.
+#
+# Current values used by the Battle Engine:
+#
+# Table ID   Table Name
+#     1      dis
+#     2      heat
+#     3      meson
+#     4      vibro
+#     5      normal    (default crit table)
+#     6      building
+#     7      carrier
+#     8      orbital
+#     9      volatile
+#    10      bioship
+#    11      vehicle
+#    12      psi
+#
+# Crit type       Crit ID   Crit ID Desription
+#
+# Non-critical hit    0   ' no exceptional in-game damage
+# Critical damage  1-10   ' additional damage
+# CRIT_WEAPON_ONE    11   ' Weapons Offline for 1 turn
+# CRIT_WEAPON_HALF   12   ' Half Weapons Offline until repaired
+# CRIT_WEAPON_ALL    13   ' All Weapons Offline until repaired
+# CRIT_DRIFTING      14   ' No movement for 1 turn
+# CRIT_NOMOVE        15   ' No movement until repaired
+# CRIT_CRIPPLE       16   ' Crippled
+# CRIT_SHIELDS       17   ' Shields Offline
+# CRIT_AMMO          18   ' Ammo explosion
+# CRIT_CREW1         19   ' Crew casualties 5%
+# CRIT_CREW2         20   ' Crew casualties 10%
+# CRIT_CREW3         21   ' Crew casualties 25% and Crippled
+# Critical damage   100   ' fatal damage
+#
+# dis
+1,1,14,"DIS: Primary Drive Offline (No movement for 1 turn)"
+1,1,15,"DIS: Primary Drive Down (No movement until repaired)"
+1,1,17,"DIS: Shield Generators Down (Sh=0 until repaired)"
+1,1,11,"DIS: Main Computer Offline (Offline for 1 turn)"
+
+# heat
+2,1,19,"HEAT: Coolant Leak (+5% crew casualties)"
+2,1, 1,"HEAT: Fire: Level 1 (+1 damage)"
+2,1, 2,"HEAT: Fire: Level 2 (+2 damage)"
+2,1, 3,"HEAT: Fire: Level 3 (+3 damage)"
+
+# meson
+3,1,19,"MESON: Hull Breached (+5% crew casualties)"
+3,1,19,"MESON: Crew Quarters Breached (+5% crew casualties)"
+3,1, 2,"MESON: Explosion Amidships (+2 damage)"
+3,1, 4,"MESON: Explosive Chain Reaction (+4 damage)"
+
+# vibro
+4,1,19,"VIBRO: Hull Breached (+5% crew casualties)"
+4,1, 1,"VIBRO: Inertial Dampeners Down (+1 damage)"
+4,1, 1,"VIBRO: Superstructure Hit (+1 damage)"
+4,1, 3,"VIBRO: Structural Collapse (+3 damage)"
+
+# normal ships
+5,1,100,"Reactor Core Breach (Ship explodes)"
+5,2, 3,"Structural Collapse (+3 damage)"
+5,2, 2,"Explosion Amidships (+2 damage)"
+5,2, 1,"Superstructure Hit (+1 damage)"
+5,2, 1,"Inertial Dampeners Down (+1 damage)"
+5,4,13,"Weapons Damaged (Offline until repaired)"
+5,2,19,"Radiation Leak (+5% crew casualties)"
+5,2,19,"Coolant Leak (+5% crew casualties)"
+5,2,19,"Hull Breach (+5% crew casualties)"
+5,2, 1,"Main Fusion Reactors Down (+1 damage)"
+5,2, 1,"Auxiliary Fusion Reactors Down (+1 damage)"
+5,4,12,"Weapon Power Short (Some offline until repaired)"
+5,4,14,"Engine Power Short (Drifting for 1 turn)"
+5,2, 0,"Shuttle/Fighter Bay Hit"
+5,2,11,"Main Fire Control Out (Offline for 1 turn)"
+5,2,11,"Main Scanners Out (Offline for 1 turn)"
+5,2, 0,"Maglock/Tractor Beams Down"
+5,2,11,"Main Bridge Hit (Bridge crew killed, Offline for 1 turn)"
+5,2,14,"Main Engineering Hit (Drifting for 1 turn)"
+5,4,15,"Warp Engine Hit (No warp movement until repaired)"
+5,2,19,"Barracks/Cargo Holds Breached (+5% crew casualties)"
+5,2,19,"Warp Drive Down (No warp movement until repaired)"
+5,2,19,"Crew Quarters Breached (+5% crew casualties)"
+5,2,14,"Impulse Engines Down (Drifting for 1 turn)"
+5,2, 0,"Auxiliary Scanners Out"
+5,2,13,"Weapon Power Couplings Down (Offline until repaired)"
+5,2, 0,"Emergency Power Out"
+5,2,20,"Primary Life Support Out (+10% crew casualties)"
+5,2,15,"Navigational Deflectors Out (No warp movement until repaired)"
+5,2,20,"Internal Damage (+10% crew casualties)"
+5,2,11,"Main Computer Down (Offline for 1 turn)"
+5,2,19,"Internal Damage (+5% crew casualties)"
+5,2,19,"Emergency Life Support Out (+5% crew casualties)"
+5,2, 0,"Auxiliary Computer Down"
+5,2, 0,"Auxiliary Fire Control Out"
+5,2, 1,"Fire: Level 1 (+1 damage)"
+5,2, 1,"Explosion Amidships (+1 damage)"
+5,2, 0,"ECM/Cloaking Systems Out"
+5,2, 2,"Fire: Level 2 (+2 damage)"
+5,2, 2,"Explosion Amidships (+2 damage)"
+5,2,18,"Ammunition Bay/Magazine Explosion (+Tp damage)"
+5,2, 3,"Fire: Level 3 (+3 damage)"
+5,2, 0,"Auxiliary Bridge Hit"
+5,2, 4,"Explosive Chain Reaction (+4 damage)"
+5,2,16,"All Sensors Out (Offline and no movement until repaired)"
+5,2,17,"Shield Power Couplings Down (Sh=0 until repaired)"
+5,1,100,"Reactor Containment Failure (Ship explodes)"
+
+# building
+6,1,100,"Reactor Core Breach (Unit explodes)"
+6,2, 3,"Structural Collapse (+3 damage)"
+6,2, 2,"Explosion mid level (+2 damage)"
+6,2, 1,"Superstructure Hit (+1 damage)"
+6,2,18,"Ammunition Bay/Magazine Explosion (+Tp damage)"
+6,4,13,"Weapons Out (Offline until repaired)"
+6,2,19,"Radiation Leak (+5% crew casualties)"
+6,2,19,"Coolant Leak (+5% crew casualties)"
+6,4, 1,"Main Fusion Reactors Down (+1 damage)"
+6,2, 1,"Auxiliary Fusion Reactors Down (+1 damage)"
+6,8,12,"Power Couplings Down (Some offline until repaired)"
+6,2, 0,"Launch Facilities Hit"
+6,2,11,"Main Fire Control Out (Offline for 1 turn)"
+6,2,11,"Main Scanners Out (Offline for 1 turn)"
+6,2, 0,"Tractor Beams Down"
+6,2,11,"Main Command Hit (Command staff killed, Offline for 1 turn)"
+6,2,11,"Main Engineering Hit (Offline for 1 turn)"
+6,2, 2,"Powerplant Hit (+2 damage)"
+6,2,19,"Cargo Area Breached (+5% crew casualties)"
+6,6,19,"Barracks Breached (+5% crew casualties)"
+6,2, 0,"Backup Reactor Down"
+6,2, 0,"Auxiliary Scanners Out"
+6,2,13,"Weapon Power Couplings Down (Offline until repaired)"
+6,2, 0,"Emergency Power Out"
+6,2,20,"Primary Life Support Out (+10% crew casualties)"
+6,2, 0,"Satellite Uplink Destroyed"
+6,2,20,"Internal Damage (+10% crew casualties)"
+6,2,11,"Main Computer Down (Offline for 1 turn)"
+6,2,19,"Internal Damage (+5% crew casualties)"
+6,2,19,"Emergency Life Support Out (+5% crew casualties)"
+6,2, 0,"Auxiliary Computer Down"
+6,2, 0,"Auxiliary Fire Control Out"
+6,2, 1,"Fire: Level 1 (+1 damage)"
+6,2, 1,"Explosion mid level (+1 damage)"
+6,2, 0,"ECM/Cloaking Systems Out"
+6,2, 2,"Fire: Level 2 (+2 damage)"
+6,2, 2,"Explosion mid level (+2 damage)"
+6,2,18,"Ammunition Bay/Magazine Explosion (+Tp damage)"
+6,2, 3,"Fire: Level 3 (+3 damage)"
+6,2, 0,"Auxiliary Command Hit"
+6,2, 4,"Explosive Chain Reaction (+4 damage)"
+6,2,13,"All Sensors Out (Offline until repaired)"
+6,2,17,"Shield Power Couplings Down (Sh=0 until repaired)"
+6,1,100,"Reactor Containment Failure (Unit explodes)"
+
+# carrier
+7,1,100,"Reactor Core Breach (Ship explodes)"
+7,2, 3,"Structural Collapse (+3 damage)"
+7,2, 2,"Explosion Amidships (+2 damage)"
+7,2, 1,"Superstructure Hit (+1 damage)"
+7,2, 1,"Inertial Dampeners Down (+1 damage)"
+7,4,13,"Weapons Damaged (Offline until repaired)"
+7,2,19,"Radiation Leak (+5% crew casualties)"
+7,2,19,"Coolant Leak (+5% crew casualties)"
+7,2,19,"Hull Breach (+5% crew casualties)"
+7,2, 1,"Main Fusion Reactors Down (+1 damage)"
+7,2, 1,"Auxiliary Fusion Reactors Down (+1 damage)"
+7,4,12,"Weapon Power Short (Some offline until repaired)"
+7,4,14,"Engine Power Short (Drifting for 1 turn)"
+7,2, 0,"Shuttle/Fighter Bay Hit"
+7,2,11,"Main Fire Control Out (Offline for 1 turn)"
+7,2,11,"Main Scanners Out (Offline for 1 turn)"
+7,2, 0,"Maglock/Tractor Beams Down"
+7,2,11,"Main Bridge Hit (Bridge crew killed, Offline for 1 turn)"
+7,2,14,"Main Engineering Hit (Drifting for 1 turn)"
+7,4,15,"Warp Engine Hit (No warp movement until repaired)"
+7,2,19,"Barracks/Cargo Holds Breached (+5% crew casualties)"
+7,2,19,"Warp Drive Down (No warp movement until repaired)"
+7,2,19,"Crew Quarters Breached (+5% crew casualties)"
+7,2,14,"Impulse Engines Down (Drifting for 1 turn)"
+7,2, 0,"Auxiliary Scanners Out"
+7,2,13,"Weapon Power Couplings Down (Offline until repaired)"
+7,2, 0,"Emergency Power Out"
+7,2,20,"Primary Life Support Out (+10% crew casualties)"
+7,2,15,"Navigational Deflectors Out (No warp movement until repaired)"
+7,2,20,"Internal Damage (+10% crew casualties)"
+7,2,11,"Main Computer Down (Offline for 1 turn)"
+7,2,19,"Internal Damage (+5% crew casualties)"
+7,2,19,"Emergency Life Support Out (+5% crew casualties)"
+7,2, 0,"Auxiliary Computer Down"
+7,2, 0,"Auxiliary Fire Control Out"
+7,2, 1,"Fire: Level 1 (+1 damage)"
+7,6, 1,"All fighters in hangar destroyed (+1 damage)"
+7,2, 0,"ECM/Cloaking Systems Out"
+7,2, 2,"Fire: Level 2 (+2 damage)"
+7,4, 2,"All fighters in hangar destroyed (+2 damage)"
+7,2,18,"Ammunition Bay/Magazine Explosion (+Tp damage)"
+7,2, 3,"Fire: Level 3 (+3 damage)"
+7,2, 0,"Auxiliary Bridge Hit"
+7,4, 4,"All fighters in hangar destroyed (+4 damage)"
+7,4,16,"All fighters in hangar destroyed (crippled, destruction imminent)"
+7,1,21,"All fighters in hangar destroyed (+25% crew casualties, crippled, destruction imminent)"
+7,1,100,"Carrier lost with all hands in catastrophic explosion"
+7,2,16,"All Sensors Out (Offline and no movement until repaired)"
+7,2,17,"Shield Power Couplings Down (Sh=0 until repaired)"
+7,1,100,"Reactor Containment Failure (Ship explodes)"
+
+# oribital
+8,1,100,"Reactor Core Breach (Unit explodes)"
+8,2, 3,"Structural Collapse (+3 damage)"
+8,2, 2,"Explosion mid deck (+2 damage)"
+8,2, 1,"Superstructure Hit (+1 damage)"
+8,2, 1,"Artificial Gravity Out (+1 damage)"
+8,4,13,"Weapons Out (Offline until repaired)"
+8,2,19,"Radiation Leak (+5% crew casualties)"
+8,2,19,"Coolant Leak (+5% crew casualties)"
+8,2,19,"Hull Breach (+5% crew casualties)"
+8,2, 1,"Main Fusion Reactors Down (+1 damage)"
+8,2, 1,"Auxiliary Fusion Reactors Down (+1 damage)"
+8,8,12,"Weapon Power Couplings Down (Some offline until repaired)"
+8,2, 0,"Shuttle/Fighter Bay Hit"
+8,2,11,"Main Fire Control Out (Offline for 1 turn)"
+8,2,11,"Main Scanners Out (Offline for 1 turn)"
+8,2, 0,"Tractor Beams Down"
+8,2,11,"Main Bridge Hit (Bridge crew killed, Offline for 1 turn)"
+8,2,11,"Main Engineering Hit (Offline for 1 turn)"
+8,4,11,"Main Power Hit (offline for 1 turn)"
+8,2,19,"Barracks/Cargo Holds Breached (+5% crew casualties)"
+8,2, 0,"Station Keeping Engines Offline (orbit will decay)"
+8,2,19,"Crew Quarters Breached (+5% crew casualties)"
+8,2, 0,"Observation Deck Destroyed"
+8,2, 0,"Auxiliary Scanners Out"
+8,2,13,"Weapon Power Couplings Down (Offline until repaired)"
+8,2, 0,"Emergency Power Out"
+8,2,20,"Primary Life Support Out (+10% crew casualties)"
+8,2, 0,"Navigational Control Out (No docking until repaired)"
+8,2,20,"Internal Damage (+10% crew casualties)"
+8,2,11,"Main Computer Down (Offline for 1 turn)"
+8,2,19,"Internal Damage (+5% crew casualties)"
+8,2,19,"Emergency Life Support Out (+5% crew casualties)"
+8,2, 0,"Auxiliary Computer Down"
+8,2, 0,"Auxiliary Fire Control Out"
+8,2, 1,"Fire: Level 1 (+1 damage)"
+8,2, 1,"Explosion mid deck (+1 damage)"
+8,2, 0,"ECM/Cloaking Systems Out"
+8,2, 2,"Fire: Level 2 (+2 damage)"
+8,2, 2,"Explosion Amidships (+2 damage)"
+8,2,18,"Ammunition Bay/Magazine Explosion (+Tp damage)"
+8,2, 3,"Fire: Level 3 (+3 damage)"
+8,2, 0,"Auxiliary Bridge Hit"
+8,2, 4,"Explosive Chain Reaction (+4 damage)"
+8,2,13,"All Sensors Out (Offline until repaired)"
+8,2,17,"Shield Power Couplings Down (Sh=0 until repaired)"
+8,1,100,"Reactor Containment Failure (Unit explodes)"
+
+# volatile
+9,1,100,"Reactor Core Breach (Ship explodes)"
+9,2, 3,"Structural Collapse (+3 damage)"
+9,2, 2,"Explosion Amidships (+2 damage)"
+9,2, 1,"Superstructure Hit (+1 damage)"
+9,2, 1,"Inertial Dampeners Down (+1 damage)"
+9,4,13,"Weapons Damaged (Offline until repaired)"
+9,2,19,"Radiation Leak (+5% crew casualties)"
+9,2,19,"Coolant Leak (+5% crew casualties)"
+9,2,19,"Hull Breach (+5% crew casualties)"
+9,2, 1,"Main Fusion Reactors Down (+1 damage)"
+9,2, 1,"Auxiliary Fusion Reactors Down (+1 damage)"
+9,4,12,"Weapon Power Short (Some offline until repaired)"
+9,4,14,"Engine Power Short (Drifting for 1 turn)"
+9,2, 0,"Shuttle/Fighter Bay Hit"
+9,2,11,"Main Fire Control Out (Offline for 1 turn)"
+9,2,11,"Main Scanners Out (Offline for 1 turn)"
+9,2, 0,"Maglock/Tractor Beams Down"
+9,2,11,"Main Bridge Hit (Bridge crew killed, Offline for 1 turn)"
+9,2,14,"Main Engineering Hit (Drifting for 1 turn)"
+9,4,15,"Warp Engine Hit (No warp movement until repaired)"
+9,2,19,"Barracks/Cargo Holds Breached (+5% crew casualties)"
+9,2,19,"Warp Drive Down (No warp movement until repaired)"
+9,2,19,"Crew Quarters Breached (+5% crew casualties)"
+9,2,14,"Impulse Engines Down (Drifting for 1 turn)"
+9,2, 0,"Auxiliary Scanners Out"
+9,2,13,"Weapon Power Couplings Down (Offline until repaired)"
+9,2, 0,"Emergency Power Out"
+9,2,20,"Primary Life Support Out (+10% crew casualties)"
+9,2,15,"Navigational Deflectors Out (No warp movement until repaired)"
+9,2,20,"Internal Damage (+10% crew casualties)"
+9,2,11,"Main Computer Down (Offline for 1 turn)"
+9,2,19,"Internal Damage (+5% crew casualties)"
+9,2,19,"Emergency Life Support Out (+5% crew casualties)"
+9,2, 0,"Auxiliary Computer Down"
+9,2, 0,"Auxiliary Fire Control Out"
+9,2, 1,"Fire: Level 1 (+1 damage)"
+9,6, 1,"Cargo explodes (+1 damage)"
+9,2, 0,"ECM/Cloaking Systems Out"
+9,2, 2,"Fire: Level 2 (+2 damage)"
+9,4, 2,"Cargo explodes (+2 damage)"
+9,2,18,"Ammunition Bay/Magazine Explosion (+Tp damage)"
+9,2, 3,"Fire: Level 3 (+3 damage)"
+9,2, 0,"Auxiliary Bridge Hit"
+9,4, 4,"Cargo explodes (+4 damage)"
+9,4,16,"Cargo explodes and burns (crippled, destruction imminent)"
+9,1,21,"Cargo explodes and burns (+25% crew casualties, crippled, destruction imminent)"
+9,1,100,"Unit lost with all hands in catastrophic explosion"
+9,2,16,"All Sensors Out (Offline and no movement until repaired)"
+9,2,17,"Shield Power Couplings Down (Sh=0 until repaired)"
+9,1,100,"Reactor Containment Failure (Ship explodes)"
+
+# bioship
+10,1,100,"Autonomic Systems Destroyed (creature dies instantly)"
+10,2, 3,"Structural Collapse (+3 damage)"
+10,2, 2,"Internal Organ Bursts (+2 damage)"
+10,2, 1,"Vitals Hit (+1 damage)"
+10,2, 1,"Structural Integrity Compromised (+1 damage)"
+10,4,13,"Weapons Out (Offline until healed)"
+10,2,19,"Bio-energy Leak (life signs down 5%)"
+10,2,19,"Toxins Leak (life signs down 5%)"
+10,2,19,"Carapace breach (life signs down 5%)"
+10,2, 1,"Main Bio-Energy Generator Down (+1 damage)"
+10,2, 1,"Auxiliary Bio-Energy Generator Down (+1 damage)"
+10,8,14,"Stunned (Drifting for 1 turn)"
+10,2, 0,"Brood/Swarmer Bay Hit"
+10,2,11,"Weapons Control Seizure (Offline for 1 turn)"
+10,2,11,"Blinded (Offline for 1 turn)"
+10,2, 0,"Grappling Systems Hit"
+10,2,11,"Main Control Center Hit ('Bridge Crew' Killed, Offline for 1 turn)"
+10,2,11,"Vitals Hit (Offline for 1 turn)"
+10,4,15,"FTL Propulsion Hit (No warp movement until repaired)"
+10,2,19,"Hive/Cargo Pod Beached (life signs down 5%)"
+10,2,15,"FTL Propulsion Down (No warp movement until repaired)"
+10,2,19,"Vitals Hit (life signs down 5%)"
+10,2,14,"Normal Space propulsion Down (Drifting for 1 turn)"
+10,2, 0,"Auxiliary Senses Lost"
+10,2,13,"Weapon Feeds Hit (Offline until healed)"
+10,2, 0,"Energy Reserves Destroyed"
+10,2,20,"Vitals Hit (life signs down 10%)"
+10,2,15,"FTL Navigation Control Damage (No warp movement until healed)"
+10,2,20,"Internal Damage (life signs down 10%)"
+10,2,11,"Vitals Hit (Offline for 1 turn)"
+10,2,19,"Internal Damage (life signs down 5%)"
+10,2,19,"Vitals Hit (life signs down 5%)"
+10,2, 0,"Auxiliary Neural Network Down"
+10,2, 0,"Auxiliary Fire Control Out"
+10,2, 1,"Fire: Level 1 (+1 damage)"
+10,2, 1,"Internal Organ Bursts (+1 damage)"
+10,2, 0,"Electro-magnetic Jamming/Cloak Disabled"
+10,2, 2,"Fire: Level 2 (+2 damage)"
+10,2, 2,"Internal Organ Bursts (+2 damage)"
+10,2,18,"Ammunition Pod/Sack Explosion (+Tp damage)"
+10,2, 3,"Fire: Level 3 (+3 damage)"
+10,2, 0,"Auxiliary Control Center Hit"
+10,2, 4,"Internal Organ Bursts (+4 damage)"
+10,2,16,"Blinded (Offline and No movement until healed)"
+10,2,17,"Shield Generators Down (Sh=0 until healed)"
+10,1,100,"Brain Shot (creature dies instantly)"
+
+# vehicle 
+11,1,100,"Reactor Core Breach (Vehicle explodes)"
+11,2, 3,"Structural Collapse (+3 damage)"
+11,2, 2,"Internal Explosion (+2 damage)"
+11,2, 1,"Superstructure Hit (+1 damage)"
+11,2, 1,"Suspension Broken (+1 damage)"
+11,4,13,"Weapons Out (Offline until repaired)"
+11,2,19,"Radiation Leak (+5% crew casualties)"
+11,2,19,"Coolant Leak (+5% crew casualties)"
+11,2,19,"Hull Breach (+5% crew casualties)"
+11,2, 1,"Main Fusion Reactors Down (+1 damage)"
+11,2, 1,"Auxiliary Fusion Reactors Down (+1 damage)"
+11,8,12,"Weapon Power Couplings Down (Some offline until repaired)"
+11,2, 0,"Drone Bay Hit"
+11,2,11,"Main Fire Control Out (Offline for 1 turn)"
+11,2,11,"Main Scanners Out (Offline for 1 turn)"
+11,2, 0,"Towing Gear Wrecked"
+11,2,11,"Command Section Hit (Command crew killed, Offline for 1 turn)"
+11,2,14,"Main Engineering Hit (Drifting for 1 turn)"
+11,4,15,"Drive Systems Hit (No movement until repaired)"
+11,2,19,"Storage Bins Breached (+5% crew casualties)"
+11,2,15,"Main Drive Down (No movement until repaired)"
+11,2,19,"Crew Compartment Breached (+5% crew casualties)"
+11,2,15,"Main Drive Down (No movement until repaired)"
+11,2, 0,"Auxiliary Scanners Out"
+11,2,13,"Weapon Power Couplings Down (Offline until repaired)"
+11,2, 0,"Emergency Power Out"
+11,2,20,"Primary Life Support Out (+10% crew casualties)"
+11,2,15,"Navigational Control Out (No movement until repaired)"
+11,2,20,"Internal Damage (+10% crew casualties)"
+11,2,11,"Main Computer Down (Offline for 1 turn)"
+11,2,19,"Internal Damage (+5% crew casualties)"
+11,2,19,"Emergency Life Support Out (+5% crew casualties)"
+11,2, 0,"Auxiliary Computer Down"
+11,2, 0,"Auxiliary Fire Control Out"
+11,2, 1,"Fire: Level 1 (+1 damage)"
+11,2, 1,"Internal Explosion (+1 damage)"
+11,2, 0,"ECM/Cloaking Systems Out"
+11,2, 2,"Fire: Level 2 (+2 damage)"
+11,2, 2,"Internal Explosion(+2 damage)"
+11,2,18,"Ammunition Bay/Magazine Explosion (+Tp damage)"
+11,2, 3,"Fire: Level 3 (+3 damage)"
+11,2, 0,"Communications Equipment Destroyed"
+11,2, 4,"Explosive Chain Reaction (+4 damage)"
+11,2,16,"All Sensors Out (Offline and No movement until repaired)"
+11,2,17,"Shield Power Couplings Down (Sh=0 until repaired)"
+11,1,100,"Reactor Containment Failure (Vehicle explodes)"
+
+# psi
+12,1,19,"PSI: Psionic Assault (+5% crew casualties)"
+12,1,20,"PSI: Psionic Assault (+10% crew casualties)"
+12,1,14,"PSI: Navigation crew disrupted (No movement for 1 turn)"
+12,1,11,"PSI: Weapons crew disrupted (Offline for 1 turn)"
+
+# kill
+13,3, 0,"KILL: working wounded (10% of survivors of combat suffer serious medical consequence)"
+13,2,13,"KILL: primary weapons crews killed (Offline for 1 turn)"
+13,2,14,"KILL: primary helm crews killed (drifting for 1 turn)"
+13,10,19,"KILL: modest crew loss (+5% crew casualties)"
+13,10,20,"KILL: significant crew loss (+10% crew casualties)"
+13,1,21,"KILL: critical crew losses (+25% crew casualties, unit crippled)"
+13,1,100,"KILL: entire crew killed (unit lost)"
+
+# scrambler
+14,1,14,"Scrambler: Helm computers down (No movement for 1 turn)"
+14,2,11,"Scrambler: Targeting systems disrupted (Offline for 1 turn)"
+14,1, 0,"Scrambler: Auxiliary Fire Control Out"
+14,1, 0,"Scrambler: Logs Erased"
+14,1,17,"Scrambler: Shield controls shorted out (Sh=0 until reset)"
+14,1, 0,"Scrambler: Communications down"
+14,2,12,"Scrambler: Primary targeting computers destroyed (half weapons offline until repaired)"
+14,2,13,"Scrambler: All targeting computers destroyed (all weapons offline until repaired)"
+14,1, 0,"Scrambler: Stealth systems disabled (no ECM/cloaking)"
+14,1,16,"Scrambler: General computer failure (no fire or movement until repaired)
+14,1,20,"Scrambler: Life support computers disrupted (+10% crew casualties)
+
+# anti-driver
+15,2, 1,"Anti-drive: Inertial compensator surge (+1 damage)"
+15,2,14,"Anti-drive: Drive disrupted (drifting for one turn)"
+15,1,15,"Anti-drive: Drive wrecked (immobile until repaired)"
+
+# dissipator
+17,2, 0,"Warp dissipator: drive intact"
+17,2,14,"Warp dissipator: drive drained (drifting for one turn)"
+17,2,15,"Warp dissipator: drive neutralized (immobile for one game week)
+
+# neural scramblers
+18,3, 0,"Neural scrambler: long-term mental decimation (10% of crew of below-normal intelligence thereafter)"
+18,1, 0,"Neural scrambler: unit commander reduced to child-like mentality"
+18,2,13,"Neural scrambler: primary weapons crews rendered incompetent (Offline for 1 turn)"
+18,2,14,"Neural scrambler: primary helm crews lose piloting skills (drifting for 1 turn)"
+18,10,19,"Neural scrambler: modest crew loss (+5% crew casualties - crew rendered vegetative)"
+18,10,20,"Neural scrambler: significant crew loss (+10% crew casualties - crew rendered vegetative)"
+18,1,21,"Neural scrambler: critical crew loss (+25% crew casualties, unit crippled - all key personnel rendered helpless)"
+18,1,100,"Neural scrambler: entire crew loses higher mental functions (unit lost)"
+
+# flare
+19,3,14,"Flare damage: short-range navigational sensors blinded (drifting one turn)"
+19,2, 0,"Flare damage: long-range navigational sensors overloaded (no movement out of this section for one game week)"
+19,2, 0,"Flare damage: any LRS or VLRS damaged (one week for repair)"
+19,3,11,"Flare damage: targeting sensors blinded (offline one turn)"
+19,2,12,"Flare damage: half of targeting sensors overloaded (half of weapons offline for one game day)"
+19,1,13,"Flare damage: all targeting sensors overloaded (all weapons offline for one game day)"
+19,2, 1,"Flare damage: damage control sensor failure (+1 damage)"
+19,1,16,"Flare damage: total sensor burnout (unit crippled for one game week)"
+
+# achilles
+20,2,11,"Achilles: Weapons temporarily disabled (offline one turn)"
+20,1,12,"Achilles: Half of target's weapons destroyed (halved weapon power)"
+20,1,13,"Achilles: Total target weapon destruction (all weapons out)"
+20,2,17,"Achilles: Shield generators destroyed (Sh = 0)"
+20,1, 1,"Achilles: Weapon overload (+1 damage)"
+
+# tangle web
+22,9, 0,”Tangle: target not caught (no critical effect)”
+22,1, 2,”Tangle: target blows through tangle (+2 damage)”
+22,3,14,”Tangle: target caught for one round (drifting for one round)”
+22,3,15,”Tangle: target immobilized until after combat”
+22,1,100,”Tangle: catastrophic breakdown, target destroyed (immobile target disabled until after combat)”
