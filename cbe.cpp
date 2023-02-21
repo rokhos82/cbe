@@ -5995,6 +5995,12 @@ void be_main()
         } // Next A
         reportFile << "\n";
 
+        // Copy real values from temp fields so that combat will be applied
+        BE::BO_AttackTotal = 0;
+        for (int A = 0; A < BE::AttShipsLeft; A++)
+        {
+        }
+
         // END OF ROUND!!!!
         writeTempFiles();
 
