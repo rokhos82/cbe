@@ -7,14 +7,19 @@
 #include <stdlib.h>
 #include <limits>
 #include <cmath>
+#include <utility>
+#include <unordered_map>
 
 // #include "FleetInfo.h"
 #include "flags.h"
 #include "structs.h"
 #include "cbe_lib.h"
 #include "cbe.h"
+#include "CriticalHitTable.h"
 
 using namespace std;
+
+std::unordered_map<int, CriticalHitTable> critTables;
 
 fstream CBE::debugFile = fstream("debug.txt", ios::out | ios::binary);
 
@@ -307,6 +312,7 @@ string FetchData(long cur_table)
 {
     // This function get a random crit from the table specified by `cur_table`.
     // `cur_table` is a table index
+    return "";
 }
 
 string AddTag(const string &source, const string &target)
@@ -448,6 +454,22 @@ vector<string> GetBrackets(const string &special)
 
     // Return the bracket strings array
     return brackets;
+}
+
+long GetCrit(const std::string &data_str)
+{
+    // Default to 5 (normal)
+    long crit = 5;
+
+    size_t start = data_str.find("CRIT ");
+    if (start != std::string::npos)
+    {
+        // Extract the crit value from the string
+        std::string crit_str = data_str.substr(start + 5, 2);
+        crit = std::strtol(crit_str.c_str(), nullptr, 10);
+    }
+
+    return crit;
 }
 
 int GetDatalinkIndex(char label)
@@ -1545,6 +1567,57 @@ bool HasYield(const string &special, long &yield)
     return res;
 }
 
+string InsertOffline(string source)
+{
+    int start = 0;
+    int end_tag = 1;
+    string temp_str;
+
+    while (true)
+    {
+        start = source.find("]", end_tag);
+        if (start != string::npos)
+        {
+            end_tag = start + 2;
+            temp_str = source.substr(0, start) + " offline" + source.substr(start + 1);
+            source = temp_str;
+        }
+        else
+        {
+            return source;
+        }
+    }
+}
+
+string InsertRandomOffline(string source)
+{
+    int start = 0;
+    int end_tag = 1;
+    string temp_str;
+
+    while (true)
+    {
+        start = source.find("]", end_tag);
+        if (start != string::npos)
+        {
+            if (rand() % 2 == 0)
+            {
+                temp_str = source.substr(0, start) + " offline" + source.substr(start + 1);
+                source = temp_str;
+                end_tag = start + 2;
+            }
+            else
+            {
+                end_tag = start + 2;
+            }
+        }
+        else
+        {
+            return source;
+        }
+    }
+}
+
 bool IsMissile(const string &special)
 {
     bool res = false;
@@ -1557,6 +1630,36 @@ bool IsMissile(const string &special)
     }
 
     return res;
+}
+
+bool IsBuilding(const std::string &data_str)
+{
+    return (data_str.find("BUILDING") != std::string::npos);
+}
+
+bool IsCarrier(const std::string &data_str)
+{
+    return (data_str.find("CARRIER") != std::string::npos);
+}
+
+bool IsOrbital(const std::string &data_str)
+{
+    return (data_str.find("ORBITAL") != std::string::npos);
+}
+
+bool IsVolatile(const std::string &data_str)
+{
+    return (data_str.find("VOLATILE") != std::string::npos);
+}
+
+bool IsVehicle(const std::string &data_str)
+{
+    return (data_str.find("VEHICLE") != std::string::npos);
+}
+
+bool IsBio(const std::string &data_str)
+{
+    return (data_str.find("BIO") != std::string::npos);
 }
 
 bool IsCaptured(const string &special)
@@ -1953,6 +2056,12 @@ string RebuildBatteryTags(const string &special, const BE::SalvoInfo *salvos, in
         res = salvos[i].DataStr + res;
     }
 
+    return res;
+}
+
+string ReduceCrew(const string &source, int crewDamage)
+{
+    string res = "";
     return res;
 }
 
@@ -2517,6 +2626,8 @@ void readTempB()
  */
 void be_main()
 {
+    critTables = load_crits_file("crits.txt");
+
     long AttackLoop = 0, AbortCounter = 0;
     long AttShipsRead = 0, DefShipsRead = 0;
 
@@ -2554,9 +2665,6 @@ void be_main()
     string new_str = "";
     long AutoMiss = 0;
     long AutoHit = 0;
-
-    // Seed the random number generator
-    std::srand(time(NULL));
 
     // Set counts and flags to their default values
     BE::CombatRound = 0;
@@ -5357,6 +5465,184 @@ void be_main()
 
                         temp_str = "";
                         BE::CriticalStr = "";
+
+                        if (ForceID == 0)
+                        {
+                            // Fighters and ground units ignore the crit hit chart
+                            if (IsFighter(BE::SpecialB[X]) || IsGround(BE::SpecialB[X]) || IsMine(BE::SpecialB[X]))
+                            {
+                                // Fighters are fragile and any damage destroys them
+                                if (IsFighter(BE::SpecialB[X]) && BE::DamageLevel > 0)
+                                {
+                                    BE::ShipCritStr = "Fighter Destroyed";
+                                    temp_str = "";
+                                    BE::Hull = 0;
+                                }
+                                if (IsGround(BE::SpecialB[X]) && BE::Hull == 0)
+                                {
+                                    BE::ShipCritStr = "Unit Destroyed";
+                                    temp_str = "";
+                                }
+                                if (IsMine(BE::SpecialB[X]) && BE::Hull == 0)
+                                {
+                                    BE::ShipCritStr = "Mine Destroyed";
+                                }
+                            }
+                            else
+                            {
+                                if (BE::Crits > 0)
+                                {
+                                    BE::ReactorBreachFlag = 0;
+                                    for (int C = 0; C < BE::Crits; C++)
+                                    {
+                                        BE::CritDamageFlag = 0;
+                                        BE::CritSpecialFlag = 0;
+                                        std::pair<std::string, long> critInfo;
+
+                                        // Call the critical hit generator function
+                                        if (BE::ReactorBreachFlag != 1)
+                                        {
+                                            if (BE::CRIT_DIS == 1)
+                                            {
+                                                BE::CRIT_DIS = 0;
+                                                critInfo = critTables[1].getRandomOutput();
+                                            }
+                                            else if (BE::CRIT_HEAT == 1)
+                                            {
+                                                BE::CRIT_HEAT = 0;
+                                                critInfo = critTables[2].getRandomOutput();
+                                            }
+                                            else if (BE::CRIT_MESON == 1)
+                                            {
+                                                BE::CRIT_MESON = 0;
+                                                critInfo = critTables[3].getRandomOutput();
+                                            }
+                                            else if (BE::CRIT_VIBRO == 1)
+                                            {
+                                                BE::CRIT_VIBRO = 0;
+                                                critInfo = critTables[4].getRandomOutput();
+                                            }
+                                            else if (BE::CRIT_SPECIAL == 1)
+                                            {
+                                                // TODO: There can only be one special tag.  Expand this to any number of special tags
+                                                // FIXME: Throw an error if the specialIndex is not found.
+                                                BE::CRIT_SPECIAL = 0;
+                                                int specialIndex = HasSpecialWT(BE::Attacks[E].Special);
+                                                if (specialIndex > 0)
+                                                {
+                                                    critInfo = critTables[specialIndex].getRandomOutput();
+                                                }
+                                            }
+                                            else if (IsVehicle(BE::SpecialB[X]))
+                                            {
+                                                critInfo = critTables[11].getRandomOutput();
+                                            }
+                                            else if (IsBio(BE::SpecialB[X]))
+                                            {
+                                                critInfo = critTables[10].getRandomOutput();
+                                            }
+                                            else if (IsVolatile(BE::SpecialB[X]))
+                                            {
+                                                critInfo = critTables[9].getRandomOutput();
+                                            }
+                                            else if (IsOrbital(BE::SpecialB[X]))
+                                            {
+                                                critInfo = critTables[8].getRandomOutput();
+                                            }
+                                            else if (IsCarrier(BE::SpecialB[X]))
+                                            {
+                                                critInfo = critTables[7].getRandomOutput();
+                                            }
+                                            else if (IsBuilding(BE::SpecialB[X]))
+                                            {
+                                                critInfo = critTables[6].getRandomOutput();
+                                            }
+                                            else
+                                            {
+                                                critInfo = critTables[5].getRandomOutput();
+                                            }
+                                            // TODO: Orbital crit table overrides carrier crit table.  This means bases with hangars aren't carriers...
+
+                                            BE::CriticalStr = critInfo.first;
+                                            damageFile << BE::DefRaceName << " " << BE::DefShipStr[X] << " " << BE::CriticalStr << "\n"; // TODO: Double check that #4 is damage file
+
+                                            if (BE::CRIT_BP == 1 && BE::CRIT_DIS == 0 && BE::CRIT_HEAT == 0 && BE::CRIT_MESON == 0 && BE::CRIT_VIBRO == 0)
+                                            {
+                                                BE::CRIT_BP = 0;
+                                                BE::CriticalStr = "BP: " + BE::CriticalStr;
+                                            }
+                                        }
+
+                                        long critType = critInfo.second;
+                                        if ((critType > 1 && critType < 11) || critType == 100)
+                                        {
+                                            BE::CritDamageFlag = critType;
+                                        }
+                                        else if (critType > 10 && critType < 100)
+                                        {
+                                            BE::CritSpecialFlag = critType - 10;
+                                        }
+                                        else
+                                        {
+                                            // TODO: Add some sort of error or debug code here
+                                        }
+
+                                        // constant CRIT_WEAPON_ONE   1   Weapons Offline for 1 turn
+                                        // constant CRIT_WEAPON_HALF  2   Half Weapons Offline until repaired
+                                        // constant CRIT_WEAPON_NONE  3   All Weapons Offline until repaired
+                                        // constant CRIT_DRIFTING     4   No movement for 1 turn
+                                        // constant CRIT_NOMOVE       5   No movement until repaired
+                                        // constant CRIT_CRIPPLE      6   Crippled
+                                        // constant CRIT_SHIELDS      7   Shields Offline
+                                        // constant CRIT_AMMO         8   Ammo explosion
+                                        // constant CRIT_CREW1        9   5% crew casualties
+                                        // constant CRIT_CREW2       10   10% crew casualties
+                                        // constant CRIT_CREW3       11   25% crew casualties + cripple
+
+                                        switch (BE::CritSpecialFlag)
+                                        {
+                                        case 1:
+                                            BE::TempSpecialB[X] = InsertOffline(BE::TempSpecialB[X]);
+                                            break;
+                                        case 2:
+                                            BE::TempSpecialB[X] = InsertRandomOffline(BE::TempSpecialB[X]);
+                                            break;
+                                        case 3:
+                                            BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "CRIPPLE");
+                                            break;
+                                        case 4:
+                                            BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "DRIFTING");
+                                            break;
+                                        case 5:
+                                            BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "NOMOVE");
+                                            break;
+                                        case 6:
+                                            BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "CRIPPLE");
+                                            BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "NOMOVE");
+                                            break;
+                                        case 7:
+                                            BE::TempCurShieldB[X] = 0;
+                                            BE::Shields = 0;
+                                            BE::ShieldsPercent = 0;
+                                            break;
+                                        case 8:
+                                            // TODO: Need to change this as the torp field is going away
+                                            BE::CritDamageFlag = BE::TempCurTorpB[X];
+                                            if (!IsSolid(BE::SpecialB[X]))
+                                            {
+                                            }
+                                            break;
+                                        case 9:
+                                            // 5% Crew Casualties
+                                            break;
+                                        default:
+                                            // TODO: Add some error/debug handling here
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -5382,6 +5668,8 @@ void be_main()
  */
 int main(int argc, char *argv[])
 {
+    // Seed the random number generator
+    std::srand(time(0));
 #ifdef CBE_DEBUG
     CBE::debugFile << "############################## DEBUG ##############################" << endl;
 #endif
@@ -5461,6 +5749,7 @@ int main(int argc, char *argv[])
             std::cout << "\t4: One Turn" << endl;
             std::cout << "\t5: Fight!" << endl;
             std::cout << "\t6: Debug Output" << endl;
+            std::cout << "\t7: Crit Test" << endl;
             std::cout << "\t0: Exit" << endl;
             std::cout << "Selection: ";
 
@@ -5468,6 +5757,8 @@ int main(int argc, char *argv[])
             std::cin >> choice;
 
             // What did the user choose?
+            std::unordered_map<int, CriticalHitTable> tables;
+            std::pair<std::string, long> output;
             switch (choice)
             {
             case 1:
@@ -5492,6 +5783,11 @@ int main(int argc, char *argv[])
                 break;
             case 6:
                 debugPrintUnits();
+                break;
+            case 7:
+                // Test the CriticalHitTables class
+                output = tables[5].getRandomOutput();
+                cout << output.first << endl;
                 break;
             default:
                 done = true;
