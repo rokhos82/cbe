@@ -303,18 +303,6 @@ void loadDefendingFleet(string fname)
     }
 }
 
-void ParseTables()
-{
-    // This funciton loads the crit tables from the text file.
-}
-
-string FetchData(long cur_table)
-{
-    // This function get a random crit from the table specified by `cur_table`.
-    // `cur_table` is a table index
-    return "";
-}
-
 string AddTag(const string &source, const string &target)
 {
     // Add the target tag to the source string and return the modified string.
@@ -997,6 +985,32 @@ bool HasCrackWT(const string &special)
 
 #ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] HasCrackWT(" << res << ")" << endl;
+#endif
+
+    return res;
+}
+
+bool HasCrew(const string &special, long &crew)
+{
+    bool res = false;
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasCrew(\"" << special << "\")" << endl;
+#endif
+
+    int start = special.find("CREW");
+    if (start != std::string::npos)
+    {
+        start = special.find(" ", start);
+        int end = special.find(" ", start + 1);
+        crew = stol(special.substr(start, end - start));
+#ifdef CBE_DEBUG
+        CBE::debugFile << "[INFO] HasCrew: " << crew << endl;
+#endif
+    }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] HasCrew => " << res << endl;
 #endif
 
     return res;
@@ -2598,6 +2612,42 @@ void readTempB()
     {
         std::cout << "Unable to open: " << BE::TempBFile << endl;
     }
+}
+
+string DoCrewDamage(const string &source, long crewDamage)
+{
+    long crewCur;
+    string res = source;
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] DoCrewDamage(\"" << source << "\"," << crewDamage << ")" << endl;
+#endif
+
+    if (!IsSolid(res))
+    {
+        if (HasCrew(res, crewCur))
+        {
+            crewCur -= crewDamage;
+            if (crewCur <= 0)
+            {
+                crewCur = 0;
+                res = AddTag(res, "CRIPPLE");
+            }
+            res = RemoveTag(res, "CREW", 1);
+            res = AddTag(res, "CREW " + crewCur);
+        }
+        else
+        {
+            crewCur = 100 - crewDamage;
+            res = AddTag(res, "CREW " + crewCur);
+        }
+    }
+
+#ifdef CBE_DEBUG
+    CBE::debugFile << "[INFO] DoCrewDamage => \"" << res << "\"" << endl;
+#endif
+
+    return res;
 }
 
 /*
@@ -5319,313 +5369,631 @@ void be_main()
                         {
                             BE::HullPercent = 100 - (BE::Hull * 100) / BE::MaxHullA[X];
                         }
+                    }
 
-                        /*
-                         * OK, if we got this far we have inflicted some damage.  Possibly even ZERO damage
-                         * due to shield absorption.  But, it's enough to possibly trigger a special effect.
-                         *
-                         * Special attribute flags
-                         *      1   sa_dis
-                         *      2   sa_heat
-                         *      4   sa_meson
-                         *      8   sa_vibro
-                         *     16   sa_multi    scatter pack (user for targetting)
-                         *     32   sa_crack
-                         *     64   sa_bp       boarding party
-                         *    128   sa_pen
-                         */
+                    /*
+                     * OK, if we got this far we have inflicted some damage.  Possibly even ZERO damage
+                     * due to shield absorption.  But, it's enough to possibly trigger a special effect.
+                     *
+                     * Special attribute flags
+                     *      1   sa_dis
+                     *      2   sa_heat
+                     *      4   sa_meson
+                     *      8   sa_vibro
+                     *     16   sa_multi    scatter pack (user for targetting)
+                     *     32   sa_crack
+                     *     64   sa_bp       boarding party
+                     *    128   sa_pen
+                     */
 
-                        // TODO: Change all of these to local scope variables
-                        BE::Crits = 0;
-                        BE::CRIT_DIS = 0;
-                        BE::CRIT_HEAT = 0;
-                        BE::CRIT_MESON = 0;
-                        BE::CRIT_VIBRO = 0;
-                        BE::CRIT_BP = 0;
-                        BE::CRIT_SPECIAL = 0;
+                    // TODO: Change all of these to local scope variables
+                    BE::Crits = 0;
+                    BE::CRIT_DIS = 0;
+                    BE::CRIT_HEAT = 0;
+                    BE::CRIT_MESON = 0;
+                    BE::CRIT_VIBRO = 0;
+                    BE::CRIT_BP = 0;
+                    BE::CRIT_SPECIAL = 0;
 
-                        // It's possible to have multiple special effect weapons, se each is rolled separately
-                        // Yes.  That means a heat/dis weapon has a 40% chance of causing a crit.  20% for each crit type.
-                        if (BE::Attacks[E].Weapon > 0)
+                    // It's possible to have multiple special effect weapons, se each is rolled separately
+                    // Yes.  That means a heat/dis weapon has a 40% chance of causing a crit.  20% for each crit type.
+                    if (BE::Attacks[E].Weapon > 0)
+                    {
+                        BE::dice = rand() % 10;
+                        if (BE::dice < 2 && (BE::Attacks[E].Weapon & BE::saDis) == BE::saDis)
                         {
-                            BE::dice = rand() % 10;
-                            if (BE::dice < 2 && (BE::Attacks[E].Weapon & BE::saDis) == BE::saDis)
-                            {
-                                BE::CRIT_DIS = 1;
-                            }
-
-                            BE::dice = rand() % 10;
-                            if (BE::dice < 2 && (BE::Attacks[E].Weapon & BE::saHeat) == BE::saHeat)
-                            {
-                                BE::CRIT_HEAT = 1;
-                            }
-
-                            BE::dice = rand() % 10;
-                            if (BE::dice < 2 && (BE::Attacks[E].Weapon & BE::saMeson) == BE::saMeson)
-                            {
-                                BE::CRIT_MESON = 1;
-                            }
-
-                            BE::dice = rand() % 10;
-                            if (BE::dice < 2 && (BE::Attacks[E].Weapon & BE::saVibro) == BE::saVibro)
-                            {
-                                BE::CRIT_VIBRO = 1;
-                            }
-
-                            BE::dice = rand() % 10;
-                            if (BE::dice < 2 && (BE::Attacks[E].Weapon & BE::saSpecial) == BE::saSpecial)
-                            {
-                                BE::CRIT_SPECIAL = 1;
-                            }
-
-                            // Boarding parties always crit if they hit
-                            if ((BE::Attacks[E].Weapon & BE::saBp) == BE::saBp)
-                            {
-                                BE::CRIT_BP = 1;
-                            }
+                            BE::CRIT_DIS = 1;
                         }
 
-                        // Figure the damage threshold
-                        // [JLL] TODO: tmp is last references almost 100 lines above.  This needs a rename.
-                        if (tmp >= 0 && tmp <= 19)
+                        BE::dice = rand() % 10;
+                        if (BE::dice < 2 && (BE::Attacks[E].Weapon & BE::saHeat) == BE::saHeat)
                         {
-                            if (BE::HullPercent >= 20)
-                            {
-                                BE::Crits = 1;
-                                if (BE::HullPercent >= 40)
-                                {
-                                    BE::Crits = 2;
-                                    if (BE::HullPercent >= 60)
-                                    {
-                                        BE::Crits = 3;
-                                        if (BE::HullPercent >= 80)
-                                        {
-                                            BE::Crits = 4;
-                                        }
-                                    }
-                                }
-                            }
+                            BE::CRIT_HEAT = 1;
                         }
-                        else if (tmp >= 20 && tmp <= 39)
+
+                        BE::dice = rand() % 10;
+                        if (BE::dice < 2 && (BE::Attacks[E].Weapon & BE::saMeson) == BE::saMeson)
                         {
+                            BE::CRIT_MESON = 1;
+                        }
+
+                        BE::dice = rand() % 10;
+                        if (BE::dice < 2 && (BE::Attacks[E].Weapon & BE::saVibro) == BE::saVibro)
+                        {
+                            BE::CRIT_VIBRO = 1;
+                        }
+
+                        BE::dice = rand() % 10;
+                        if (BE::dice < 2 && (BE::Attacks[E].Weapon & BE::saSpecial) == BE::saSpecial)
+                        {
+                            BE::CRIT_SPECIAL = 1;
+                        }
+
+                        // Boarding parties always crit if they hit
+                        if ((BE::Attacks[E].Weapon & BE::saBp) == BE::saBp)
+                        {
+                            BE::CRIT_BP = 1;
+                        }
+                    }
+
+                    // Figure the damage threshold
+                    // [JLL] TODO: tmp is last references almost 100 lines above.  This needs a rename.
+                    if (tmp >= 0 && tmp <= 19)
+                    {
+                        if (BE::HullPercent >= 20)
+                        {
+                            BE::Crits = 1;
                             if (BE::HullPercent >= 40)
                             {
-                                BE::Crits = 1;
+                                BE::Crits = 2;
                                 if (BE::HullPercent >= 60)
                                 {
-                                    BE::Crits = 2;
+                                    BE::Crits = 3;
                                     if (BE::HullPercent >= 80)
                                     {
-                                        BE::Crits = 3;
-                                    }
-                                }
-                            }
-                        }
-                        else if (tmp >= 40 && tmp <= 59)
-                        {
-                            if (BE::HullPercent >= 60)
-                            {
-                                BE::Crits = 1;
-                                if (BE::HullPercent >= 80)
-                                {
-                                    BE::Crits = 2;
-                                }
-                            }
-                        }
-                        else if (tmp >= 60 && tmp <= 79)
-                        {
-                            if (BE::HullPercent >= 80)
-                            {
-                                BE::Crits = 1;
-                            }
-                        }
-
-                        BE::Crits = BE::Crits + BE::CRIT_DIS + BE::CRIT_HEAT + BE::CRIT_MESON + BE::CRIT_VIBRO + BE::CRIT_BP + BE::CRIT_SPECIAL; // Remeber, these are not flags just counters
-
-                        temp_str = "";
-                        BE::CriticalStr = "";
-
-                        if (ForceID == 0)
-                        {
-                            // Fighters and ground units ignore the crit hit chart
-                            if (IsFighter(BE::SpecialB[X]) || IsGround(BE::SpecialB[X]) || IsMine(BE::SpecialB[X]))
-                            {
-                                // Fighters are fragile and any damage destroys them
-                                if (IsFighter(BE::SpecialB[X]) && BE::DamageLevel > 0)
-                                {
-                                    BE::ShipCritStr = "Fighter Destroyed";
-                                    temp_str = "";
-                                    BE::Hull = 0;
-                                }
-                                if (IsGround(BE::SpecialB[X]) && BE::Hull == 0)
-                                {
-                                    BE::ShipCritStr = "Unit Destroyed";
-                                    temp_str = "";
-                                }
-                                if (IsMine(BE::SpecialB[X]) && BE::Hull == 0)
-                                {
-                                    BE::ShipCritStr = "Mine Destroyed";
-                                }
-                            }
-                            else
-                            {
-                                if (BE::Crits > 0)
-                                {
-                                    BE::ReactorBreachFlag = 0;
-                                    for (int C = 0; C < BE::Crits; C++)
-                                    {
-                                        BE::CritDamageFlag = 0;
-                                        BE::CritSpecialFlag = 0;
-                                        std::pair<std::string, long> critInfo;
-
-                                        // Call the critical hit generator function
-                                        if (BE::ReactorBreachFlag != 1)
-                                        {
-                                            if (BE::CRIT_DIS == 1)
-                                            {
-                                                BE::CRIT_DIS = 0;
-                                                critInfo = critTables[1].getRandomOutput();
-                                            }
-                                            else if (BE::CRIT_HEAT == 1)
-                                            {
-                                                BE::CRIT_HEAT = 0;
-                                                critInfo = critTables[2].getRandomOutput();
-                                            }
-                                            else if (BE::CRIT_MESON == 1)
-                                            {
-                                                BE::CRIT_MESON = 0;
-                                                critInfo = critTables[3].getRandomOutput();
-                                            }
-                                            else if (BE::CRIT_VIBRO == 1)
-                                            {
-                                                BE::CRIT_VIBRO = 0;
-                                                critInfo = critTables[4].getRandomOutput();
-                                            }
-                                            else if (BE::CRIT_SPECIAL == 1)
-                                            {
-                                                // TODO: There can only be one special tag.  Expand this to any number of special tags
-                                                // FIXME: Throw an error if the specialIndex is not found.
-                                                BE::CRIT_SPECIAL = 0;
-                                                int specialIndex = HasSpecialWT(BE::Attacks[E].Special);
-                                                if (specialIndex > 0)
-                                                {
-                                                    critInfo = critTables[specialIndex].getRandomOutput();
-                                                }
-                                            }
-                                            else if (IsVehicle(BE::SpecialB[X]))
-                                            {
-                                                critInfo = critTables[11].getRandomOutput();
-                                            }
-                                            else if (IsBio(BE::SpecialB[X]))
-                                            {
-                                                critInfo = critTables[10].getRandomOutput();
-                                            }
-                                            else if (IsVolatile(BE::SpecialB[X]))
-                                            {
-                                                critInfo = critTables[9].getRandomOutput();
-                                            }
-                                            else if (IsOrbital(BE::SpecialB[X]))
-                                            {
-                                                critInfo = critTables[8].getRandomOutput();
-                                            }
-                                            else if (IsCarrier(BE::SpecialB[X]))
-                                            {
-                                                critInfo = critTables[7].getRandomOutput();
-                                            }
-                                            else if (IsBuilding(BE::SpecialB[X]))
-                                            {
-                                                critInfo = critTables[6].getRandomOutput();
-                                            }
-                                            else
-                                            {
-                                                critInfo = critTables[5].getRandomOutput();
-                                            }
-                                            // TODO: Orbital crit table overrides carrier crit table.  This means bases with hangars aren't carriers...
-
-                                            BE::CriticalStr = critInfo.first;
-                                            damageFile << BE::DefRaceName << " " << BE::DefShipStr[X] << " " << BE::CriticalStr << "\n"; // TODO: Double check that #4 is damage file
-
-                                            if (BE::CRIT_BP == 1 && BE::CRIT_DIS == 0 && BE::CRIT_HEAT == 0 && BE::CRIT_MESON == 0 && BE::CRIT_VIBRO == 0)
-                                            {
-                                                BE::CRIT_BP = 0;
-                                                BE::CriticalStr = "BP: " + BE::CriticalStr;
-                                            }
-                                        }
-
-                                        long critType = critInfo.second;
-                                        if ((critType > 1 && critType < 11) || critType == 100)
-                                        {
-                                            BE::CritDamageFlag = critType;
-                                        }
-                                        else if (critType > 10 && critType < 100)
-                                        {
-                                            BE::CritSpecialFlag = critType - 10;
-                                        }
-                                        else
-                                        {
-                                            // TODO: Add some sort of error or debug code here
-                                        }
-
-                                        // constant CRIT_WEAPON_ONE   1   Weapons Offline for 1 turn
-                                        // constant CRIT_WEAPON_HALF  2   Half Weapons Offline until repaired
-                                        // constant CRIT_WEAPON_NONE  3   All Weapons Offline until repaired
-                                        // constant CRIT_DRIFTING     4   No movement for 1 turn
-                                        // constant CRIT_NOMOVE       5   No movement until repaired
-                                        // constant CRIT_CRIPPLE      6   Crippled
-                                        // constant CRIT_SHIELDS      7   Shields Offline
-                                        // constant CRIT_AMMO         8   Ammo explosion
-                                        // constant CRIT_CREW1        9   5% crew casualties
-                                        // constant CRIT_CREW2       10   10% crew casualties
-                                        // constant CRIT_CREW3       11   25% crew casualties + cripple
-
-                                        switch (BE::CritSpecialFlag)
-                                        {
-                                        case 1:
-                                            BE::TempSpecialB[X] = InsertOffline(BE::TempSpecialB[X]);
-                                            break;
-                                        case 2:
-                                            BE::TempSpecialB[X] = InsertRandomOffline(BE::TempSpecialB[X]);
-                                            break;
-                                        case 3:
-                                            BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "CRIPPLE");
-                                            break;
-                                        case 4:
-                                            BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "DRIFTING");
-                                            break;
-                                        case 5:
-                                            BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "NOMOVE");
-                                            break;
-                                        case 6:
-                                            BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "CRIPPLE");
-                                            BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "NOMOVE");
-                                            break;
-                                        case 7:
-                                            BE::TempCurShieldB[X] = 0;
-                                            BE::Shields = 0;
-                                            BE::ShieldsPercent = 0;
-                                            break;
-                                        case 8:
-                                            // TODO: Need to change this as the torp field is going away
-                                            BE::CritDamageFlag = BE::TempCurTorpB[X];
-                                            if (!IsSolid(BE::SpecialB[X]))
-                                            {
-                                            }
-                                            break;
-                                        case 9:
-                                            // 5% Crew Casualties
-                                            break;
-                                        default:
-                                            // TODO: Add some error/debug handling here
-                                            break;
-                                        }
+                                        BE::Crits = 4;
                                     }
                                 }
                             }
                         }
                     }
+                    else if (tmp >= 20 && tmp <= 39)
+                    {
+                        if (BE::HullPercent >= 40)
+                        {
+                            BE::Crits = 1;
+                            if (BE::HullPercent >= 60)
+                            {
+                                BE::Crits = 2;
+                                if (BE::HullPercent >= 80)
+                                {
+                                    BE::Crits = 3;
+                                }
+                            }
+                        }
+                    }
+                    else if (tmp >= 40 && tmp <= 59)
+                    {
+                        if (BE::HullPercent >= 60)
+                        {
+                            BE::Crits = 1;
+                            if (BE::HullPercent >= 80)
+                            {
+                                BE::Crits = 2;
+                            }
+                        }
+                    }
+                    else if (tmp >= 60 && tmp <= 79)
+                    {
+                        if (BE::HullPercent >= 80)
+                        {
+                            BE::Crits = 1;
+                        }
+                    }
+
+                    BE::Crits = BE::Crits + BE::CRIT_DIS + BE::CRIT_HEAT + BE::CRIT_MESON + BE::CRIT_VIBRO + BE::CRIT_BP + BE::CRIT_SPECIAL; // Remeber, these are not flags just counters
+
+                    temp_str = "";
+                    BE::CriticalStr = "";
+
+                    if (ForceID == 0)
+                    {
+                        // Fighters and ground units ignore the crit hit chart
+                        if (IsFighter(BE::SpecialB[X]) || IsGround(BE::SpecialB[X]) || IsMine(BE::SpecialB[X]))
+                        {
+                            // Fighters are fragile and any damage destroys them
+                            if (IsFighter(BE::SpecialB[X]) && BE::DamageLevel > 0)
+                            {
+                                BE::ShipCritStr = "Fighter Destroyed";
+                                temp_str = "";
+                                BE::Hull = 0;
+                            }
+                            if (IsGround(BE::SpecialB[X]) && BE::Hull == 0)
+                            {
+                                BE::ShipCritStr = "Unit Destroyed";
+                                temp_str = "";
+                            }
+                            if (IsMine(BE::SpecialB[X]) && BE::Hull == 0)
+                            {
+                                BE::ShipCritStr = "Mine Destroyed";
+                            }
+                        }
+                        else
+                        {
+                            if (BE::Crits > 0)
+                            {
+                                BE::ReactorBreachFlag = 0;
+                                for (int C = 0; C < BE::Crits; C++)
+                                {
+                                    BE::CritDamageFlag = 0;
+                                    BE::CritSpecialFlag = 0;
+                                    std::pair<std::string, long> critInfo;
+
+                                    // Call the critical hit generator function
+                                    if (BE::ReactorBreachFlag != 1)
+                                    {
+                                        if (BE::CRIT_DIS == 1)
+                                        {
+                                            BE::CRIT_DIS = 0;
+                                            critInfo = critTables[1].getRandomOutput();
+                                        }
+                                        else if (BE::CRIT_HEAT == 1)
+                                        {
+                                            BE::CRIT_HEAT = 0;
+                                            critInfo = critTables[2].getRandomOutput();
+                                        }
+                                        else if (BE::CRIT_MESON == 1)
+                                        {
+                                            BE::CRIT_MESON = 0;
+                                            critInfo = critTables[3].getRandomOutput();
+                                        }
+                                        else if (BE::CRIT_VIBRO == 1)
+                                        {
+                                            BE::CRIT_VIBRO = 0;
+                                            critInfo = critTables[4].getRandomOutput();
+                                        }
+                                        else if (BE::CRIT_SPECIAL == 1)
+                                        {
+                                            // TODO: There can only be one special tag.  Expand this to any number of special tags
+                                            // FIXME: Throw an error if the specialIndex is not found.
+                                            BE::CRIT_SPECIAL = 0;
+                                            int specialIndex = HasSpecialWT(BE::Attacks[E].Special);
+                                            if (specialIndex > 0)
+                                            {
+                                                critInfo = critTables[specialIndex].getRandomOutput();
+                                            }
+                                        }
+                                        else if (IsVehicle(BE::SpecialB[X]))
+                                        {
+                                            critInfo = critTables[11].getRandomOutput();
+                                        }
+                                        else if (IsBio(BE::SpecialB[X]))
+                                        {
+                                            critInfo = critTables[10].getRandomOutput();
+                                        }
+                                        else if (IsVolatile(BE::SpecialB[X]))
+                                        {
+                                            critInfo = critTables[9].getRandomOutput();
+                                        }
+                                        else if (IsOrbital(BE::SpecialB[X]))
+                                        {
+                                            critInfo = critTables[8].getRandomOutput();
+                                        }
+                                        else if (IsCarrier(BE::SpecialB[X]))
+                                        {
+                                            critInfo = critTables[7].getRandomOutput();
+                                        }
+                                        else if (IsBuilding(BE::SpecialB[X]))
+                                        {
+                                            critInfo = critTables[6].getRandomOutput();
+                                        }
+                                        else
+                                        {
+                                            critInfo = critTables[5].getRandomOutput();
+                                        }
+                                        // TODO: Orbital crit table overrides carrier crit table.  This means bases with hangars aren't carriers...
+
+                                        BE::CriticalStr = critInfo.first;
+                                        damageFile << BE::DefRaceName << " " << BE::DefShipStr[X] << " " << BE::CriticalStr << "\n"; // TODO: Double check that #4 is damage file
+
+                                        if (BE::CRIT_BP == 1 && BE::CRIT_DIS == 0 && BE::CRIT_HEAT == 0 && BE::CRIT_MESON == 0 && BE::CRIT_VIBRO == 0)
+                                        {
+                                            BE::CRIT_BP = 0;
+                                            BE::CriticalStr = "BP: " + BE::CriticalStr;
+                                        }
+                                    }
+
+                                    long critType = critInfo.second;
+                                    if ((critType > 1 && critType < 11) || critType == 100)
+                                    {
+                                        BE::CritDamageFlag = critType;
+                                    }
+                                    else if (critType > 10 && critType < 100)
+                                    {
+                                        BE::CritSpecialFlag = critType - 10;
+                                    }
+                                    else
+                                    {
+                                        // TODO: Add some sort of error or debug code here
+                                    }
+
+                                    // constant CRIT_WEAPON_ONE   1   Weapons Offline for 1 turn
+                                    // constant CRIT_WEAPON_HALF  2   Half Weapons Offline until repaired
+                                    // constant CRIT_WEAPON_NONE  3   All Weapons Offline until repaired
+                                    // constant CRIT_DRIFTING     4   No movement for 1 turn
+                                    // constant CRIT_NOMOVE       5   No movement until repaired
+                                    // constant CRIT_CRIPPLE      6   Crippled
+                                    // constant CRIT_SHIELDS      7   Shields Offline
+                                    // constant CRIT_AMMO         8   Ammo explosion
+                                    // constant CRIT_CREW1        9   5% crew casualties
+                                    // constant CRIT_CREW2       10   10% crew casualties
+                                    // constant CRIT_CREW3       11   25% crew casualties + cripple
+
+                                    switch (BE::CritSpecialFlag)
+                                    {
+                                    case 1:
+                                        BE::TempSpecialB[X] = InsertOffline(BE::TempSpecialB[X]);
+                                        break;
+                                    case 2:
+                                        BE::TempSpecialB[X] = InsertRandomOffline(BE::TempSpecialB[X]);
+                                        break;
+                                    case 3:
+                                        BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "CRIPPLE");
+                                        break;
+                                    case 4:
+                                        BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "DRIFTING");
+                                        break;
+                                    case 5:
+                                        BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "NOMOVE");
+                                        break;
+                                    case 6:
+                                        BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "CRIPPLE");
+                                        BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "NOMOVE");
+                                        break;
+                                    case 7:
+                                        BE::TempCurShieldB[X] = 0;
+                                        BE::Shields = 0;
+                                        BE::ShieldsPercent = 0;
+                                        break;
+                                    case 8:
+                                        // TODO: Need to change this as the torp field is going away
+                                        BE::CritDamageFlag = BE::TempCurTorpB[X];
+                                        break;
+                                    case 9:
+                                        // 5% Crew Casualties
+                                        BE::TempSpecialB[X] = DoCrewDamage(BE::TempSpecialB[X], 5);
+                                        break;
+                                    case 10:
+                                        BE::TempSpecialB[X] = DoCrewDamage(BE::TempSpecialB[X], 10);
+                                        break;
+                                    case 11:
+                                        BE::TempSpecialB[X] = DoCrewDamage(BE::TempSpecialB[X], 25);
+                                        BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "CRIPPLE");
+                                    default:
+                                        // TODO: Add some error/debug handling here
+                                        break;
+                                    }
+
+                                    BE::Hull -= BE::CritDamageFlag;
+                                    if (BE::Hull < 1)
+                                    {
+                                        BE::HullPercent = 100;
+                                        BE::Hull = 0;
+                                    }
+                                    else
+                                    {
+                                        BE::HullPercent = 100 - ((BE::Hull * 100) / BE::TempCurHullB[X]);
+                                    }
+                                    if (BE::CritDamageFlag == 100)
+                                    {
+                                        BE::Crits = 1;
+                                        break;
+                                    }
+                                }
+                            } // End crits code
+                            if (BE::Hull == 0)
+                            {
+                                if (IsMissile(BE::SpecialB[X]))
+                                {
+                                    BE::ShipCritStr = "Missile Destroyed.";
+                                }
+                                else if (IsBuilding(BE::SpecialB[X]) || IsOrbital(BE::SpecialB[X]))
+                                {
+                                    BE::ShipCritStr = "Building Destroyed";
+                                }
+                                else
+                                {
+                                    BE::ShipCritStr = "Unit Destroyed.";
+                                }
+                            }
+                        } // End of IsFighter code
+
+                        if (BE::Hull == 0)
+                        {
+                            BE::Shields = 0;
+                            BE::TempCurBeamB[X] = 0; // TODO: Can be removed
+                            BE::TempCurTorpB[X] = 0; // TODO: Can be removed
+                        }
+                        if (BE::Hull > 0 && BE::BPAttackCritB[X] > 99)
+                        {
+                            if (IsBuilding(BE::SpecialB[X]) || IsOrbital(BE::SpecialB[X]))
+                            {
+                                BE::ShipCritStr = "Base Captured.";
+                            }
+                            else
+                            {
+                                BE::ShipCritStr = "Ship Captured."; // TODO: Can this be Unit instead of Ship
+                            }
+                            BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "CAPTURED");
+                        }
+                        BE::DefCritStr[X] = BE::CriticalStr;
+                        if (BE::DefCritStr[X] > "")
+                        {
+                            reportFile << "    " + BE::DefCritStr[X] + "\n";
+                        }
+                        BE::TempStr = "  Bm=" + to_string(BE::TempCurBeamB[X]) + " Sh=" + to_string(BE::TempCurShieldB[X]) + " Tp=" + to_string(BE::TempCurShieldB[X]) + " Hl=" + to_string(BE::Hull) + " " + BE::ShipCritStr;
+                        BE::TempCurDamB[X] = BE::HullPercent;
+                        if (BE::ShipCritStr > "")
+                        {
+                            damageFile << BE::DefRaceName + " " + BE::DefShipStr[X] + " " + BE::ShipCritStr << "\n";
+                        }
+                        BE::TempCurShieldB[X] = BE::Shields;
+                        BE::TempCurHullB[X] = BE::Hull;
+                    }
+                    else // Defenders
+                    {
+                        // Fighters and ground units ignore the crit hit chart
+                        if (IsFighter(BE::SpecialA[X]) || IsGround(BE::SpecialA[X]) || IsMine(BE::SpecialA[X]))
+                        {
+                            // Fighters are fragile and any damage destroys them
+                            if (IsFighter(BE::SpecialA[X]) && BE::DamageLevel > 0)
+                            {
+                                BE::ShipCritStr = "Fighter Destroyed";
+                                temp_str = "";
+                                BE::Hull = 0;
+                            }
+                            if (IsGround(BE::SpecialA[X]) && BE::Hull == 0)
+                            {
+                                BE::ShipCritStr = "Unit Destroyed";
+                                temp_str = "";
+                            }
+                            if (IsMine(BE::SpecialA[X]) && BE::Hull == 0)
+                            {
+                                BE::ShipCritStr = "Mine Destroyed";
+                            }
+                        }
+                        else
+                        {
+                            if (BE::Crits > 0)
+                            {
+                                BE::ReactorBreachFlag = 0;
+                                for (int C = 0; C < BE::Crits; C++)
+                                {
+                                    BE::CritDamageFlag = 0;
+                                    BE::CritSpecialFlag = 0;
+                                    std::pair<std::string, long> critInfo;
+
+                                    // Call the critical hit generator function
+                                    if (BE::ReactorBreachFlag != 1)
+                                    {
+                                        if (BE::CRIT_DIS == 1)
+                                        {
+                                            BE::CRIT_DIS = 0;
+                                            critInfo = critTables[1].getRandomOutput();
+                                        }
+                                        else if (BE::CRIT_HEAT == 1)
+                                        {
+                                            BE::CRIT_HEAT = 0;
+                                            critInfo = critTables[2].getRandomOutput();
+                                        }
+                                        else if (BE::CRIT_MESON == 1)
+                                        {
+                                            BE::CRIT_MESON = 0;
+                                            critInfo = critTables[3].getRandomOutput();
+                                        }
+                                        else if (BE::CRIT_VIBRO == 1)
+                                        {
+                                            BE::CRIT_VIBRO = 0;
+                                            critInfo = critTables[4].getRandomOutput();
+                                        }
+                                        else if (BE::CRIT_SPECIAL == 1)
+                                        {
+                                            // TODO: There can only be one special tag.  Expand this to any number of special tags
+                                            // FIXME: Throw an error if the specialIndex is not found.
+                                            BE::CRIT_SPECIAL = 0;
+                                            int specialIndex = HasSpecialWT(BE::Attacks[E].Special);
+                                            if (specialIndex > 0)
+                                            {
+                                                critInfo = critTables[specialIndex].getRandomOutput();
+                                            }
+                                        }
+                                        else if (IsVehicle(BE::SpecialB[X]))
+                                        {
+                                            critInfo = critTables[11].getRandomOutput();
+                                        }
+                                        else if (IsBio(BE::SpecialB[X]))
+                                        {
+                                            critInfo = critTables[10].getRandomOutput();
+                                        }
+                                        else if (IsVolatile(BE::SpecialB[X]))
+                                        {
+                                            critInfo = critTables[9].getRandomOutput();
+                                        }
+                                        else if (IsOrbital(BE::SpecialB[X]))
+                                        {
+                                            critInfo = critTables[8].getRandomOutput();
+                                        }
+                                        else if (IsCarrier(BE::SpecialB[X]))
+                                        {
+                                            critInfo = critTables[7].getRandomOutput();
+                                        }
+                                        else if (IsBuilding(BE::SpecialB[X]))
+                                        {
+                                            critInfo = critTables[6].getRandomOutput();
+                                        }
+                                        else
+                                        {
+                                            critInfo = critTables[5].getRandomOutput();
+                                        }
+                                        // TODO: Orbital crit table overrides carrier crit table.  This means bases with hangars aren't carriers...
+
+                                        BE::CriticalStr = critInfo.first;
+                                        damageFile << BE::AttRaceName << " " << BE::AttShipStr[X] << " " << BE::CriticalStr << "\n"; // TODO: Double check that #4 is damage file
+
+                                        if (BE::CRIT_BP == 1 && BE::CRIT_DIS == 0 && BE::CRIT_HEAT == 0 && BE::CRIT_MESON == 0 && BE::CRIT_VIBRO == 0)
+                                        {
+                                            BE::CRIT_BP = 0;
+                                            BE::CriticalStr = "BP: " + BE::CriticalStr;
+                                        }
+                                    }
+
+                                    long critType = critInfo.second;
+                                    if ((critType > 1 && critType < 11) || critType == 100)
+                                    {
+                                        BE::CritDamageFlag = critType;
+                                    }
+                                    else if (critType > 10 && critType < 100)
+                                    {
+                                        BE::CritSpecialFlag = critType - 10;
+                                    }
+                                    else
+                                    {
+                                        // TODO: Add some sort of error or debug code here
+                                    }
+
+                                    // constant CRIT_WEAPON_ONE   1   Weapons Offline for 1 turn
+                                    // constant CRIT_WEAPON_HALF  2   Half Weapons Offline until repaired
+                                    // constant CRIT_WEAPON_NONE  3   All Weapons Offline until repaired
+                                    // constant CRIT_DRIFTING     4   No movement for 1 turn
+                                    // constant CRIT_NOMOVE       5   No movement until repaired
+                                    // constant CRIT_CRIPPLE      6   Crippled
+                                    // constant CRIT_SHIELDS      7   Shields Offline
+                                    // constant CRIT_AMMO         8   Ammo explosion
+                                    // constant CRIT_CREW1        9   5% crew casualties
+                                    // constant CRIT_CREW2       10   10% crew casualties
+                                    // constant CRIT_CREW3       11   25% crew casualties + cripple
+
+                                    switch (BE::CritSpecialFlag)
+                                    {
+                                    case 1:
+                                        BE::TempSpecialA[X] = InsertOffline(BE::TempSpecialA[X]);
+                                        break;
+                                    case 2:
+                                        BE::TempSpecialA[X] = InsertRandomOffline(BE::TempSpecialA[X]);
+                                        break;
+                                    case 3:
+                                        BE::TempSpecialA[X] = AddTag(BE::TempSpecialA[X], "CRIPPLE");
+                                        break;
+                                    case 4:
+                                        BE::TempSpecialA[X] = AddTag(BE::TempSpecialA[X], "DRIFTING");
+                                        break;
+                                    case 5:
+                                        BE::TempSpecialA[X] = AddTag(BE::TempSpecialA[X], "NOMOVE");
+                                        break;
+                                    case 6:
+                                        BE::TempSpecialA[X] = AddTag(BE::TempSpecialA[X], "CRIPPLE");
+                                        BE::TempSpecialA[X] = AddTag(BE::TempSpecialA[X], "NOMOVE");
+                                        break;
+                                    case 7:
+                                        BE::TempCurShieldA[X] = 0;
+                                        BE::Shields = 0;
+                                        BE::ShieldsPercent = 0;
+                                        break;
+                                    case 8:
+                                        // TODO: Need to change this as the torp field is going away
+                                        BE::CritDamageFlag = BE::TempCurTorpB[X];
+                                        break;
+                                    case 9:
+                                        // 5% Crew Casualties
+                                        BE::TempSpecialA[X] = DoCrewDamage(BE::TempSpecialA[X], 5);
+                                        break;
+                                    case 10:
+                                        BE::TempSpecialA[X] = DoCrewDamage(BE::TempSpecialA[X], 10);
+                                        break;
+                                    case 11:
+                                        BE::TempSpecialA[X] = DoCrewDamage(BE::TempSpecialA[X], 25);
+                                        BE::TempSpecialA[X] = AddTag(BE::TempSpecialA[X], "CRIPPLE");
+                                    default:
+                                        // TODO: Add some error/debug handling here
+                                        break;
+                                    }
+
+                                    BE::Hull -= BE::CritDamageFlag;
+                                    if (BE::Hull < 1)
+                                    {
+                                        BE::HullPercent = 100;
+                                        BE::Hull = 0;
+                                    }
+                                    else
+                                    {
+                                        BE::HullPercent = 100 - ((BE::Hull * 100) / BE::TempCurHullA[X]);
+                                    }
+                                    if (BE::CritDamageFlag == 100)
+                                    {
+                                        BE::Crits = 1;
+                                        break;
+                                    }
+                                }
+                            } // End crits code
+                            if (BE::Hull == 0)
+                            {
+                                if (IsMissile(BE::SpecialA[X]))
+                                {
+                                    BE::ShipCritStr = "Missile Destroyed.";
+                                }
+                                else if (IsBuilding(BE::SpecialA[X]) || IsOrbital(BE::SpecialA[X]))
+                                {
+                                    BE::ShipCritStr = "Building Destroyed";
+                                }
+                                else
+                                {
+                                    BE::ShipCritStr = "Unit Destroyed.";
+                                }
+                            }
+                        } // End of IsFighter code
+
+                        if (BE::Hull == 0)
+                        {
+                            BE::Shields = 0;
+                            BE::TempCurBeamA[X] = 0; // TODO: Can be removed
+                            BE::TempCurTorpA[X] = 0; // TODO: Can be removed
+                        }
+                        if (BE::Hull > 0 && BE::BPAttackCritA[X] > 99)
+                        {
+                            if (IsBuilding(BE::SpecialA[X]) || IsOrbital(BE::SpecialA[X]))
+                            {
+                                BE::ShipCritStr = "Base Captured.";
+                            }
+                            else
+                            {
+                                BE::ShipCritStr = "Ship Captured."; // TODO: Can this be Unit instead of Ship
+                            }
+                            BE::TempSpecialA[X] = AddTag(BE::TempSpecialA[X], "CAPTURED");
+                        }
+                        BE::AttCritStr[X] = BE::CriticalStr;
+                        if (BE::AttCritStr[X] > "")
+                        {
+                            reportFile << "    " + BE::AttCritStr[X] + "\n";
+                        }
+                        BE::TempStr = "  Bm=" + to_string(BE::TempCurBeamA[X]) + " Sh=" + to_string(BE::TempCurShieldA[X]) + " Tp=" + to_string(BE::TempCurShieldA[X]) + " Hl=" + to_string(BE::Hull) + " " + BE::ShipCritStr;
+                        BE::TempCurDamA[X] = BE::HullPercent;
+                        if (BE::ShipCritStr > "")
+                        {
+                            damageFile << BE::AttRaceName + " " + BE::AttShipStr[X] + " " + BE::ShipCritStr << "\n";
+                        }
+                        BE::TempCurShieldA[X] = BE::Shields;
+                        BE::TempCurHullA[X] = BE::Hull;
+                    }
                 }
+                // End if ship was shot.
             }
-        }
+            // Next E
+            if (ShipHit == 1)
+            {
+                reportFile << BE::TempStr;
+            }
+        } // Next A
+        reportFile << "\n";
 
         // END OF ROUND!!!!
         writeTempFiles();
