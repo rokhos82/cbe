@@ -2000,27 +2000,6 @@ bool IsSurprise(const string &special)
     return res;
 }
 
-bool IsVehicle(const string &special)
-{
-    bool res = false;
-
-#ifdef CBE_DEBUG
-    CBE::debugFile << "[INFO] IsVehicle(special:\"" << special << "\")" << endl;
-#endif
-
-    // IF the position of "SURPRISE" is NOT npos (no position)
-    if (special.find("VEHICLE") != string::npos)
-    {
-        res = true;
-    }
-
-#ifdef CBE_DEBUG
-    CBE::debugFile << "[INFO] IsVehicle => " << res << endl;
-#endif
-
-    return res;
-}
-
 string RebuildBatteryTags(const string &special, const BE::SalvoInfo *salvos, int count)
 {
 #ifdef CBE_DEBUG
