@@ -4563,7 +4563,7 @@ void be_main()
                                 // The missile was intercepted
                                 BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " missile intercepted!";
                                 BE::CurHullA[B] = 0;
-                                writeBattleString(reportFile, BE::AttBattleStr);
+                                // writeBattleString(reportFile, BE::AttBattleStr); // TODO: Remove
                                 continue;
                             }
                         }
@@ -4585,7 +4585,7 @@ void be_main()
                                 // The missiles was intercepted
                                 BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " missile intercepted!";
                                 BE::CurHullB[B] = 0;
-                                writeBattleString(reportFile, BE::DefBattleStr);
+                                // writeBattleString(reportFile, BE::DefBattleStr); // TODO: Remove
                                 continue;
                             }
                         }
@@ -5113,7 +5113,10 @@ void be_main()
                 {
                     reportFile << BE::AttBattleStr << "\n";
                 }
-                else
+            }
+            else
+            {
+                if (BE::DefBattleStr.size() > 0)
                 {
                     reportFile << BE::DefBattleStr << "\n";
                 }
@@ -5185,6 +5188,7 @@ void be_main()
                     else if (ShipHit == 0 && ForceID == 1)
                     {
                         reportFile << BE::AttShipStr[BE::Target1] + " has been hit.\n";
+                        ShipHit = 1;
                     }
 
                     if (BE::Attacks[E].Weapon & BE::saBp == BE::saBp)
@@ -6130,7 +6134,7 @@ void be_main()
             // Next E
             if (ShipHit == 1)
             {
-                reportFile << BE::TempStr;
+                reportFile << BE::TempStr << "\n"; // TODO: Make consistant
             }
         } // Next A
         reportFile << "\n";
@@ -6263,17 +6267,17 @@ void be_main()
                             if (damage < 100 && (BE::CurHullA[A] * 100 / BE::MaxHullA[A]) <= damage)
                             {
                                 BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLEE");
-                                reportFile << "  " << BE::AttShipStr[A] << " is breaking off.";
+                                reportFile << "  " << BE::AttShipStr[A] << " is breaking off.\n";
                             }
                             else if (damage == 100 && BE::CurShieldA[A] == 0)
                             {
                                 BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLEE");
-                                reportFile << "  " << BE::AttShipStr[A] << " is breaking off.";
+                                reportFile << "  " << BE::AttShipStr[A] << " is breaking off.\n";
                             }
                             else if (damage > 100 && (BE::CurShieldA[A] * 100 / BE::MaxShieldA[A]) <= (damage - 100))
                             {
                                 BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLEE");
-                                reportFile << "  " << BE::AttShipStr[A] << " is breaking off.";
+                                reportFile << "  " << BE::AttShipStr[A] << " is breaking off.\n";
                             }
                         }
                         else
@@ -6281,7 +6285,7 @@ void be_main()
                             if (BE::BO_Att >= BE::AttBreakOff)
                             {
                                 BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLEE");
-                                reportFile << "  " << BE::AttShipStr[A] << " is breaking off.";
+                                reportFile << "  " << BE::AttShipStr[A] << " is breaking off.\n";
                             }
                             else
                             {
@@ -6291,7 +6295,7 @@ void be_main()
                                     if (BE::CombatRound >= time)
                                     {
                                         BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLEE");
-                                        reportFile << "  " << BE::AttShipStr[A] << " is breaking off.";
+                                        reportFile << "  " << BE::AttShipStr[A] << " is breaking off.\n";
                                     }
                                 }
                                 else
@@ -6299,7 +6303,7 @@ void be_main()
                                     if (IsToothless(0, A))
                                     {
                                         BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLEE");
-                                        reportFile << "  " << BE::AttShipStr[A] << " is breaking off.";
+                                        reportFile << "  " << BE::AttShipStr[A] << " is breaking off.\n";
                                     }
                                 }
                             }
@@ -6310,7 +6314,7 @@ void be_main()
         }
 
         reportFile << "\n";
-        BE::DefDamageStr = BE::DefRaceName + " " + BE::GroupName + " Damage:";
+        BE::DefDamageStr = BE::DefRaceName + " " + BE::GroupName + " Damage:\n";
         reportFile << BE::DefDamageStr;
         if (BE::DefFleetStrength == 0)
         {
@@ -6386,17 +6390,17 @@ void be_main()
                             if (damage < 100 && (BE::CurHullB[B] * 100 / BE::MaxHullB[B]) <= damage)
                             {
                                 BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLEE");
-                                reportFile << "  " << BE::DefShipStr[B] << " is breaking off.";
+                                reportFile << "  " << BE::DefShipStr[B] << " is breaking off.\n";
                             }
                             else if (damage == 100 && BE::CurShieldB[B] == 0)
                             {
                                 BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLEE");
-                                reportFile << "  " << BE::DefShipStr[B] << " is breaking off.";
+                                reportFile << "  " << BE::DefShipStr[B] << " is breaking off.\n";
                             }
                             else if (damage > 100 && (BE::CurShieldB[B] * 100 / BE::MaxShieldB[B]) <= (damage - 100))
                             {
                                 BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLEE");
-                                reportFile << "  " << BE::DefShipStr[B] << " is breaking off.";
+                                reportFile << "  " << BE::DefShipStr[B] << " is breaking off.\n";
                             }
                         }
                         else
@@ -6404,7 +6408,7 @@ void be_main()
                             if (BE::BO_Att >= BE::DefBreakOff)
                             {
                                 BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLEE");
-                                reportFile << "  " << BE::DefShipStr[B] << " is breaking off.";
+                                reportFile << "  " << BE::DefShipStr[B] << " is breaking off.\n";
                             }
                             else
                             {
@@ -6414,15 +6418,15 @@ void be_main()
                                     if (BE::CombatRound >= time)
                                     {
                                         BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLEE");
-                                        reportFile << "  " << BE::DefShipStr[B] << " is breaking off.";
+                                        reportFile << "  " << BE::DefShipStr[B] << " is breaking off.\n";
                                     }
                                 }
                                 else
                                 {
-                                    if (IsToothless(0, B))
+                                    if (IsToothless(1, B))
                                     {
                                         BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLEE");
-                                        reportFile << "  " << BE::DefShipStr[B] << " is breaking off.";
+                                        reportFile << "  " << BE::DefShipStr[B] << " is breaking off.\n";
                                     }
                                 }
                             }
@@ -6432,15 +6436,109 @@ void be_main()
             }
         }
 
+        // Start of combat done check
+        AttGone = 1;
+        DefGone = 1;
+
+        for (int A = 0; A < BE::AttShipsLeft; A++)
+        {
+            if (!IsFled(BE::SpecialA[A]) && !IsCaptured(BE::SpecialA[A]) && !IsCrippled(BE::SpecialA[A]) && !IsMissile(BE::SpecialA[A]))
+            {
+                if (!IsToothless(0, A))
+                {
+                    AttGone = 0;
+                    break;
+                }
+            }
+        }
+        for (int B = 0; B < BE::DefShipsLeft; B++)
+        {
+            if (!IsFled(BE::SpecialB[B]) && !IsCaptured(BE::SpecialB[B]) && !IsCrippled(BE::SpecialB[B]) && !IsMissile(BE::SpecialB[B]))
+            {
+                if (!IsToothless(1, B))
+                {
+                    DefGone = 0;
+                    break;
+                }
+            }
+        }
+
+        // TODO: Combine this with the iterations above for speed?
+        if (BE::CombatRound == 1)
+        {
+            if (AttGone == 0)
+            {
+                for (int A = 0; A < BE::AttShipsLeft; A++)
+                {
+                    if (IsSurprise(BE::SpecialA[A]))
+                    {
+                        BE::SpecialA[A] = RemoveTag(BE::SpecialA[A], "SURPRISE", 0);
+                    }
+                }
+            }
+            if (DefGone == 0)
+            {
+                for (int B = 0; B < BE::DefShipsLeft; B++)
+                {
+                    if (IsSurprise(BE::SpecialB[B]))
+                    {
+                        BE::SpecialB[B] = RemoveTag(BE::SpecialB[B], "SURPRISE", 0);
+                    }
+                }
+            }
+        }
+
         // END OF ROUND!!!!
         writeTempFiles();
+
+        // Do end of combat checks
+        if (AttGone == 1 || BE::CombatRound >= 100)
+        {
+            if (BE::AttShipsLeft == 0)
+            {
+                BE::TempStr = "Attacking " + BE::GroupName + " gone.\n";
+            }
+            else
+            {
+                BE::TempStr = "Attacking " + BE::GroupName + " breaks off or surrenders.\n";
+            }
+            BE::RetreatFlag = 1;
+            reportFile << "\n";
+            reportFile << BE::TempStr;
+            AttackLoop = 0;
+        }
+        else
+        {
+            if (DefGone == 1)
+            {
+                if (BE::DefShipsLeft == 0)
+                {
+                    BE::TempStr = "Defending " + BE::GroupName + " gone.\n";
+                }
+                else
+                {
+                    BE::TempStr = "Defending " + BE::GroupName + " breaks off or surrenders.\n";
+                }
+                BE::RetreatFlag = 2;
+                reportFile << "\n";
+                reportFile << BE::TempStr;
+                AttackLoop = 0;
+            }
+        }
 
         // FIXME: Memory cleanup?
 
         reportFile << "\n";
         reportFile.flush();
         damageFile.flush();
-    } while (BE::CombatRound < 100 /* condition | TODO: replace true with variable.  Perhaps AttackLoop? */);
+    } while (AttackLoop == 1);
+
+    cout << "Done with combat!" << endl;
+
+    // FIXME: Memory cleanup?
+
+    reportFile.close();
+    damageFile.close();
 }
 
 /*
