@@ -1604,6 +1604,21 @@ int HasTarget(const string &special)
     return 0;
 }
 
+bool HasTime(const string &special, long &time)
+{
+    bool res = false;
+    regex reg("TIME\\s+(\\d+)");
+    smatch match;
+
+    if (regex_match(special, match, reg))
+    {
+        time = stol(match[1]);
+        res = true;
+    }
+
+    return res;
+}
+
 bool HasVibroWT(const string &special)
 {
     bool res = false;
@@ -2089,6 +2104,54 @@ bool IsSurprise(const string &special)
 #endif
 
     return res;
+}
+
+bool IsToothless(long enemy, long ID)
+{
+    bool noTeeth = true;
+
+    if (enemy == 0)
+    {
+        string tempStr = BE::SpecialA[ID];
+        if (HasBatteries(tempStr))
+        {
+            vector<string> batteries = GetBrackets(tempStr);
+
+            for (int i = 0; i < batteries.size(); i++)
+            {
+                if (batteries[i].find("bp") == string::npos)
+                {
+                    int ammo = HasAmmoWT(batteries[i]);
+                    if (ammo > 0 || ammo == CBE::AMMO_INFINITE)
+                    {
+                        noTeeth = false;
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        string tempStr = BE::SpecialB[ID];
+        if (HasBatteries(tempStr))
+        {
+            vector<string> batteries = GetBrackets(tempStr);
+
+            for (int i = 0; i < batteries.size(); i++)
+            {
+                if (batteries[i].find("bp") == string::npos)
+                {
+                    int ammo = HasAmmoWT(batteries[i]);
+                    if (ammo > 0 || ammo == CBE::AMMO_INFINITE)
+                    {
+                        noTeeth = false;
+                    }
+                }
+            }
+        }
+    }
+
+    return noTeeth;
 }
 
 string RebuildBatteryTags(const string &special, const BE::SalvoInfo *salvos, int count)
@@ -6196,14 +6259,172 @@ void be_main()
                         long damage = 0;
                         if (HasDamage(BE::SpecialA[A], damage))
                         {
-                            if (damage < 100)
+                            // TODO: Can this be simplified?
+                            if (damage < 100 && (BE::CurHullA[A] * 100 / BE::MaxHullA[A]) <= damage)
                             {
+                                BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLEE");
+                                reportFile << "  " << BE::AttShipStr[A] << " is breaking off.";
                             }
-                            else if (damage == 100)
+                            else if (damage == 100 && BE::CurShieldA[A] == 0)
                             {
+                                BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLEE");
+                                reportFile << "  " << BE::AttShipStr[A] << " is breaking off.";
+                            }
+                            else if (damage > 100 && (BE::CurShieldA[A] * 100 / BE::MaxShieldA[A]) <= (damage - 100))
+                            {
+                                BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLEE");
+                                reportFile << "  " << BE::AttShipStr[A] << " is breaking off.";
+                            }
+                        }
+                        else
+                        {
+                            if (BE::BO_Att >= BE::AttBreakOff)
+                            {
+                                BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLEE");
+                                reportFile << "  " << BE::AttShipStr[A] << " is breaking off.";
                             }
                             else
                             {
+                                long time = 0;
+                                if (HasTime(BE::SpecialA[A], time))
+                                {
+                                    if (BE::CombatRound >= time)
+                                    {
+                                        BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLEE");
+                                        reportFile << "  " << BE::AttShipStr[A] << " is breaking off.";
+                                    }
+                                }
+                                else
+                                {
+                                    if (IsToothless(0, A))
+                                    {
+                                        BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLEE");
+                                        reportFile << "  " << BE::AttShipStr[A] << " is breaking off.";
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        reportFile << "\n";
+        BE::DefDamageStr = BE::DefRaceName + " " + BE::GroupName + " Damage:";
+        reportFile << BE::DefDamageStr;
+        if (BE::DefFleetStrength == 0)
+        {
+            BE::BO_DefensePercent = 0;
+        }
+        else
+        {
+            BE::BO_DefensePercent = (BE::BO_DefensePercent * 100) / BE::DefFleetStrength;
+        }
+        BE::BO_Def = 100 - BE::BO_DefensePercent;
+        BE::TempStr = "Current Damage Level: " + to_string(BE::BO_Def) + "% (" + to_string(BE::BO_DefenseTotal) + "/" + to_string(BE::DefFleetStrength) + ")\n";
+        BE::BO_DefenseTotal = 0;
+        reportFile << BE::TempStr;
+
+        for (int B = 0; B < BE::DefShipsLeft; B++)
+        {
+            // Only do things to ships that are not dead
+            if (BE::CurHullB[B] > 0)
+            {
+                // Do shield regen
+                std::pair<long, long> regen = GetRegenValues(BE::SpecialB[B]); // Get the regen values as a pair.  first is shield, second is hull
+                if (BE::CurShieldB[B] < BE::MaxShieldB[B] && BE::CurShieldB[B] > 0 && regen.first > 0)
+                {
+                    BE::CurShieldB[B] += regen.first;
+                    reportFile << BE::DefShipStr[B] + " - Shield regeneration detected.\n";
+                    if (BE::CurShieldB[B] > BE::MaxShieldB[B])
+                    {
+                        BE::CurShieldB[B] = BE::MaxShieldB[B];
+                    }
+                }
+                // Do hull regen
+                if (BE::CurHullB[B] < BE::MaxHullB[B] && regen.second > 0)
+                {
+                    BE::CurHullB[B] += regen.second;
+                    reportFile << BE::DefShipStr[B] + " - Hull regeneration detected.\n";
+                    if (BE::CurHullB[B] > BE::MaxHullB[B])
+                    {
+                        BE::CurHullB[B] = BE::MaxHullB[B];
+                    }
+                }
+
+                if (!IsNoMove(BE::SpecialB[B]) && !IsCaptured(BE::SpecialB[B]) && !IsCrippled(BE::SpecialB[B]) && !IsMissile(BE::SpecialB[B]))
+                {
+                    // Do flee/fled
+                    if (IsFlee(BE::SpecialB[B]) || BE::DefBreakOff == 0)
+                    {
+                        BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLED");
+                        reportFile << "  " << BE::DefShipStr[B] << " disengages.\n";
+                        BE::DefFledFlag = 1;
+                    }
+                    else
+                    {
+                        long brk = 0;
+                        if (HasBreak(BE::SpecialB[B], brk))
+                        {
+                            if (brk == 0)
+                            {
+                                // TODO: Why is the unit in fled if break is 0?  This does result in the unit leaving combat after 1 round.  Hit and run?
+                                BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLED");
+                                reportFile << "  " << BE::DefShipStr[B] << " disengages.\n";
+                                BE::DefFledFlag = 1;
+                            }
+                            else if (BE::BO_Att >= brk)
+                            {
+                                BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLEE");
+                                reportFile << "  " << BE::DefShipStr[B] << " is breaking off.\n";
+                            }
+                        }
+                        long damage = 0;
+                        if (HasDamage(BE::SpecialB[B], damage))
+                        {
+                            // TODO: Can this be simplified?
+                            if (damage < 100 && (BE::CurHullB[B] * 100 / BE::MaxHullB[B]) <= damage)
+                            {
+                                BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLEE");
+                                reportFile << "  " << BE::DefShipStr[B] << " is breaking off.";
+                            }
+                            else if (damage == 100 && BE::CurShieldB[B] == 0)
+                            {
+                                BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLEE");
+                                reportFile << "  " << BE::DefShipStr[B] << " is breaking off.";
+                            }
+                            else if (damage > 100 && (BE::CurShieldB[B] * 100 / BE::MaxShieldB[B]) <= (damage - 100))
+                            {
+                                BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLEE");
+                                reportFile << "  " << BE::DefShipStr[B] << " is breaking off.";
+                            }
+                        }
+                        else
+                        {
+                            if (BE::BO_Att >= BE::DefBreakOff)
+                            {
+                                BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLEE");
+                                reportFile << "  " << BE::DefShipStr[B] << " is breaking off.";
+                            }
+                            else
+                            {
+                                long time = 0;
+                                if (HasTime(BE::SpecialB[B], time))
+                                {
+                                    if (BE::CombatRound >= time)
+                                    {
+                                        BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLEE");
+                                        reportFile << "  " << BE::DefShipStr[B] << " is breaking off.";
+                                    }
+                                }
+                                else
+                                {
+                                    if (IsToothless(0, B))
+                                    {
+                                        BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLEE");
+                                        reportFile << "  " << BE::DefShipStr[B] << " is breaking off.";
+                                    }
+                                }
                             }
                         }
                     }
