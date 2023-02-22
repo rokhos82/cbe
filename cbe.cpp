@@ -9,6 +9,7 @@
 #include <cmath>
 #include <utility>
 #include <unordered_map>
+#include <regex>
 
 // #include "FleetInfo.h"
 #include "flags.h"
@@ -589,6 +590,52 @@ int GetRandomTarget(int forceId, const string &unitData, int numTargets)
     return targetIndex;
 }
 
+long GetRegenHullValue(const string &source)
+{
+    long regen = 0;
+
+    const std::regex reg("REGEN\\s+(\\d+)\\s+(\\d+)");
+    std::smatch match;
+
+    if (std::regex_search(source, match, reg))
+    {
+        regen = stol(match[2]);
+    }
+
+    return regen;
+}
+
+long GetRegenShieldValue(const string &source)
+{
+    long regen = 0;
+
+    const std::regex reg("REGEN\\s+(\\d+)\\s+(\\d+)");
+    std::smatch match;
+
+    if (std::regex_search(source, match, reg))
+    {
+        regen = stol(match[1]);
+    }
+
+    return regen;
+}
+
+std::pair<long, long> GetRegenValues(const string &source)
+{
+    std::pair<long, long> regen;
+
+    const std::regex reg("REGEN\\s+(\\d+)\\s+(\\d+)");
+    std::smatch match;
+
+    if (std::regex_search(source, match, reg))
+    {
+        regen.first = stol(match[1]);
+        regen.second = stol(match[2]);
+    }
+
+    return regen;
+}
+
 /*
  * =============================================================================
  * GetHullTarget returns the index for a randomly chosen target that meets the hull constraints
@@ -913,6 +960,36 @@ bool HasBPWT(const string &special)
 #ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] HasBPWT(" << res << ")" << endl;
 #endif
+
+    return res;
+}
+
+bool HasBreak(const string &special, long &brk)
+{
+    const regex reg("BREAK\\s+(\\d+)");
+    smatch match;
+    bool res = false;
+
+    if (regex_search(special, match, reg))
+    {
+        brk = stol(match[1]);
+        res = true;
+    }
+
+    return res;
+}
+
+bool HasDamage(const string &special, long &damage)
+{
+    const regex reg("DAMAGE\\s+(\\d+)");
+    smatch match;
+    bool res = false;
+
+    if (regex_search(special, match, reg))
+    {
+        damage = stol(match[1]);
+        res = true;
+    }
 
     return res;
 }
@@ -5999,6 +6076,139 @@ void be_main()
         BE::BO_AttackTotal = 0;
         for (int A = 0; A < BE::AttShipsLeft; A++)
         {
+            BE::AttCritStr[A] = BE::TempAttCritStr[A];
+            BE::CurBeamA[A] = BE::TempCurBeamA[A];
+            BE::CurShieldA[A] = BE::TempCurShieldA[A];
+            BE::CurTorpA[A] = BE::TempCurTorpA[A];
+            BE::CurHullA[A] = BE::TempCurHullA[A];
+            BE::HitsA[A] = BE::TempHitsA[A];
+            BE::PenHitsA[A] = BE::TempPenHitsA[A];
+            BE::CurDamA[A] = BE::TempCurDamA[A];
+            BE::SpecialA[A] = BE::TempSpecialA[A];
+            if (!IsCaptured(BE::SpecialA[A]) && !IsFled(BE::SpecialA[A]) && !IsMissile(BE::SpecialA[A]))
+            {
+                BE::BO_AttackTotal += BE::CurHullA[A];
+            }
+        }
+
+        BE::BO_DefenseTotal = 0;
+        for (int A = 0; A < BE::DefShipsLeft; A++)
+        {
+            BE::DefCritStr[A] = BE::TempDefCritStr[A];
+            BE::CurBeamB[A] = BE::TempCurBeamB[A];
+            BE::CurShieldB[A] = BE::TempCurShieldB[A];
+            BE::CurTorpB[A] = BE::TempCurTorpB[A];
+            BE::CurHullB[A] = BE::TempCurHullB[A];
+            BE::HitsB[A] = BE::TempHitsB[A];
+            BE::PenHitsB[A] = BE::TempPenHitsB[A];
+            BE::CurDamB[A] = BE::TempCurDamB[A];
+            BE::SpecialB[A] = BE::TempSpecialB[A];
+            if (!IsCaptured(BE::SpecialB[A]) && !IsFled(BE::SpecialB[A]) && !IsMissile(BE::SpecialB[A]))
+            {
+                BE::BO_DefenseTotal += BE::CurHullA[A];
+            }
+        }
+
+        // Remove cloaking
+        if (BE::CombatRound == 1)
+        {
+            for (int i = 0; i < BE::AttShipsLeft; i++)
+            {
+                BE::SpecialA[i] = RemoveTag(BE::SpecialA[i], "CLOAK", 0);
+            }
+            for (int i = 0; i < BE::AttShipsLeft; i++)
+            {
+                BE::SpecialB[i] = RemoveTag(BE::SpecialB[i], "CLOAK", 0);
+            }
+        }
+
+        // Printing
+        reportFile << "Damage Results:\n\n";
+        reportFile << BE::AttRaceName + " " + BE::GroupName + " Damage:\n";
+        reportFile << BE::AttDamageStr;
+        if (BE::AttFleetStrength == 0)
+        {
+            BE::BO_AttackPercent = 0;
+        }
+        else
+        {
+            BE::BO_AttackPercent = (BE::BO_AttackTotal * 100) / BE::AttFleetStrength;
+        }
+        BE::BO_Att = 100 - BE::BO_AttackPercent;
+        BE::TempStr = "Current Damage Level: " + to_string(BE::BO_Att) + "% (" + to_string(BE::BO_AttackTotal) + "/" + to_string(BE::AttFleetStrength) + ")\n";
+        BE::BO_AttackTotal = 0;
+        reportFile << BE::TempStr;
+
+        for (int A = 0; A < BE::AttShipsLeft; A++)
+        {
+            // Only do things to ships that are not dead
+            if (BE::CurHullA[A] > 0)
+            {
+                // Do shield regen
+                std::pair<long, long> regen = GetRegenValues(BE::SpecialA[A]); // Get the regen values as a pair.  first is shield, second is hull
+                if (BE::CurShieldA[A] < BE::MaxShieldA[A] && BE::CurShieldA[A] > 0 && regen.first > 0)
+                {
+                    BE::CurShieldA[A] += regen.first;
+                    reportFile << BE::AttShipStr[A] + " - Shield regeneration detected.\n";
+                    if (BE::CurShieldA[A] > BE::MaxShieldA[A])
+                    {
+                        BE::CurShieldA[A] = BE::MaxShieldA[A];
+                    }
+                }
+                // Do hull regen
+                if (BE::CurHullA[A] < BE::MaxHullA[A] && regen.second > 0)
+                {
+                    BE::CurHullA[A] += regen.second;
+                    reportFile << BE::AttShipStr[A] + " - Hull regeneration detected.\n";
+                    if (BE::CurHullA[A] > BE::MaxHullA[A])
+                    {
+                        BE::CurHullA[A] = BE::MaxHullA[A];
+                    }
+                }
+
+                if (!IsNoMove(BE::SpecialA[A]) && !IsCaptured(BE::SpecialA[A]) && !IsCrippled(BE::SpecialA[A]) && !IsMissile(BE::SpecialA[A]))
+                {
+                    // Do flee/fled
+                    if (IsFlee(BE::SpecialA[A]) || BE::AttBreakOff == 0)
+                    {
+                        BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLED");
+                        reportFile << "  " << BE::AttShipStr[A] << " disengages.\n";
+                        BE::AttFledFlag = 1;
+                    }
+                    else
+                    {
+                        long brk = 0;
+                        if (HasBreak(BE::SpecialA[A], brk))
+                        {
+                            if (brk == 0)
+                            {
+                                // TODO: Why is the unit in fled if break is 0?  This does result in the unit leaving combat after 1 round.  Hit and run?
+                                BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLED");
+                                reportFile << "  " << BE::AttShipStr[A] << " disengages.\n";
+                                BE::AttFledFlag = 1;
+                            }
+                            else if (BE::BO_Att >= brk)
+                            {
+                                BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLEE");
+                                reportFile << "  " << BE::AttShipStr[A] << " is breaking off.\n";
+                            }
+                        }
+                        long damage = 0;
+                        if (HasDamage(BE::SpecialA[A], damage))
+                        {
+                            if (damage < 100)
+                            {
+                            }
+                            else if (damage == 100)
+                            {
+                            }
+                            else
+                            {
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         // END OF ROUND!!!!
