@@ -4859,7 +4859,7 @@ void be_main()
                             }
                             else
                             {
-                                BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " fires on " + BE::DefRaceName + " " + BE::DefShipStr[BE::Target1] + " and missiles.";
+                                BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " fires on " + BE::DefRaceName + " " + BE::DefShipStr[BE::Target1] + " and misses.";
                             }
                         }
                         else
@@ -4983,7 +4983,7 @@ void be_main()
                             }
                             else
                             {
-                                BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " fires on " + BE::AttRaceName + " " + BE::AttShipStr[BE::Target1] + " and missiles.";
+                                BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " fires on " + BE::AttRaceName + " " + BE::AttShipStr[BE::Target1] + " and misses.";
                             }
                         }
                         else
