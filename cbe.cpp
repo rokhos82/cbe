@@ -2954,7 +2954,7 @@ void be_main()
             // And, we need to determine if FLAK equiped ships have targets
 
 #ifdef CBE_DEBUG
-            CBE::debugFile << "[INFO] Doing Combat Round 0 Special Checks" << endl;
+            CBE::debugFile << "[INFO] Doing Combat Round 1 Special Checks" << endl;
             CBE::debugFile << "[INFO] Checking attacking units" << endl;
 #endif
 
@@ -4947,6 +4947,9 @@ void be_main()
                             }
                             else
                             {
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Attacker Regular Attack" << endl;
+#endif
                                 BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " fires on " + BE::DefRaceName + " " + BE::DefShipStr[BE::Target1] + " scoring " + to_string(BE::Damage1) + " hits (" + to_string(BE::dice1) + "%)";
                                 BE::Attacks[BE::AttacksIndex].AttackID = BE::A;
                                 BE::Attacks[BE::AttacksIndex].TargetID = BE::Target1 + BE::AttShipsLeft;
@@ -5033,7 +5036,7 @@ void be_main()
                                         {
                                             tmp = 100 - ((BE::TempCurHullA[BE::Target1] * 100) / BE::MaxHullA[BE::Target1]); // TODO: Clear up to Cur/Max * 100 for clarity.  Will need to do type casting for this to work well.
                                         }
-                                        BE::Attacks[BE::AttacksIndex].AttackID = BE::A;
+                                        BE::Attacks[BE::AttacksIndex].AttackID = BE::A + BE::AttShipsLeft;
                                         BE::Attacks[BE::AttacksIndex].TargetID = BE::Target1;
                                         BE::Attacks[BE::AttacksIndex].Damage = BE::Damage1;
                                         BE::Attacks[BE::AttacksIndex].Weapon = Hits[i].special;
@@ -5071,8 +5074,11 @@ void be_main()
                             }
                             else
                             {
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Defender regular attack" << endl;
+#endif
                                 BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " fires on " + BE::AttRaceName + " " + BE::AttShipStr[BE::Target1] + " scoring " + to_string(BE::Damage1) + " hits (" + to_string(BE::dice1) + "%)";
-                                BE::Attacks[BE::AttacksIndex].AttackID = BE::A;
+                                BE::Attacks[BE::AttacksIndex].AttackID = BE::A + BE::AttShipsLeft;
                                 BE::Attacks[BE::AttacksIndex].TargetID = BE::Target1;
                                 BE::Attacks[BE::AttacksIndex].Damage = BE::Damage1;
                                 BE::Attacks[BE::AttacksIndex].Weapon = Hits[i].special;
@@ -5095,7 +5101,7 @@ void be_main()
                         }
                     }
                 }
-                else // fire is less than or equal to 0?
+                else // firepower is less than or equal to 0?
                 {
                     if (ForceID == 0)
                     {
@@ -5151,6 +5157,10 @@ void be_main()
                 reportFile << "\n";
             }
 
+#ifdef CBE_DEBUG
+            CBE::debugFile << "[INFO][Damage Routine] A=" << A << ";B=" << B << ";ForceID=" << ForceID << endl;
+#endif
+
             ShipHit = 0;
             // Check to see if the ship has was attacked
             // [JLL] Not sure why this is done
@@ -5165,6 +5175,9 @@ void be_main()
                 if (BE::Attacks[E].TargetID == A)
                 {
                     B = BE::Attacks[E].AttackID;
+#ifdef CBE_DEBUG
+                    CBE::debugFile << "[INFO][Damage Routine] AttackID=" << B << endl;
+#endif
                     if (B >= BE::AttShipsLeft)
                     {
                         B = B - BE::AttShipsLeft;
@@ -5177,6 +5190,10 @@ void be_main()
                         BE::Target1 = BE::Attacks[E].TargetID - BE::AttShipsLeft;
                     }
 
+#ifdef CBE_DEBUG
+                    CBE::debugFile << "[INFO][Damage Routine] Target1=" << BE::Target1 << endl;
+#endif
+
                     BE::Damage1 = BE::Attacks[E].Damage;
 
                     // [JLL] This set of if statements is used to print out the header for a block of attacks against
@@ -5184,11 +5201,17 @@ void be_main()
                     // first because it is the one that will change most frequently.
                     if (ShipHit == 0 && ForceID == 0)
                     {
+#ifdef CBE_DEBUG
+                        CBE::debugFile << "[INFO][Damage Routine] Attacker Target1(" << BE::Target1 << "):" << BE::DefShipStr[BE::Target1] << " hit." << endl;
+#endif
                         reportFile << BE::DefShipStr[BE::Target1] + " has been hit.\n";
                         ShipHit = 1;
                     }
                     else if (ShipHit == 0 && ForceID == 1)
                     {
+#ifdef CBE_DEBUG
+                        CBE::debugFile << "[INFO][Damage Routine] Defender Target1(" << BE::Target1 << "):" << BE::AttShipStr[BE::Target1] << " hit." << endl;
+#endif
                         reportFile << BE::AttShipStr[BE::Target1] + " has been hit.\n";
                         ShipHit = 1;
                     }
@@ -6366,6 +6389,10 @@ void be_main()
                     }
                 }
 
+#ifdef CBE_DEBUG
+                CBE::debugFile << "[INFO][Combat Round] Begin Break Off Checks for [" << B << "]: " << BE::DefShipStr[B] << endl;
+#endif
+
                 if (!IsNoMove(BE::SpecialB[B]) && !IsCaptured(BE::SpecialB[B]) && !IsCrippled(BE::SpecialB[B]) && !IsMissile(BE::SpecialB[B]))
                 {
                     // Do flee/fled
@@ -6443,12 +6470,19 @@ void be_main()
                         }
                     }
                 }
+#ifdef CBE_DEBUG
+                CBE::debugFile << "[INFO][Combat Round] End Break Off Checks for [" << B << "]" << endl;
+#endif
             }
         }
 
         // Start of combat done check
         AttGone = 1;
         DefGone = 1;
+
+#ifdef CBE_DEBUG
+        CBE::debugFile << "[INFO][Combat Round] Checking for end of combat" << endl;
+#endif
 
         for (int A = 0; A < BE::AttShipsLeft; A++)
         {
@@ -6472,6 +6506,10 @@ void be_main()
                 }
             }
         }
+
+#ifdef CBE_DEBUG
+        CBE::debugFile << "[INFO][Combat Round] AttGone=" << AttGone << ",DefGone=" << DefGone << endl;
+#endif
 
         // TODO: Combine this with the iterations above for speed?
         if (BE::CombatRound == 1)
