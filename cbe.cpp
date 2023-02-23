@@ -20,6 +20,8 @@
 
 using namespace std;
 
+bool oneStep = false;
+
 std::unordered_map<int, CriticalHitTable> critTables;
 
 fstream CBE::debugFile = fstream("debug.txt", ios::out | ios::binary);
@@ -4506,17 +4508,17 @@ void be_main()
                                 if (HasScan(CombatStr, HullTarget, HullScope))
                                 {
                                     // Get a scan target
-                                    BE::Target1 = GetScanTarget(ForceID, CombatStr, HullTarget, HullScope, DefNumValidTargets);
+                                    BE::Target1 = GetScanTarget(ForceID, CombatStr, HullTarget, HullScope, AttNumValidTargets);
                                 }
                                 else if (HasHull(CombatStr, HullTarget, HullScope))
                                 {
                                     // Get a hull target
-                                    BE::Target1 = GetHullTarget(ForceID, CombatStr, HullTarget, HullScope, DefNumValidTargets);
+                                    BE::Target1 = GetHullTarget(ForceID, CombatStr, HullTarget, HullScope, AttNumValidTargets);
                                 }
                                 else
                                 {
                                     // Get a random target
-                                    BE::Target1 = GetRandomTarget(ForceID, CombatStr, DefNumValidTargets);
+                                    BE::Target1 = GetRandomTarget(ForceID, CombatStr, AttNumValidTargets);
                                 }
                             }
                         }
@@ -5032,7 +5034,7 @@ void be_main()
                                             tmp = 100 - ((BE::TempCurHullA[BE::Target1] * 100) / BE::MaxHullA[BE::Target1]); // TODO: Clear up to Cur/Max * 100 for clarity.  Will need to do type casting for this to work well.
                                         }
                                         BE::Attacks[BE::AttacksIndex].AttackID = BE::A;
-                                        BE::Attacks[BE::AttacksIndex].TargetID = BE::Target1 + BE::DefShipsLeft;
+                                        BE::Attacks[BE::AttacksIndex].TargetID = BE::Target1;
                                         BE::Attacks[BE::AttacksIndex].Damage = BE::Damage1;
                                         BE::Attacks[BE::AttacksIndex].Weapon = Hits[i].special;
                                         BE::Attacks[BE::AttacksIndex].Special = Hits[i].tag;
@@ -5172,7 +5174,7 @@ void be_main()
                     else
                     {
                         ForceID = 0;
-                        BE::Target1 = BE::Attacks[E].TargetID - BE::AttShipsLeft - 1;
+                        BE::Target1 = BE::Attacks[E].TargetID - BE::AttShipsLeft;
                     }
 
                     BE::Damage1 = BE::Attacks[E].Damage;
@@ -5879,6 +5881,10 @@ void be_main()
                         BE::TempCurDamB[X] = BE::HullPercent;
                         if (BE::ShipCritStr > "")
                         {
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO] X=" << X << ";ForceId=" << ForceID << endl;
+                            CBE::debugFile << "[INFO] " << BE::DefRaceName << " " << BE::DefShipStr[X] << " " << BE::ShipCritStr << endl;
+#endif
                             damageFile << BE::DefRaceName + " " + BE::DefShipStr[X] + " " + BE::ShipCritStr << "\n";
                         }
                         BE::TempCurShieldB[X] = BE::Shields;
@@ -6123,6 +6129,10 @@ void be_main()
                         BE::TempCurDamA[X] = BE::HullPercent;
                         if (BE::ShipCritStr > "")
                         {
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO] X=" << X << ";ForceId=" << ForceID << endl;
+                            CBE::debugFile << "[INFO] " << BE::AttRaceName << " " << BE::AttShipStr[X] << " " << BE::ShipCritStr << endl;
+#endif
                             damageFile << BE::AttRaceName + " " + BE::AttShipStr[X] + " " + BE::ShipCritStr << "\n";
                         }
                         BE::TempCurShieldA[X] = BE::Shields;
@@ -6531,6 +6541,17 @@ void be_main()
         reportFile << "\n";
         reportFile.flush();
         damageFile.flush();
+
+        if (oneStep && AttackLoop == 1)
+        {
+            string tempIn;
+            cout << "Run another turn? (Y\\N): ";
+            cin >> tempIn;
+            if (tempIn == "N" || tempIn == "n")
+            {
+                AttackLoop = 0;
+            }
+        }
     } while (AttackLoop == 1);
 
     cout << "Done with combat!" << endl;
@@ -6588,6 +6609,10 @@ int main(int argc, char *argv[])
         {
             // The simulation should run without user interaction
             headless = true;
+        }
+        else if (cmd == "-1")
+        {
+            oneStep = true;
         }
         else
         {
