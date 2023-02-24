@@ -2797,6 +2797,7 @@ string DoCrewDamage(const string &source, long crewDamage)
  */
 void be_main()
 {
+    // [JLL] When you find comments like this: {{XXXX}} where XXXX is a number.  Those comments refer to specific lines in the original QBASIC code for cross reference purposes.
     critTables = load_crits_file("crits.txt");
 
     long AttackLoop = 0, AbortCounter = 0;
@@ -2876,6 +2877,7 @@ void be_main()
     // NOTE: TempAFile and TempBFile are set in the menu code when the user selects the attacker and defender files
 
     // This is where the program comes back in subsequent rounds
+    // {{454}}
     do
     {
         // Load in the attackers
@@ -2891,6 +2893,7 @@ void be_main()
         reportFile << "Battle Round: " << BE::CombatRound << "\n";
 
         // Write the attackers to the report file
+        // {{486}}
         reportFile << "\nAttackers are the " << BE::AttRaceName << ", " << BE::AttFleetName << " " << BE::GroupName << ".\n";
         reportFile << "Current group Break-off level is " << BE::AttBreakOff << "%\n";
         reportFile << "The " << BE::UnitName << " are currently listed as:\n";
@@ -2901,6 +2904,7 @@ void be_main()
         }
 
         // Write the defenders to the report file
+        // {{501}}
         reportFile << "\nDefenders are the " << BE::DefRaceName << ", " << BE::DefFleetName << " " << BE::GroupName << ".\n";
         reportFile << "Current group Break-off level is " << BE::DefBreakOff << "%\n";
         reportFile << "The " << BE::UnitName << " are currently listed as:\n";
@@ -2946,6 +2950,7 @@ void be_main()
         CBE::debugFile << "[INFO] Beginning round " << BE::CombatRound << endl;
 #endif
 
+        // {{540}}
         if (BE::CombatRound == 1)
         {
             // Several special things can happen in turn one.
@@ -3102,6 +3107,7 @@ void be_main()
                 }
             }
         }
+        // {{600}}
 
 #ifdef CBE_DEBUG
         CBE::debugFile << "[INFO] Pre-round Checks are done" << endl;
@@ -3111,6 +3117,7 @@ void be_main()
         // Check for attacker reserve & screen
         AttHasScreen = false;       // TODO: Move to BE namespace
         AttHasReserveUnits = false; // TODO: Move to BE namespace
+        // {{605}}
         for (int a = 0; a < BE::AttShipsLeft; a++)
         {
             // TODO: What kind of mechanic should there be for not enough screen?
@@ -3139,6 +3146,7 @@ void be_main()
         // TODO: Turn this into a function: CheckFleetReserveAndScreen(special[],shipsLeft)
         DefHasScreen = false;       // TODO: Move to BE namespace
         DefHasReserveUnits = false; // TODO: Move to BE namespace
+        // {{616}}
         for (int b = 0; b < BE::DefShipsLeft; b++)
         {
             // The unit is either in the reserve or is part of the screen
@@ -3164,6 +3172,7 @@ void be_main()
         // TODO: Turn this into a function:  BreakOffAndScreenCheck(special[],shipsLeft,hasScreen,hasReserve)
         // TODO:  I should be able to handle this with the earlier checks?  Maybe...
         // Check to see if the attackers have a reserve.
+        // {{628}}
         if (AttHasReserveUnits)
         {
 #ifdef CBE_DEBUG
@@ -3204,6 +3213,7 @@ void be_main()
             }
         }
 
+        // {{643}}
         if (DefHasReserveUnits)
         {
 #ifdef CBE_DEBUG
@@ -3244,6 +3254,7 @@ void be_main()
         }
 
         // UNKNOWN: Resetting AttackIndexes?
+        // {{659}}
         if (BE::AttacksIndex > 0)
         {
             for (int i = 0; i < BE::AttacksIndex; i++)
@@ -3267,6 +3278,7 @@ void be_main()
         // Loop through a combined total of all remaining attacking and defending ships
         // This is horribley convoluted
         // TODO: make a funciton for this...not sure what it needs to look like
+        // {{676}}
         for (int A = 0; A < (BE::AttShipsLeft + BE::DefShipsLeft); A++)
         {
             // Determine ForceID
@@ -3318,6 +3330,7 @@ void be_main()
             // Check for batteries in the special string
             // TODO: Get batteries then do missile test on each bracket?
             // TODO: Separate HasMissileWT and GetMissileStats
+            // {{695}}
             if (HasBatteries(temp_str) > 0)
             {
                 // Check if any of the batteries has a `misXXXX` tag
@@ -3845,10 +3858,11 @@ void be_main()
                     }
 
                     // Getting the bracket attacks and adding them to the Salvos array
-                    number_of_attacks = 0;          // TODO: Replace with a local variable
-                    temp_str = BE::SpecialA[B];     // TODO: Replace with a local variable
-                    old_start = temp_str.find("["); // TODO: Replace with a local variable
-                    sc = 0;                         // TODO: Replace with a local variable?  This may be used later
+                    number_of_attacks = 0;      // TODO: Replace with a local variable
+                    temp_str = BE::SpecialA[B]; // TODO: Replace with a local variable
+                    // old_start = temp_str.find("["); // TODO: Replace with a local variable
+                    old_start = 0;
+                    sc = 0; // TODO: Replace with a local variable?  This may be used later
 #ifdef CBE_DEBUG
                     CBE::debugFile << "[INFO] " << BE::AttRaceName << " " << BE::AttShipStr[B] << " looking for batteries: " << temp_str << endl;
 #endif
@@ -4150,10 +4164,11 @@ void be_main()
                     }
 
                     // Getting the bracket attacks and adding them to the Salvos array
-                    number_of_attacks = 0;          // TODO: Replace with a local variable
-                    temp_str = BE::SpecialB[B];     // TODO: Replace with a local variable
-                    old_start = temp_str.find("["); // TODO: Replace with a local variable
-                    sc = 0;                         // TODO: Replace with a local variable?  This may be used later
+                    number_of_attacks = 0;      // TODO: Replace with a local variable
+                    temp_str = BE::SpecialB[B]; // TODO: Replace with a local variable
+                    // old_start = temp_str.find("["); // TODO: Replace with a local variable
+                    old_start = 0;
+                    sc = 0; // TODO: Replace with a local variable?  This may be used later
 #ifdef CBE_DEBUG
                     CBE::debugFile << "[INFO] " << BE::DefRaceName << " " << BE::DefShipStr[B] << " looking for batteries: " << temp_str << endl;
 #endif
@@ -5187,7 +5202,7 @@ void be_main()
                     else
                     {
                         ForceID = 0;
-                        BE::Target1 = BE::Attacks[E].TargetID - BE::AttShipsLeft;
+                        BE::Target1 = BE::Attacks[E].TargetID;
                     }
 
 #ifdef CBE_DEBUG
