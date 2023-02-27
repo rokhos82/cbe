@@ -26,6 +26,7 @@ namespace BE
     {
         long MissileS;
         string DataStr;
+        bool valid;
     };
 
     // New Structs

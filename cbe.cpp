@@ -3391,7 +3391,7 @@ void be_main()
 
                             // This unit is either NOT in the reserve or HAS an artillery tag
                             // Do the long range checks.
-                            if ((BE::AttHasLongRange || BE::DefHasLongRange) && !HasLongWT(BE::Salvos[sc].DataStr))
+                            if ((BE::AttHasLongRange > 0 || BE::DefHasLongRange > 0) && !HasLongWT(BE::Salvos[sc].DataStr))
                             {
 #ifdef CBE_DEBUG
                                 CBE::debugFile << "[INFO] Salvo does not have a long range tag and the combat is at long range" << endl;
@@ -3760,7 +3760,7 @@ void be_main()
                 }
                 else
                 {
-                    BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " did not fire beams or torps."; // If missile is not in the name then the unit did not fire?
+                    BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " did not fire beams or torps."; // If missile is not in the name then the unit did not fire? [JLL] This is the default state for a unit, the unit did not fire.
                 }
                 // [JLL] I am so confused by the if/else blocks above.  TODO: Can I remove these?
 
@@ -3866,7 +3866,15 @@ void be_main()
 #ifdef CBE_DEBUG
                     CBE::debugFile << "[INFO] " << BE::AttRaceName << " " << BE::AttShipStr[B] << " looking for batteries: " << temp_str << endl;
 #endif
-                    // TODO: Turn the code below into a function?
+                    // Reset all salvo objects
+                    for (int i = 0; i < 200; i++)
+                    {
+                        BE::Salvos[i].DataStr.clear();
+                        BE::Salvos[i].MissileS = 0;
+                        BE::Salvos[i].valid = true;
+                    }
+
+                    // TODO: Turn the code below into a function?  Use GetBrackets()
                     while (old_start != string::npos)
                     {
                         start = temp_str.find("[", old_start); // TODO: Replace with a local variable
@@ -3908,6 +3916,7 @@ void be_main()
                             if (HasMissileWT(BE::Salvos[i].DataStr))
                             {
                                 BE::Salvos[i].MissileS = 0; // TODO: Can I move these checks to building the salvo array above?
+                                BE::Salvos[i].valid = false;
 #ifdef CBE_DEBUG
                                 CBE::debugFile << "[INFO] Is a missile battery.  That was handled earlier." << endl;
 #endif
@@ -3916,6 +3925,7 @@ void be_main()
                             else if (IsOffline(BE::Salvos[i].DataStr))
                             {
                                 BE::Salvos[i].MissileS = 0;
+                                BE::Salvos[i].valid = false;
 #ifdef CBE_DEBUG
                                 CBE::debugFile << "[INFO] Battery is offline." << endl;
 #endif
@@ -3924,14 +3934,16 @@ void be_main()
                             else if (GetROFDelayWT(BE::Salvos[i].DataStr) > 0)
                             {
                                 BE::Salvos[i].MissileS = 0;
+                                BE::Salvos[i].valid = false;
 #ifdef CBE_DEBUG
                                 CBE::debugFile << "[INFO] ROF delay is not this round" << endl;
 #endif
                             }
                             // Check if only LR attacks are valid and if the battery is NOT long
-                            else if ((BE::AttHasLongRange || BE::DefHasLongRange) && !HasLongWT(BE::Salvos[i].DataStr))
+                            else if ((BE::AttHasLongRange > 0 || BE::DefHasLongRange > 0) && !HasLongWT(BE::Salvos[i].DataStr))
                             {
                                 BE::Salvos[i].MissileS = 0;
+                                BE::Salvos[i].valid = false;
 #ifdef CBE_DEBUG
                                 CBE::debugFile << "[INFO] Battery is not long range" << endl;
 #endif
@@ -3941,6 +3953,7 @@ void be_main()
                             else if (HasReserve(BE::SpecialA[B]) > 0 && !HasArtilleryWT(BE::Salvos[i].DataStr))
                             {
                                 BE::Salvos[i].MissileS = 0;
+                                BE::Salvos[i].valid = false;
 #ifdef CBE_DEBUG
                                 CBE::debugFile << "[INFO] Battery is not artillery and unit is in reserve" << endl;
 #endif
@@ -3949,6 +3962,7 @@ void be_main()
                             else if (ammo == CBE::AMMO_EMPTY)
                             {
                                 BE::Salvos[i].MissileS = 0;
+                                BE::Salvos[i].valid = false;
 #ifdef CBE_DEBUG
                                 CBE::debugFile << "[INFO] Battery is out of ammo" << endl;
 #endif
@@ -3989,17 +4003,19 @@ void be_main()
                             // Does the salvo have firepower?
                             if (BE::Salvos[i].MissileS > 0)
                             {
+                                // Flag the salvo as valid
+                                BE::Salvos[i].valid = true;
                                 // Does the battery have FLAK and does the defense have fighters?
                                 if (HasFlakWT(BE::Salvos[i].DataStr) && BE::DefHasFighters > 0)
                                 {
                                     // Create the flak packets
                                     for (int j = 0; j < BE::Salvos[i].MissileS; j++)
                                     {
-                                        number_of_attacks = number_of_attacks + 1;                                                            // Increment the number of attacks
                                         Hits[number_of_attacks].firepower = 1;                                                                // Fill out the hits array, with the firepower split into packets of 1
                                         Hits[number_of_attacks].special = BE::saMulti;                                                        // Batteries are multi-targetting
                                         Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, Hits[number_of_attacks].special); // Combine any bitwise flags
                                         Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                                                  // Set the tags for the `hit` [JLL] Really this is a possible hit at this point.  More like shots.
+                                        number_of_attacks = number_of_attacks + 1;                                                            // Increment the number of attacks
                                     }
                                 }
                                 else if (HasMultiWT(BE::Salvos[i].DataStr) > 0)
@@ -4008,28 +4024,28 @@ void be_main()
                                     packet_size = HasMultiWT(BE::Salvos[i].DataStr); // TODO: Convert to local variable TODO: Differentiate HasMulti and GetMulti functions
                                     for (int j = 0; j < int(BE::Salvos[i].MissileS / packet_size); j++)
                                     {
-                                        number_of_attacks = number_of_attacks + 1; // Incremet the number of attacks
                                         Hits[number_of_attacks].firepower = packet_size;
                                         Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, BE::saMulti); // Start with multi because batteries
                                         Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                              // Set the tags for the hit
+                                        number_of_attacks = number_of_attacks + 1;                                        // Incremet the number of attacks
                                     }
                                     // Check for left over firepower due to packet sizing
                                     if ((BE::Salvos[i].MissileS % packet_size) > 0)
                                     {
                                         // Yep, there is a remainder
-                                        number_of_attacks = number_of_attacks + 1; // Incremet the number of attacks
                                         Hits[number_of_attacks].firepower = BE::Salvos[i].MissileS % packet_size;
                                         Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, BE::saMulti); // Start with multi because batteries
                                         Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                              // Set the tags for the hit
+                                        number_of_attacks = number_of_attacks + 1;                                        // Incremet the number of attacks
                                     }
                                 }
                                 else
                                 {
                                     // If it is not flak and not multi then it must be a single target attack!
-                                    number_of_attacks = number_of_attacks + 1;                                        // Incremet the number of attacks
                                     Hits[number_of_attacks].firepower = BE::Salvos[i].MissileS;                       // Set the firepower from the salvo
                                     Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, BE::saMulti); // Start with multi because batteries
                                     Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                              // Set the tags for the hit
+                                    number_of_attacks = number_of_attacks + 1;                                        // Incremet the number of attacks
                                 }
                             }
 
@@ -4172,6 +4188,14 @@ void be_main()
 #ifdef CBE_DEBUG
                     CBE::debugFile << "[INFO] " << BE::DefRaceName << " " << BE::DefShipStr[B] << " looking for batteries: " << temp_str << endl;
 #endif
+                    // Reset all salvo objects
+                    for (int i = 0; i < 200; i++)
+                    {
+                        BE::Salvos[i].DataStr.clear();
+                        BE::Salvos[i].MissileS = 0;
+                        BE::Salvos[i].valid = true;
+                    }
+
                     // TODO: Turn the code below into a function?
                     while (old_start != string::npos)
                     {
@@ -4215,6 +4239,7 @@ void be_main()
                             if (HasMissileWT(BE::Salvos[i].DataStr))
                             {
                                 BE::Salvos[i].MissileS = 0; // TODO: Can I move these checks to building the salvo array above?
+                                BE::Salvos[i].valid = false;
 #ifdef CBE_DEBUG
                                 CBE::debugFile << "[INFO] Is a missile battery.  That was handled earlier." << endl;
 #endif
@@ -4223,6 +4248,7 @@ void be_main()
                             else if (IsOffline(BE::Salvos[i].DataStr))
                             {
                                 BE::Salvos[i].MissileS = 0;
+                                BE::Salvos[i].valid = false;
 #ifdef CBE_DEBUG
                                 CBE::debugFile << "[INFO] Battery is offline." << endl;
 #endif
@@ -4231,14 +4257,16 @@ void be_main()
                             else if (GetROFDelayWT(BE::Salvos[i].DataStr) > 0)
                             {
                                 BE::Salvos[i].MissileS = 0;
+                                BE::Salvos[i].valid = false;
 #ifdef CBE_DEBUG
                                 CBE::debugFile << "[INFO] ROF delay is not this round" << endl;
 #endif
                             }
                             // Check if only LR attacks are valid and if the battery is NOT long
-                            else if ((BE::AttHasLongRange || BE::DefHasLongRange) && !HasLongWT(BE::Salvos[i].DataStr))
+                            else if ((BE::AttHasLongRange > 0 || BE::DefHasLongRange > 0) && !HasLongWT(BE::Salvos[i].DataStr))
                             {
                                 BE::Salvos[i].MissileS = 0;
+                                BE::Salvos[i].valid = false;
 #ifdef CBE_DEBUG
                                 CBE::debugFile << "[INFO] Battery is not long range" << endl;
 #endif
@@ -4248,6 +4276,7 @@ void be_main()
                             else if (HasReserve(BE::SpecialB[B]) > 0 && !HasArtilleryWT(BE::Salvos[i].DataStr))
                             {
                                 BE::Salvos[i].MissileS = 0;
+                                BE::Salvos[i].valid = false;
 #ifdef CBE_DEBUG
                                 CBE::debugFile << "[INFO] Battery is not artillery and unit is in reserve" << endl;
 #endif
@@ -4256,6 +4285,7 @@ void be_main()
                             else if (ammo == CBE::AMMO_EMPTY)
                             {
                                 BE::Salvos[i].MissileS = 0;
+                                BE::Salvos[i].valid = false;
 #ifdef CBE_DEBUG
                                 CBE::debugFile << "[INFO] Battery is out of ammo" << endl;
 #endif
@@ -4296,6 +4326,8 @@ void be_main()
                             // Does the salvo have firepower?
                             if (BE::Salvos[i].MissileS > 0)
                             {
+                                // Mark this salvo is valid
+                                BE::Salvos[i].valid = true;
                                 // Does the battery have FLAK and does the defense have fighters?
                                 if (HasFlakWT(BE::Salvos[i].DataStr) && BE::DefHasFighters > 0)
                                 {
@@ -4376,6 +4408,21 @@ void be_main()
 #ifdef CBE_DEBUG
                 CBE::debugFile << "[INFO] Unit has no attackes! Skipping rest of unit's turn." << endl;
 #endif
+                if (ForceID == 0)
+                {
+                    // TODO: Change AttBattleStr and DefBattleStr to a single local variable.  Unless these get added to later in the loop. (Written at the Salvos point)
+                    if (BE::AttBattleStr != "")
+                    {
+                        reportFile << BE::AttBattleStr << "\n";
+                    }
+                }
+                else
+                {
+                    if (BE::DefBattleStr != "")
+                    {
+                        reportFile << BE::DefBattleStr << "\n";
+                    }
+                }
                 continue;
             }
             // Handle the attacks
@@ -5132,14 +5179,14 @@ void be_main()
             if (ForceID == 0)
             {
                 // TODO: Change AttBattleStr and DefBattleStr to a single local variable.  Unless these get added to later in the loop. (Written at the Salvos point)
-                if (BE::AttBattleStr.size() > 0)
+                if (BE::AttBattleStr != "")
                 {
                     reportFile << BE::AttBattleStr << "\n";
                 }
             }
             else
             {
-                if (BE::DefBattleStr.size() > 0)
+                if (BE::DefBattleStr != "")
                 {
                     reportFile << BE::DefBattleStr << "\n";
                 }
@@ -6220,7 +6267,7 @@ void be_main()
             BE::SpecialB[A] = BE::TempSpecialB[A];
             if (!IsCaptured(BE::SpecialB[A]) && !IsFled(BE::SpecialB[A]) && !IsMissile(BE::SpecialB[A]))
             {
-                BE::BO_DefenseTotal += BE::CurHullA[A];
+                BE::BO_DefenseTotal += BE::CurHullB[A];
             }
         }
 
@@ -6370,7 +6417,7 @@ void be_main()
         }
         else
         {
-            BE::BO_DefensePercent = (BE::BO_DefensePercent * 100) / BE::DefFleetStrength;
+            BE::BO_DefensePercent = (BE::BO_DefenseTotal * 100) / BE::DefFleetStrength;
         }
         BE::BO_Def = 100 - BE::BO_DefensePercent;
         BE::TempStr = "Current Damage Level: " + to_string(BE::BO_Def) + "% (" + to_string(BE::BO_DefenseTotal) + "/" + to_string(BE::DefFleetStrength) + ")\n";
