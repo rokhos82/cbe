@@ -20,6 +20,7 @@ namespace BE
         long firepower;
         long special;
         string tag;
+        bool valid;
     };
 
     struct SalvoInfo

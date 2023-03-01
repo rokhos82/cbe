@@ -1686,8 +1686,8 @@ string InsertOffline(string source)
         start = source.find("]", end_tag);
         if (start != string::npos)
         {
-            end_tag = start + 2;
-            temp_str = source.substr(0, start) + " offline" + source.substr(start + 1);
+            end_tag = start + 10;
+            temp_str = source.substr(0, start) + " offline" + source.substr(start);
             source = temp_str;
         }
         else
@@ -1710,13 +1710,13 @@ string InsertRandomOffline(string source)
         {
             if (rand() % 2 == 0)
             {
-                temp_str = source.substr(0, start) + " offline" + source.substr(start + 1);
+                temp_str = source.substr(0, start) + " offline" + source.substr(start);
                 source = temp_str;
-                end_tag = start + 2;
+                end_tag = start + 10;
             }
             else
             {
-                end_tag = start + 2;
+                end_tag = start + 10;
             }
         }
         else
@@ -2776,12 +2776,12 @@ string DoCrewDamage(const string &source, long crewDamage)
                 res = AddTag(res, "CRIPPLE");
             }
             res = RemoveTag(res, "CREW", 1);
-            res = AddTag(res, "CREW " + crewCur);
+            res = AddTag(res, "CREW " + to_string(crewCur));
         }
         else
         {
             crewCur = 100 - crewDamage;
-            res = AddTag(res, "CREW " + crewCur);
+            res = AddTag(res, "CREW " + to_string(crewCur));
         }
     }
 
@@ -3265,6 +3265,7 @@ void be_main()
                 BE::Attacks[i].Weapon = 0;
                 BE::Attacks[i].Special = "";
             }
+            BE::AttacksIndex = 0;
         }
 
 #ifdef CBE_DEBUG
@@ -3742,6 +3743,7 @@ void be_main()
                 Hits[i].firepower = 0;
                 Hits[i].special = 0;
                 Hits[i].tag = "";
+                Hits[i].valid = true;
             }
             number_of_attacks = 0; // Assume the attacker has no weapons
 
@@ -4449,10 +4451,12 @@ void be_main()
                             if (ForceID == 0)
                             {
                                 BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " aborts attack!";
+                                reportFile << BE::AttBattleStr << "\n";
                             }
                             else
                             {
                                 BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " aborts attack!";
+                                reportFile << BE::DefBattleStr << "\n";
                             }
 #ifdef CBE_DEBUG
                             CBE::debugFile << "[INFO] Unit has aborted an attack after 10 tries!" << endl;
@@ -4627,7 +4631,8 @@ void be_main()
                                 // The missile was intercepted
                                 BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " missile intercepted!";
                                 BE::CurHullA[B] = 0;
-                                // writeBattleString(reportFile, BE::AttBattleStr); // TODO: Remove
+                                Hits[i].valid = false;
+                                writeBattleString(reportFile, BE::AttBattleStr); // TODO: Remove
                                 continue;
                             }
                         }
@@ -4649,7 +4654,8 @@ void be_main()
                                 // The missiles was intercepted
                                 BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " missile intercepted!";
                                 BE::CurHullB[B] = 0;
-                                // writeBattleString(reportFile, BE::DefBattleStr); // TODO: Remove
+                                Hits[i].valid = false;
+                                writeBattleString(reportFile, BE::DefBattleStr); // TODO: Remove
                                 continue;
                             }
                         }
@@ -5034,8 +5040,8 @@ void be_main()
                             // This is to indicate in the report file which attack this is from the unit
                             BE::AttBattleStr = BE::AttBattleStr + "[" + to_string(i) + " of " + to_string(number_of_attacks) + "]";
                         }
-                    }
-                    else
+                    }    // Done with attackers
+                    else // Defenders
                     {
                         // ForceID == 1
                         // Do all of the above again, but now for the defenders.
@@ -5161,36 +5167,37 @@ void be_main()
                             // This is to indicate in the report file which attack this is from the unit
                             BE::DefBattleStr = BE::DefBattleStr + "[" + to_string(i) + " of " + to_string(number_of_attacks) + "]";
                         }
-                    }
+                    } // Done with defenders
                 }
                 else // firepower is less than or equal to 0?
                 {
-                    if (ForceID == 0)
+                    if (ForceID == 0) // Attackers
                     {
                         BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " no normal attack. (Firepower is equal to 0)";
                     }
-                    else
+                    else // Defenders
                     {
                         BE::DefBattleStr = BE::DefBattleStr + " " + BE::DefShipStr[B] + " no normal attack. (Firepower is equal to 0)";
                     }
                 }
-            }
-            // Check ForceID to print the correct message
-            if (ForceID == 0)
-            {
-                // TODO: Change AttBattleStr and DefBattleStr to a single local variable.  Unless these get added to later in the loop. (Written at the Salvos point)
-                if (BE::AttBattleStr != "")
+
+                // Check ForceID to print the correct message
+                if (ForceID == 0)
                 {
-                    reportFile << BE::AttBattleStr << "\n";
+                    // TODO: Change AttBattleStr and DefBattleStr to a single local variable.  Unless these get added to later in the loop. (Written at the Salvos point)
+                    if (BE::AttBattleStr != "")
+                    {
+                        reportFile << BE::AttBattleStr << "\n";
+                    }
                 }
-            }
-            else
-            {
-                if (BE::DefBattleStr != "")
+                else
                 {
-                    reportFile << BE::DefBattleStr << "\n";
+                    if (BE::DefBattleStr != "")
+                    {
+                        reportFile << BE::DefBattleStr << "\n";
+                    }
                 }
-            }
+            } // End for number_of_attacks
         }
 
         reportFile << "\n";
@@ -5249,7 +5256,7 @@ void be_main()
                     else
                     {
                         ForceID = 0;
-                        BE::Target1 = BE::Attacks[E].TargetID;
+                        BE::Target1 = BE::Attacks[E].TargetID - BE::AttShipsLeft;
                     }
 
 #ifdef CBE_DEBUG
@@ -5626,7 +5633,7 @@ void be_main()
                     BE::CRIT_BP = 0;
                     BE::CRIT_SPECIAL = 0;
 
-                    // It's possible to have multiple special effect weapons, se each is rolled separately
+                    // It's possible to have multiple special effect weapons, so each is rolled separately
                     // Yes.  That means a heat/dis weapon has a 40% chance of causing a crit.  20% for each crit type.
                     if (BE::Attacks[E].Weapon > 0)
                     {
@@ -5835,7 +5842,7 @@ void be_main()
                                     }
 
                                     long critType = critInfo.second;
-                                    if ((critType > 1 && critType < 11) || critType == 100)
+                                    if ((critType > 0 && critType < 11) || critType == 100)
                                     {
                                         BE::CritDamageFlag = critType;
                                     }
@@ -5958,13 +5965,13 @@ void be_main()
                             BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "CAPTURED");
                         }
                         BE::DefCritStr[X] = BE::CriticalStr;
-                        if (BE::DefCritStr[X] > "")
+                        if (BE::DefCritStr[X] != "")
                         {
                             reportFile << "    " + BE::DefCritStr[X] + "\n";
                         }
                         BE::TempStr = "  Bm=" + to_string(BE::TempCurBeamB[X]) + " Sh=" + to_string(BE::TempCurShieldB[X]) + " Tp=" + to_string(BE::TempCurShieldB[X]) + " Hl=" + to_string(BE::Hull) + " " + BE::ShipCritStr;
                         BE::TempCurDamB[X] = BE::HullPercent;
-                        if (BE::ShipCritStr > "")
+                        if (BE::ShipCritStr != "")
                         {
 #ifdef CBE_DEBUG
                             CBE::debugFile << "[INFO] X=" << X << ";ForceId=" << ForceID << endl;
@@ -6206,13 +6213,13 @@ void be_main()
                             BE::TempSpecialA[X] = AddTag(BE::TempSpecialA[X], "CAPTURED");
                         }
                         BE::AttCritStr[X] = BE::CriticalStr;
-                        if (BE::AttCritStr[X] > "")
+                        if (BE::AttCritStr[X] != "")
                         {
                             reportFile << "    " + BE::AttCritStr[X] + "\n";
                         }
                         BE::TempStr = "  Bm=" + to_string(BE::TempCurBeamA[X]) + " Sh=" + to_string(BE::TempCurShieldA[X]) + " Tp=" + to_string(BE::TempCurShieldA[X]) + " Hl=" + to_string(BE::Hull) + " " + BE::ShipCritStr;
                         BE::TempCurDamA[X] = BE::HullPercent;
-                        if (BE::ShipCritStr > "")
+                        if (BE::ShipCritStr != "")
                         {
 #ifdef CBE_DEBUG
                             CBE::debugFile << "[INFO] X=" << X << ";ForceId=" << ForceID << endl;
