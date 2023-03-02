@@ -526,6 +526,23 @@ int GetROFRateWT(const string &special)
 }
 
 /*
+ * CheckROF()
+ */
+
+bool CheckROF(const string &special, const long &round)
+{
+    long delay = GetROFDelayWT(special);
+    bool res = false;
+
+    if (delay <= 0)
+    {
+        res = true;
+    }
+
+    return res;
+}
+
+/*
  * =============================================================================
  * GetRandomTarget returns the index for a randomly chosen target.
  * =============================================================================
@@ -2630,48 +2647,65 @@ void readTempA()
 #endif
         BE::AttRaceName = info.RaceName;
         BE::AttFleetName = info.FleetName;
+        BE::AttBreakOff = info.BreakOff;
+        BE::AttFleetStrength = info.FleetStrength;
 
         // Read the unit lines
         long numUnits = 0;
+        long fleetStrength = 0;
         string line = "";
         while (getline(tempA, line, '\n'))
         {
             // Now break it back out to the individual arrays...because...BASIC
             BE::UnitInfo unit = parseUnit(line);
-            BE::AttShipStr[numUnits] = unit.UnitName;
-            BE::MaxBeamA[numUnits] = unit.MaxBeam;
-            BE::CurBeamA[numUnits] = unit.CurBeam;
-            BE::MaxShieldA[numUnits] = unit.MaxShield;
-            BE::CurShieldA[numUnits] = unit.CurShield;
-            BE::MaxTorpA[numUnits] = unit.MaxTorp;
-            BE::CurTorpA[numUnits] = unit.CurTorp;
-            BE::MaxHullA[numUnits] = unit.MaxHull;
-            BE::CurHullA[numUnits] = unit.CurHull;
-            BE::CurDamA[numUnits] = unit.CurDam;
-            BE::StatusA[numUnits] = unit.Status;
-            BE::AmmoA[numUnits] = unit.Ammo;
-            BE::SpecialA[numUnits] = unit.Special;
+            if (unit.CurHull > 0)
+            {
+                BE::AttShipStr[numUnits] = unit.UnitName;
+                BE::MaxBeamA[numUnits] = unit.MaxBeam;
+                BE::CurBeamA[numUnits] = unit.CurBeam;
+                BE::MaxShieldA[numUnits] = unit.MaxShield;
+                BE::CurShieldA[numUnits] = unit.CurShield;
+                BE::MaxTorpA[numUnits] = unit.MaxTorp;
+                BE::CurTorpA[numUnits] = unit.CurTorp;
+                BE::MaxHullA[numUnits] = unit.MaxHull;
+                BE::CurHullA[numUnits] = unit.CurHull;
+                BE::CurDamA[numUnits] = unit.CurDam;
+                BE::StatusA[numUnits] = unit.Status;
+                BE::AmmoA[numUnits] = unit.Ammo;
+                BE::SpecialA[numUnits] = unit.Special;
 
 #ifdef CBE_DEBUG
-            CBE::debugFile << "[INFO] Loaded tempA unit: " << unit.UnitName << ","
-                           << unit.MaxBeam << ","
-                           << unit.CurBeam << ","
-                           << unit.MaxShield << ","
-                           << unit.CurShield << ","
-                           << unit.MaxTorp << ","
-                           << unit.CurTorp << ","
-                           << unit.MaxHull << ","
-                           << unit.CurHull << ","
-                           << unit.CurDam << ","
-                           << unit.Status << ","
-                           << unit.Ammo << ","
-                           << unit.Special << endl;
+                CBE::debugFile << "[INFO] Loaded tempA unit: " << unit.UnitName << ","
+                               << unit.MaxBeam << ","
+                               << unit.CurBeam << ","
+                               << unit.MaxShield << ","
+                               << unit.CurShield << ","
+                               << unit.MaxTorp << ","
+                               << unit.CurTorp << ","
+                               << unit.MaxHull << ","
+                               << unit.CurHull << ","
+                               << unit.CurDam << ","
+                               << unit.Status << ","
+                               << unit.Ammo << ","
+                               << unit.Special << endl;
 #endif
 
-            numUnits++;
+                numUnits++;
+                fleetStrength += unit.MaxHull;
+            }
+            else
+            {
+#ifdef CBE_DEBUG
+                CBE::debugFile << "[INFO][readTempA] Loading a unit with no hull" << endl;
+#endif
+            }
         }
 
         BE::AttShipsLeft = numUnits;
+        if (fleetStrength > BE::AttFleetStrength)
+        {
+            BE::AttFleetStrength = fleetStrength;
+        }
 
 #ifdef CBE_DEBUG
         CBE::debugFile << "[INFO] Attacking Units Loaded: " << BE::AttShipsLeft << endl;
@@ -2708,49 +2742,66 @@ void readTempB()
 #endif
         BE::DefRaceName = info.RaceName;
         BE::DefFleetName = info.FleetName;
+        BE::DefBreakOff = info.BreakOff;
+        BE::DefFleetStrength = info.FleetStrength;
 
         // Read the unit lines
         long numUnits = 0;
+        long fleetStrength = 0;
         string line = "";
         while (getline(tempB, line, '\n'))
         {
             // Now break it back out to the individual arrays...because...BASIC
             BE::UnitInfo unit = parseUnit(line);
 
-            BE::DefShipStr[numUnits] = unit.UnitName;
-            BE::MaxBeamB[numUnits] = unit.MaxBeam;
-            BE::CurBeamB[numUnits] = unit.CurBeam;
-            BE::MaxShieldB[numUnits] = unit.MaxShield;
-            BE::CurShieldB[numUnits] = unit.CurShield;
-            BE::MaxTorpB[numUnits] = unit.MaxTorp;
-            BE::CurTorpB[numUnits] = unit.CurTorp;
-            BE::MaxHullB[numUnits] = unit.MaxHull;
-            BE::CurHullB[numUnits] = unit.CurHull;
-            BE::CurDamB[numUnits] = unit.CurDam;
-            BE::StatusB[numUnits] = unit.Status;
-            BE::AmmoB[numUnits] = unit.Ammo;
-            BE::SpecialB[numUnits] = unit.Special;
+            if (unit.CurHull > 0)
+            {
+                BE::DefShipStr[numUnits] = unit.UnitName;
+                BE::MaxBeamB[numUnits] = unit.MaxBeam;
+                BE::CurBeamB[numUnits] = unit.CurBeam;
+                BE::MaxShieldB[numUnits] = unit.MaxShield;
+                BE::CurShieldB[numUnits] = unit.CurShield;
+                BE::MaxTorpB[numUnits] = unit.MaxTorp;
+                BE::CurTorpB[numUnits] = unit.CurTorp;
+                BE::MaxHullB[numUnits] = unit.MaxHull;
+                BE::CurHullB[numUnits] = unit.CurHull;
+                BE::CurDamB[numUnits] = unit.CurDam;
+                BE::StatusB[numUnits] = unit.Status;
+                BE::AmmoB[numUnits] = unit.Ammo;
+                BE::SpecialB[numUnits] = unit.Special;
 
 #ifdef CBE_DEBUG
-            CBE::debugFile << unit.UnitName << ","
-                           << unit.MaxBeam << ","
-                           << unit.CurBeam << ","
-                           << unit.MaxShield << ","
-                           << unit.CurShield << ","
-                           << unit.MaxTorp << ","
-                           << unit.CurTorp << ","
-                           << unit.MaxHull << ","
-                           << unit.CurHull << ","
-                           << unit.CurDam << ","
-                           << unit.Status << ","
-                           << unit.Ammo << ","
-                           << unit.Special << endl;
+                CBE::debugFile << unit.UnitName << ","
+                               << unit.MaxBeam << ","
+                               << unit.CurBeam << ","
+                               << unit.MaxShield << ","
+                               << unit.CurShield << ","
+                               << unit.MaxTorp << ","
+                               << unit.CurTorp << ","
+                               << unit.MaxHull << ","
+                               << unit.CurHull << ","
+                               << unit.CurDam << ","
+                               << unit.Status << ","
+                               << unit.Ammo << ","
+                               << unit.Special << endl;
 #endif
 
-            numUnits++;
+                numUnits++;
+                fleetStrength += unit.MaxHull;
+            }
+            else
+            {
+#ifdef CBE_DEBUG
+                CBE::debugFile << "[INFO][readTempB] Loading a unit with no hull" << endl;
+#endif
+            }
         }
 
         BE::DefShipsLeft = numUnits;
+        if (fleetStrength > BE::DefFleetStrength)
+        {
+            BE::DefFleetStrength = fleetStrength;
+        }
 
 #ifdef CBE_DEBUG
         CBE::debugFile << "Defending Units Loaded: " << BE::DefShipsLeft << endl;
@@ -3396,6 +3447,7 @@ void be_main()
                                 CBE::debugFile << "[INFO] Salvo does not have an artillery tag and the unit has a reserve tag.  No missile spawnning" << endl;
 #endif
                                 // This unit is in reserve and doesn't have an artillery tag
+                                continue;
                             }
                             else
                             {
@@ -3405,17 +3457,33 @@ void be_main()
                                 if ((BE::AttHasLongRange > 0 || BE::DefHasLongRange > 0) && !HasLongWT(BE::Salvos[sc].DataStr))
                                 {
 #ifdef CBE_DEBUG
-                                    CBE::debugFile << "[INFO] Salvo does not have a long range tag and the combat is at long range" << endl;
+                                    CBE::debugFile << "[INFO][Missile Spawn] Salvo does not have a long range tag and the combat is at long range" << endl;
 #endif
                                     // We are at long range BUT this unit does NOT have a long tag.
                                     // Do nothing.
+                                    continue;
+                                }
+                                // Check ROF on launcher
+                                else if (!CheckROF(BE::Salvos[sc].DataStr, BE::CombatRound))
+                                {
+#ifdef CBE_DEBUG
+                                    CBE::debugFile << "[INFO][Missile Spawn] Launcher ROF delay is not this turn." << endl;
+#endif
+                                    continue;
+                                }
+                                else if (IsOffline(BE::Salvos[sc].DataStr))
+                                {
+#ifdef CBE_DEBUG
+                                    CBE::debugFile << "[INFO][Missile Spawn] Launcher is offline" << endl;
+#endif
+                                    continue;
                                 }
                                 else
                                 {
                                     // Either we are at standard range or this unit has a long tag.
                                     // Does the unit have ammo?
                                     int ammo = HasAmmoWT(BE::Salvos[sc].DataStr);
-                                    if (ammo > CBE::AMMO_EMPTY)
+                                    if (ammo > CBE::AMMO_EMPTY || ammo == CBE::AMMO_INFINITE)
                                     {
 #ifdef CBE_DEBUG
                                         CBE::debugFile << "[INFO] Salvo has ammo" << endl;
@@ -3442,8 +3510,9 @@ void be_main()
                                         CBE::debugFile << "[INFO] Salvo Size: " << size << endl;
 #endif
                                         BE::Salvos[sc].MissileS = size; // This is simultaneously the number of missiles to launch and the volley size for non-missile salvos
+                                        // BE::Salvos[sc].DataStr = RemoveTag(BE::Salvos[sc].DataStr, "ROF", 2);
                                     }
-                                    else if (ammo == CBE::AMMO_INFINITE)
+                                    /*else if (ammo == CBE::AMMO_INFINITE)
                                     {
                                         // The bracket doesn't need ammo
                                         // Do the same things as above....which is a mess
@@ -3464,7 +3533,8 @@ void be_main()
                                         CBE::debugFile << "[INFO] Salvo Size: " << size << endl;
 #endif
                                         BE::Salvos[sc].MissileS = size; // This is simultaneously the number of missiles to launch and the volley size for non-missile salvos
-                                    }
+                                        BE::Salvos[sc].DataStr = RemoveTag(BE::Salvos[sc].DataStr, "ROF", 2);
+                                    }//*/
 #ifdef CBE_DEBUG
                                     else
                                     {
@@ -3510,6 +3580,7 @@ void be_main()
                             HasMissileWT(special);                          // FIXME: I can't describe how much I hate this line.
                             // Check to see if the salvo need ammo.  See todo above...damn.
                             int ammo = HasAmmoWT(special);
+                            missile_str.clear();
                             if (ammo > CBE::AMMO_EMPTY)
                             {
                                 NewTag = "ammo " + to_string((ammo - 1)); // Decrement the ammo counter.  TODO: Make this a local variable
@@ -3525,6 +3596,9 @@ void be_main()
                             {
                                 missile_str = BE::Salvos[sc].DataStr; // Just use the salve string since there is no ammo
                             }
+
+                            missile_str = RemoveTag(missile_str, "rof", 2);
+                            missile_str = RemoveTag(missile_str, "offline", 0);
 
                             // Modify missile_str here instead of below when building the missile units
 #ifdef CBE_DEBUG
@@ -4341,7 +4415,7 @@ void be_main()
                                     // Mark this salvo is valid
                                     BE::Salvos[i].valid = true;
                                     // Does the battery have FLAK and does the defense have fighters?
-                                    if (HasFlakWT(BE::Salvos[i].DataStr) && BE::DefHasFighters > 0)
+                                    if (HasFlakWT(BE::Salvos[i].DataStr) && BE::AttHasFighters > 0)
                                     {
                                         // Create the flak packets
                                         for (int j = 0; j < BE::Salvos[i].MissileS; j++)
@@ -4907,7 +4981,14 @@ void be_main()
                                     CBE::debugFile << "[INFO] Good hit bonus!" << endl;
 #endif
                                 }
-                                BE::Damage3 = long(round((1 + (rand() % (firepower - 1))) * (1.0f + (float(YieldBonus) / 100.0f))));
+
+                                // BE::Damage3 = long(round((1 + (rand() % (firepower - 1))) * (1.0f + (float(YieldBonus) / 100.0f))));
+                                long damageRoll = rand() % 100 + YieldBonus;
+                                double actualDamage = (double)damageRoll / 100.0f * (double)firepower;
+                                double roundedDamage = round(actualDamage);
+
+                                BE::Damage3 = (long)roundedDamage;
+
 #ifdef CBE_DEBUG
                                 CBE::debugFile << "[INFO] Raw damage: " << BE::Damage3 << endl;
 #endif
@@ -5048,7 +5129,7 @@ void be_main()
                             if (number_of_attacks > 1)
                             {
                                 // This is to indicate in the report file which attack this is from the unit
-                                BE::AttBattleStr = BE::AttBattleStr + "[" + to_string(i) + " of " + to_string(number_of_attacks) + "]";
+                                BE::AttBattleStr = BE::AttBattleStr + "[" + to_string(i + 1) + " of " + to_string(number_of_attacks) + "]";
                             }
                         }    // Done with attackers
                         else // Defenders
@@ -5175,7 +5256,7 @@ void be_main()
                             if (number_of_attacks > 1)
                             {
                                 // This is to indicate in the report file which attack this is from the unit
-                                BE::DefBattleStr = BE::DefBattleStr + "[" + to_string(i) + " of " + to_string(number_of_attacks) + "]";
+                                BE::DefBattleStr = BE::DefBattleStr + "[" + to_string(i + 1) + " of " + to_string(number_of_attacks) + "]";
                             }
                         } // Done with defenders
                     }
@@ -5327,6 +5408,7 @@ void be_main()
                                     if (BE::Damage1 < 1)
                                     {
                                         reportFile << " <attack deflected>";
+                                        BE::Damage1 = 0;
                                     }
                                     else
                                     {
@@ -5390,6 +5472,7 @@ void be_main()
                                     if (BE::Damage1 < 1)
                                     {
                                         reportFile << " <attack deflected>";
+                                        BE::Damage1 = 0;
                                     }
                                     else
                                     {
@@ -5923,7 +6006,7 @@ void be_main()
                                         }
 
                                         BE::Hull -= BE::CritDamageFlag;
-                                        if (BE::Hull < 1)
+                                        if (BE::Hull < 1 || BE::TempCurHullB[X] < 1)
                                         {
                                             BE::HullPercent = 100;
                                             BE::Hull = 0;
@@ -5979,7 +6062,7 @@ void be_main()
                             {
                                 reportFile << "    " + BE::DefCritStr[X] + "\n";
                             }
-                            BE::TempStr = "  Bm=" + to_string(BE::TempCurBeamB[X]) + " Sh=" + to_string(BE::TempCurShieldB[X]) + " Tp=" + to_string(BE::TempCurShieldB[X]) + " Hl=" + to_string(BE::Hull) + " " + BE::ShipCritStr;
+                            BE::TempStr = "  Bm=" + to_string(BE::TempCurBeamB[X]) + " Sh=" + to_string(BE::Shields) + " Tp=" + to_string(BE::TempCurTorpB[X]) + " Hl=" + to_string(BE::Hull) + " " + BE::ShipCritStr;
                             BE::TempCurDamB[X] = BE::HullPercent;
                             if (BE::ShipCritStr != "")
                             {
@@ -6171,7 +6254,7 @@ void be_main()
                                         }
 
                                         BE::Hull -= BE::CritDamageFlag;
-                                        if (BE::Hull < 1)
+                                        if (BE::Hull < 1 || BE::TempCurHullA[X] < 1)
                                         {
                                             BE::HullPercent = 100;
                                             BE::Hull = 0;
@@ -6227,7 +6310,7 @@ void be_main()
                             {
                                 reportFile << "    " + BE::AttCritStr[X] + "\n";
                             }
-                            BE::TempStr = "  Bm=" + to_string(BE::TempCurBeamA[X]) + " Sh=" + to_string(BE::TempCurShieldA[X]) + " Tp=" + to_string(BE::TempCurShieldA[X]) + " Hl=" + to_string(BE::Hull) + " " + BE::ShipCritStr;
+                            BE::TempStr = "  Bm=" + to_string(BE::TempCurBeamA[X]) + " Sh=" + to_string(BE::Shields) + " Tp=" + to_string(BE::TempCurTorpA[X]) + " Hl=" + to_string(BE::Hull) + " " + BE::ShipCritStr;
                             BE::TempCurDamA[X] = BE::HullPercent;
                             if (BE::ShipCritStr != "")
                             {
@@ -6340,7 +6423,7 @@ void be_main()
                     if (BE::CurShieldA[A] < BE::MaxShieldA[A] && BE::CurShieldA[A] > 0 && regen.first > 0)
                     {
                         BE::CurShieldA[A] += regen.first;
-                        reportFile << BE::AttShipStr[A] + " - Shield regeneration detected.\n";
+                        reportFile << "  " + BE::AttShipStr[A] + " - Shield regeneration detected.\n";
                         if (BE::CurShieldA[A] > BE::MaxShieldA[A])
                         {
                             BE::CurShieldA[A] = BE::MaxShieldA[A];
@@ -6350,7 +6433,7 @@ void be_main()
                     if (BE::CurHullA[A] < BE::MaxHullA[A] && regen.second > 0)
                     {
                         BE::CurHullA[A] += regen.second;
-                        reportFile << BE::AttShipStr[A] + " - Hull regeneration detected.\n";
+                        reportFile << "  " + BE::AttShipStr[A] + " - Hull regeneration detected.\n";
                         if (BE::CurHullA[A] > BE::MaxHullA[A])
                         {
                             BE::CurHullA[A] = BE::MaxHullA[A];
@@ -6505,7 +6588,7 @@ void be_main()
                                     reportFile << "  " << BE::DefShipStr[B] << " disengages.\n";
                                     BE::DefFledFlag = 1;
                                 }
-                                else if (BE::BO_Att >= brk)
+                                else if (BE::BO_Def >= brk)
                                 {
                                     BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLEE");
                                     reportFile << "  " << BE::DefShipStr[B] << " is breaking off.\n";
@@ -6533,7 +6616,7 @@ void be_main()
                             }
                             else
                             {
-                                if (BE::BO_Att >= BE::DefBreakOff)
+                                if (BE::BO_Def >= BE::DefBreakOff)
                                 {
                                     BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLEE");
                                     reportFile << "  " << BE::DefShipStr[B] << " is breaking off.\n";

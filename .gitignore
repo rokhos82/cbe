@@ -10,3 +10,4 @@ damage_r.txt
 fled_def.csv
 fled_att.csv
 test/*
+.vscode/launch.json
