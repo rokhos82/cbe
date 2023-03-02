@@ -9,3 +9,4 @@ damage_r.txt
 .vscode/c_cpp_properties.json
 fled_def.csv
 fled_att.csv
+test/*

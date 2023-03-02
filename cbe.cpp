@@ -2366,17 +2366,21 @@ void writeTempFiles()
     old_DefShipsLeft = BE::DefShipsLeft; // TODO: Move to variable declaration.
 
 #ifdef CBE_DEBUG
-    CBE::debugFile << "############################## WRITE TEMP FILES ##############################" << endl;
-    CBE::debugFile << "[INFO] CombatRound: " << BE::CombatRound << "; Attackers: " << old_AttShipsLeft << "; Defenders: " << old_DefShipsLeft << endl;
+    CBE::debugFile << "[INFO][writeTempFiles] ############################## WRITE TEMP FILES ##############################" << endl;
+    CBE::debugFile << "[INFO][writeTempFiles] CombatRound: " << BE::CombatRound << "; Attackers: " << old_AttShipsLeft << "; Defenders: " << old_DefShipsLeft << endl;
 #endif
 
     // Write the Working and Temp files
+    /*ofstream turnTempA;
+    turnTempA.open("tempA" + to_string(BE::CombatRound) + ".csv", ios::out | ios::binary | ios::app);
+    ofstream turnTempB;
+    turnTempB.open("tempB" + to_string(BE::CombatRound) + ".csv", ios::out | ios::binary | ios::app);//*/
 
     // Find Dead and Fled Ships
     ofstream attFledFile;
     attFledFile.open("fled_att.csv", ios::out | ios::binary | ios::app);
 #ifdef CBE_DEBUG
-    CBE::debugFile << "##### PROCESSING FLED ATTACKERS " << BE::AttShipsLeft << " #####" << endl;
+    CBE::debugFile << "[INFO][writeTempFiles] ##### PROCESSING FLED ATTACKERS " << BE::AttShipsLeft << " #####" << endl;
 #endif
     for (int i = 0; i < old_AttShipsLeft; i++)
     {
@@ -2384,10 +2388,10 @@ void writeTempFiles()
         // This clears out dead ships and missiles from the ships list/array
         if (BE::CurHullA[i] < 1 || (IsMissile(BE::SpecialA[i]) && BE::CombatRound > 0))
         {
+            // TODO: Add writing to a att_dead.csv file
             BE::AttShipsLeft = BE::AttShipsLeft - 1;
-// TODO: Add writing to a att_dead.csv file
 #ifdef CBE_DEBUG
-            CBE::debugFile << "[INFO] DEAD/MISSILE: " << BE::AttShipStr[i] << endl;
+            CBE::debugFile << "[INFO][writeTempFiles] DEAD/MISSILE: " << BE::AttShipStr[i] << endl;
 #endif
         }
         // ELSE non-dead ships that are not missiles
@@ -2419,7 +2423,7 @@ void writeTempFiles()
             else
             {
 #ifdef CBE_DEBUG
-                CBE::debugFile << "[INFO] CAPTURE/CRIPPLE: " << BE::AttShipStr[i] << endl;
+                CBE::debugFile << "[INFO][writeTempFiles] CAPTURE/CRIPPLE: " << BE::AttShipStr[i] << endl;
 #endif
             }
         }
@@ -2432,7 +2436,7 @@ void writeTempFiles()
     ofstream tempAFile;
     tempAFile.open(BE::TempAFile, ios::out | ios::binary | ios::trunc);
 #ifdef CBE_DEBUG
-    CBE::debugFile << "##### PROCESSING OTHER ATTACKERS " << BE::AttShipsLeft << " #####" << endl;
+    CBE::debugFile << "[INFO][writeTempFiles] ##### PROCESSING OTHER ATTACKERS " << BE::AttShipsLeft << " #####" << endl;
 #endif
     // Write the header to the fleet file here (TempAFile)
     tempAFile << BE::AttRaceName << "," << BE::AttFleetName << "," << BE::AttBreakOff << "," << BE::AttShipsTotal << "," << BE::AttFleetStrength << "," << BE::AttShipsLeft << "," << BE::AttTargetBonus << "," << BE::AttTargetPriority << "," << BE::AttReserve << "\n";
@@ -2460,7 +2464,7 @@ void writeTempFiles()
             {
 // Do nothing as this ship is either dead, fled, or a missile
 #ifdef CBE_DEBUG
-                CBE::debugFile << "[INFO] DEAD/FLED/MSL: " << BE::AttShipStr[i] << endl;
+                CBE::debugFile << "[INFO][writeTempFiles] DEAD/FLED/MSL: " << BE::AttShipStr[i] << endl;
 #endif
             }
             else
@@ -2492,7 +2496,7 @@ void writeTempFiles()
     ofstream defFledFile;
     defFledFile.open("fled_def.csv", ios::out | ios::binary | ios::app);
 #ifdef CBE_DEBUG
-    CBE::debugFile << "##### PROCESSING FLED DEFENDERS " << BE::DefShipsLeft << " #####" << endl;
+    CBE::debugFile << "[INFO][writeTempFiles] ##### PROCESSING FLED DEFENDERS " << BE::DefShipsLeft << " #####" << endl;
 #endif
     for (int i = 0; i < old_DefShipsLeft; i++)
     {
@@ -2532,7 +2536,7 @@ void writeTempFiles()
             else
             {
 #ifdef CBE_DEBUG
-                CBE::debugFile << "[INFO] CAPTURE/CRIPPLE: " << BE::DefShipStr[i] << endl;
+                CBE::debugFile << "[INFO][writeTempFiles] CAPTURE/CRIPPLE: " << BE::DefShipStr[i] << endl;
 #endif
             }
         }
@@ -2545,7 +2549,7 @@ void writeTempFiles()
     ofstream tempBFile;
     tempBFile.open(BE::TempBFile, ios::out | ios::binary | ios::trunc);
 #ifdef CBE_DEBUG
-    CBE::debugFile << "##### PROCESSING OTHER DEFENDERS " << BE::DefShipsLeft << " #####" << endl;
+    CBE::debugFile << "[INFO][writeTempFiles] ##### PROCESSING OTHER DEFENDERS " << BE::DefShipsLeft << " #####" << endl;
 #endif
     // Write the header to the fleet file here (TempAFile)
     tempBFile << BE::DefRaceName << "," << BE::DefFleetName << "," << BE::DefBreakOff << "," << BE::DefShipsTotal << "," << BE::DefFleetStrength << "," << BE::DefShipsLeft << "," << BE::DefTargetBonus << "," << BE::DefTargetPriority << "," << BE::DefReserve << "\n";
@@ -2573,7 +2577,7 @@ void writeTempFiles()
             {
 // Do nothing as this ship is either dead, fled, or a missile
 #ifdef CBE_DEBUG
-                CBE::debugFile << "[INFO] DEAD/FLED/MSL: " << BE::DefShipStr[i] << endl;
+                CBE::debugFile << "[INFO][writeTempFiles] DEAD/FLED/MSL: " << BE::DefShipStr[i] << endl;
 #endif
             }
             else
@@ -2597,6 +2601,11 @@ void writeTempFiles()
     }
     tempBFile.flush();
     tempBFile.close();
+
+    /*turnTempA.flush();
+    turnTempA.close();
+    turnTempB.flush();
+    turnTempB.close();//*/
 }
 
 void readTempA()
@@ -2885,1610 +2894,1634 @@ void be_main()
         // Load in the defenders
         readTempB();
 
-        // Trip the Round counter
-        BE::CombatRound = BE::CombatRound + 1;
+        if (BE::AttShipsLeft > 0 && BE::DefShipsLeft > 0)
+        { // Trip the Round counter
+            BE::CombatRound = BE::CombatRound + 1;
 
-        // Battle finally commences!
-        std::cout << "Battle Round: " << BE::CombatRound << endl;
-        reportFile << "Battle Round: " << BE::CombatRound << "\n";
+            // Battle finally commences!
+            std::cout << "Battle Round: " << BE::CombatRound << endl;
+            reportFile << "Battle Round: " << BE::CombatRound << "\n";
 
-        // Write the attackers to the report file
-        // {{486}}
-        reportFile << "\nAttackers are the " << BE::AttRaceName << ", " << BE::AttFleetName << " " << BE::GroupName << ".\n";
-        reportFile << "Current group Break-off level is " << BE::AttBreakOff << "%\n";
-        reportFile << "The " << BE::UnitName << " are currently listed as:\n";
+            // Write the attackers to the report file
+            // {{486}}
+            reportFile << "\nAttackers are the " << BE::AttRaceName << ", " << BE::AttFleetName << " " << BE::GroupName << ".\n";
+            reportFile << "Current group Break-off level is " << BE::AttBreakOff << "%\n";
+            reportFile << "The " << BE::UnitName << " are currently listed as:\n";
 
-        for (int x = 0; x < BE::AttShipsLeft; x++)
-        {
-            reportFile << BE::AttShipStr[x] << " Bm=" << BE::CurBeamA[x] << " Sh=" << BE::CurShieldA[x] << " Tp=" << BE::CurTorpA[x] << " Hl=" << BE::CurHullA[x] << " \"" << BE::SpecialA[x] << "\"\n";
-        }
+            for (int x = 0; x < BE::AttShipsLeft; x++)
+            {
+                reportFile << BE::AttShipStr[x] << " Bm=" << BE::CurBeamA[x] << " Sh=" << BE::CurShieldA[x] << " Tp=" << BE::CurTorpA[x] << " Hl=" << BE::CurHullA[x] << " \"" << BE::SpecialA[x] << "\"\n";
+            }
 
-        // Write the defenders to the report file
-        // {{501}}
-        reportFile << "\nDefenders are the " << BE::DefRaceName << ", " << BE::DefFleetName << " " << BE::GroupName << ".\n";
-        reportFile << "Current group Break-off level is " << BE::DefBreakOff << "%\n";
-        reportFile << "The " << BE::UnitName << " are currently listed as:\n";
+            // Write the defenders to the report file
+            // {{501}}
+            reportFile << "\nDefenders are the " << BE::DefRaceName << ", " << BE::DefFleetName << " " << BE::GroupName << ".\n";
+            reportFile << "Current group Break-off level is " << BE::DefBreakOff << "%\n";
+            reportFile << "The " << BE::UnitName << " are currently listed as:\n";
 
-        for (int x = 0; x < BE::DefShipsLeft; x++)
-        {
-            reportFile << BE::DefShipStr[x] << " Bm=" << BE::CurBeamB[x] << " Sh=" << BE::CurShieldB[x] << " Tp=" << BE::CurTorpB[x] << " Hl=" << BE::CurHullB[x] << " \"" << BE::SpecialB[x] << "\"\n";
-        }
+            for (int x = 0; x < BE::DefShipsLeft; x++)
+            {
+                reportFile << BE::DefShipStr[x] << " Bm=" << BE::CurBeamB[x] << " Sh=" << BE::CurShieldB[x] << " Tp=" << BE::CurTorpB[x] << " Hl=" << BE::CurHullB[x] << " \"" << BE::SpecialB[x] << "\"\n";
+            }
 
-        // Ok, battle actually commences NOW
-        reportFile << "\nBattle Results Commence:\n";
+            // Ok, battle actually commences NOW
+            reportFile << "\nBattle Results Commence:\n";
 
-        // Clear the old damage array values
-        // TODO: Change this to max array size not just ships left
-        for (int a = 0; a < BE::AttShipsLeft; a++)
-        {
-            BE::HitsA[a] = 0;
-            BE::PenHitsA[a] = 0;
-            BE::BPAttackCritA[a] = 0;
-        }
-        // TODO: Change this to max array size not just ships left
-        for (int b = 0; b < BE::DefShipsLeft; b++)
-        {
-            BE::HitsB[b] = 0;
-            BE::PenHitsB[b] = 0;
-            BE::BPAttackCritB[b] = 0;
-        }
-
-        // Cloak and missiles affect the battle order
-        // Fighters, suprise and reserve affect individual ships
-
-        BE::AttIsCloaked = 0;
-        BE::AttIsMixed = 0;
-        BE::AttHasLongRange = 0;
-        BE::AttHasFighters = 0;
-
-        BE::DefIsCloaked = 0;
-        BE::DefIsMixed = 0;
-        BE::DefHasLongRange = 0;
-        BE::DefHasFighters = 0;
-
-#ifdef CBE_DEBUG
-        CBE::debugFile << "[INFO] Beginning round " << BE::CombatRound << endl;
-#endif
-
-        // {{540}}
-        if (BE::CombatRound == 1)
-        {
-            // Several special things can happen in turn one.
-            // cloaked ships can get a first strike
-            // long range weapons can get a first strike if the targets are not cloaked
-            // And, we need to determine if FLAK equiped ships have targets
-
-#ifdef CBE_DEBUG
-            CBE::debugFile << "[INFO] Doing Combat Round 1 Special Checks" << endl;
-            CBE::debugFile << "[INFO] Checking attacking units" << endl;
-#endif
-
-            // Check the attacking fleet
+            // Clear the old damage array values
+            // TODO: Change this to max array size not just ships left
             for (int a = 0; a < BE::AttShipsLeft; a++)
             {
-                // Count the number of units that are cloaked
-                if (IsCloak(BE::SpecialA[a]))
-                {
-                    BE::AttIsCloaked = BE::AttIsCloaked + 1;
-                }
-                // Count if the unit has a long range tag
-                // TODO: Add a check for DefHasLongRange so that once it is true the checking can stop
-                /*if (HasLong(BE::SpecialA[a]))
-                {
-                    BE::AttHasLongRange = true;
-                }//*/
-                // This checks all weapon tags since we pass it all weapon tags
-                if (HasLongWT(BE::SpecialA[a]))
-                {
-                    BE::AttHasLongRange = true;
-                }
-                // Check if a fighter and not in reserve
-                // TODO: Add a check for DefHasFighters to stop the checking early
-                if (IsFighter(BE::SpecialA[a]) && HasReserve(BE::SpecialA[a]) < 0)
-                {
-                    BE::AttHasFighters = 1;
-                }
+                BE::HitsA[a] = 0;
+                BE::PenHitsA[a] = 0;
+                BE::BPAttackCritA[a] = 0;
             }
-
-            // Determine if all the attackers are cloaked, if none are, or if some are cloked.
-            // TODO: Seperate AttIsCloaked from the counting above
-            if (BE::AttIsCloaked > 0)
-            {
-                if (BE::AttIsCloaked == BE::AttShipsLeft)
-                {
-                    BE::AttIsCloaked = 1;
-                }
-                else
-                {
-                    BE::AttIsCloaked = 0;
-                    BE::AttIsMixed = 1;
-                }
-            }
-
-#ifdef CBE_DEBUG
-            CBE::debugFile << "[INFO] Checking defending units" << endl;
-#endif
-
-            // Check the defending fleet
-            for (int a = 0; a < BE::DefShipsLeft; a++)
-            {
-                // Count the numbe of units that are cloaked
-                if (IsCloak(BE::SpecialB[a]))
-                {
-                    BE::DefIsCloaked = BE::DefIsCloaked + 1;
-                }
-                // Count if the unit has a long rangew tag
-                // TODO: Add a check for DefHasLongRange so that once it is true the checking can stop
-                /*if (HasLong(BE::SpecialB[a]))
-                {
-                    BE::DefHasLongRange = true;
-                }//*/
-                // This checks all weapon tags since we pass it all weapon tags
-                if (HasLongWT(BE::SpecialB[a]))
-                {
-                    BE::DefHasLongRange = true;
-                }
-                // Check if a fighter and not in reserve
-                // TODO: Add a check for DefHasFighters to stop the checking early
-                if (IsFighter(BE::SpecialB[a]) && HasReserve(BE::SpecialB[a]) < 0)
-                {
-                    BE::DefHasFighters = 1;
-                }
-            }
-
-            // Determine if all the defenders are cloaked, if none are, or if some are cloked.
-            // TODO: Seperate DefIsCloaked from the counting above
-            if (BE::DefIsCloaked > 0)
-            {
-                if (BE::DefIsCloaked == BE::DefShipsLeft)
-                {
-                    BE::DefIsCloaked = 1;
-                }
-                else
-                {
-                    BE::DefIsCloaked = 0;
-                    BE::DefIsMixed = 1;
-                }
-            }
-        }
-        else
-        {
-#ifdef CBE_DEBUG
-            CBE::debugFile << "[INFO] Doing Combat Round " << BE::CombatRound << " Regular Checks" << endl;
-            CBE::debugFile << "[INFO] Checking attacking units for DELAY" << endl;
-#endif
-            // Remove RESERVE tags from delayed units
-            for (int a = 0; a < BE::AttShipsLeft; a++)
-            {
-                // TODO: Split Has* and Get* functions so that boolean returns are separated from other types.
-                // TODO: Generalize HasTag and GetTag functions?
-                int delay = HasDelay(BE::SpecialA[a]);
-                if (HasReserve(BE::SpecialA[a]) && delay > 0)
-                {
-                    if (delay < BE::CombatRound)
-                    {
-                        BE::SpecialA[a] = RemoveTag(BE::SpecialA[a], "RESERVE", 1);
-                    }
-                }
-            }
-
-#ifdef CBE_DEBUG
-            CBE::debugFile << "[INFO] Checking defending units for DELAY" << endl;
-#endif
-            // Remove RESERVE tags from delayed units
+            // TODO: Change this to max array size not just ships left
             for (int b = 0; b < BE::DefShipsLeft; b++)
             {
-                int delay = HasDelay(BE::SpecialB[b]);
-                if (HasReserve(BE::SpecialB[b]) && delay > 0)
+                BE::HitsB[b] = 0;
+                BE::PenHitsB[b] = 0;
+                BE::BPAttackCritB[b] = 0;
+            }
+
+            // Cloak and missiles affect the battle order
+            // Fighters, suprise and reserve affect individual ships
+
+            BE::AttIsCloaked = 0;
+            BE::AttIsMixed = 0;
+            BE::AttHasLongRange = 0;
+            BE::AttHasFighters = 0;
+
+            BE::DefIsCloaked = 0;
+            BE::DefIsMixed = 0;
+            BE::DefHasLongRange = 0;
+            BE::DefHasFighters = 0;
+
+#ifdef CBE_DEBUG
+            CBE::debugFile << "[INFO] Beginning round " << BE::CombatRound << endl;
+#endif
+
+            // {{540}}
+            if (BE::CombatRound == 1)
+            {
+                // Several special things can happen in turn one.
+                // cloaked ships can get a first strike
+                // long range weapons can get a first strike if the targets are not cloaked
+                // And, we need to determine if FLAK equiped ships have targets
+
+#ifdef CBE_DEBUG
+                CBE::debugFile << "[INFO] Doing Combat Round 1 Special Checks" << endl;
+                CBE::debugFile << "[INFO] Checking attacking units" << endl;
+#endif
+
+                // Check the attacking fleet
+                for (int a = 0; a < BE::AttShipsLeft; a++)
                 {
-                    if (delay < BE::CombatRound)
+                    // Count the number of units that are cloaked
+                    if (IsCloak(BE::SpecialA[a]))
                     {
-                        BE::SpecialB[b] = RemoveTag(BE::SpecialB[b], "RESERVE", 1);
+                        BE::AttIsCloaked = BE::AttIsCloaked + 1;
+                    }
+                    // Count if the unit has a long range tag
+                    // TODO: Add a check for DefHasLongRange so that once it is true the checking can stop
+                    /*if (HasLong(BE::SpecialA[a]))
+                    {
+                        BE::AttHasLongRange = true;
+                    }//*/
+                    // This checks all weapon tags since we pass it all weapon tags
+                    if (HasLongWT(BE::SpecialA[a]))
+                    {
+                        BE::AttHasLongRange = true;
+                    }
+                    // Check if a fighter and not in reserve
+                    // TODO: Add a check for DefHasFighters to stop the checking early
+                    if (IsFighter(BE::SpecialA[a]) && HasReserve(BE::SpecialA[a]) < 0)
+                    {
+                        BE::AttHasFighters = 1;
+                    }
+                }
+
+                // Determine if all the attackers are cloaked, if none are, or if some are cloked.
+                // TODO: Seperate AttIsCloaked from the counting above
+                if (BE::AttIsCloaked > 0)
+                {
+                    if (BE::AttIsCloaked == BE::AttShipsLeft)
+                    {
+                        BE::AttIsCloaked = 1;
+                    }
+                    else
+                    {
+                        BE::AttIsCloaked = 0;
+                        BE::AttIsMixed = 1;
+                    }
+                }
+
+#ifdef CBE_DEBUG
+                CBE::debugFile << "[INFO] Checking defending units" << endl;
+#endif
+
+                // Check the defending fleet
+                for (int a = 0; a < BE::DefShipsLeft; a++)
+                {
+                    // Count the numbe of units that are cloaked
+                    if (IsCloak(BE::SpecialB[a]))
+                    {
+                        BE::DefIsCloaked = BE::DefIsCloaked + 1;
+                    }
+                    // Count if the unit has a long rangew tag
+                    // TODO: Add a check for DefHasLongRange so that once it is true the checking can stop
+                    /*if (HasLong(BE::SpecialB[a]))
+                    {
+                        BE::DefHasLongRange = true;
+                    }//*/
+                    // This checks all weapon tags since we pass it all weapon tags
+                    if (HasLongWT(BE::SpecialB[a]))
+                    {
+                        BE::DefHasLongRange = true;
+                    }
+                    // Check if a fighter and not in reserve
+                    // TODO: Add a check for DefHasFighters to stop the checking early
+                    if (IsFighter(BE::SpecialB[a]) && HasReserve(BE::SpecialB[a]) < 0)
+                    {
+                        BE::DefHasFighters = 1;
+                    }
+                }
+
+                // Determine if all the defenders are cloaked, if none are, or if some are cloked.
+                // TODO: Seperate DefIsCloaked from the counting above
+                if (BE::DefIsCloaked > 0)
+                {
+                    if (BE::DefIsCloaked == BE::DefShipsLeft)
+                    {
+                        BE::DefIsCloaked = 1;
+                    }
+                    else
+                    {
+                        BE::DefIsCloaked = 0;
+                        BE::DefIsMixed = 1;
                     }
                 }
             }
-
-            // Check attackers and defenders fleets for fighters
-            // TODO: Need to turn this into a function: CheckFighters(special[],shipsLeft)
-            for (int a = 0; a < BE::AttShipsLeft; a++)
+            else
             {
-                if (IsFighter(BE::SpecialA[a]) && !HasReserve(BE::SpecialA[a]))
+#ifdef CBE_DEBUG
+                CBE::debugFile << "[INFO] Doing Combat Round " << BE::CombatRound << " Regular Checks" << endl;
+                CBE::debugFile << "[INFO] Checking attacking units for DELAY" << endl;
+#endif
+                // Remove RESERVE tags from delayed units
+                for (int a = 0; a < BE::AttShipsLeft; a++)
                 {
-                    BE::AttHasFighters = 1;
-                    break; // Leave the loop early as we have found at least 1 fighter not in reserve.
+                    // TODO: Split Has* and Get* functions so that boolean returns are separated from other types.
+                    // TODO: Generalize HasTag and GetTag functions?
+                    int delay = HasDelay(BE::SpecialA[a]);
+                    if (HasReserve(BE::SpecialA[a]) && delay > 0)
+                    {
+                        if (delay < BE::CombatRound)
+                        {
+                            BE::SpecialA[a] = RemoveTag(BE::SpecialA[a], "RESERVE", 1);
+                        }
+                    }
+                }
+
+#ifdef CBE_DEBUG
+                CBE::debugFile << "[INFO] Checking defending units for DELAY" << endl;
+#endif
+                // Remove RESERVE tags from delayed units
+                for (int b = 0; b < BE::DefShipsLeft; b++)
+                {
+                    int delay = HasDelay(BE::SpecialB[b]);
+                    if (HasReserve(BE::SpecialB[b]) && delay > 0)
+                    {
+                        if (delay < BE::CombatRound)
+                        {
+                            BE::SpecialB[b] = RemoveTag(BE::SpecialB[b], "RESERVE", 1);
+                        }
+                    }
+                }
+
+                // Check attackers and defenders fleets for fighters
+                // TODO: Need to turn this into a function: CheckFighters(special[],shipsLeft)
+                for (int a = 0; a < BE::AttShipsLeft; a++)
+                {
+                    if (IsFighter(BE::SpecialA[a]) && !HasReserve(BE::SpecialA[a]))
+                    {
+                        BE::AttHasFighters = 1;
+                        break; // Leave the loop early as we have found at least 1 fighter not in reserve.
+                    }
+                }
+                for (int b = 0; b < BE::DefShipsLeft; b++)
+                {
+                    if (IsFighter(BE::SpecialB[b]) && !HasReserve(BE::SpecialB[b]))
+                    {
+                        BE::DefHasFighters = 1;
+                        break; // Leave the loop early as we have found at least 1 fighter not in reserve.
+                    }
                 }
             }
+            // {{600}}
+
+#ifdef CBE_DEBUG
+            CBE::debugFile << "[INFO] Pre-round Checks are done" << endl;
+            CBE::debugFile << "[INFO] Checking attackers screen and reserve" << endl;
+#endif
+
+            // Check for attacker reserve & screen
+            AttHasScreen = false;       // TODO: Move to BE namespace
+            AttHasReserveUnits = false; // TODO: Move to BE namespace
+            // {{605}}
+            for (int a = 0; a < BE::AttShipsLeft; a++)
+            {
+                // TODO: What kind of mechanic should there be for not enough screen?
+                // The unit is either in the reserve or is part of the screen
+                if (HasReserve(BE::SpecialA[a]))
+                {
+                    AttHasReserveUnits = true;
+                }
+                else
+                {
+                    AttHasScreen = true;
+                }
+                // Check if both there is both a screen and a reserve already.
+                if (AttHasScreen && AttHasReserveUnits)
+                {
+                    // Leave the loop early as we found a unit in the screen and a unit in the reserve.
+                    break;
+                }
+            }
+
+#ifdef CBE_DEBUG
+            CBE::debugFile << "[INFO] Checking defenders screen and reserve" << endl;
+#endif
+
+            // Check for the defender reserve & screen
+            // TODO: Turn this into a function: CheckFleetReserveAndScreen(special[],shipsLeft)
+            DefHasScreen = false;       // TODO: Move to BE namespace
+            DefHasReserveUnits = false; // TODO: Move to BE namespace
+            // {{616}}
             for (int b = 0; b < BE::DefShipsLeft; b++)
             {
-                if (IsFighter(BE::SpecialB[b]) && !HasReserve(BE::SpecialB[b]))
+                // The unit is either in the reserve or is part of the screen
+                if (HasReserve(BE::SpecialB[b]))
                 {
-                    BE::DefHasFighters = 1;
-                    break; // Leave the loop early as we have found at least 1 fighter not in reserve.
-                }
-            }
-        }
-        // {{600}}
-
-#ifdef CBE_DEBUG
-        CBE::debugFile << "[INFO] Pre-round Checks are done" << endl;
-        CBE::debugFile << "[INFO] Checking attackers screen and reserve" << endl;
-#endif
-
-        // Check for attacker reserve & screen
-        AttHasScreen = false;       // TODO: Move to BE namespace
-        AttHasReserveUnits = false; // TODO: Move to BE namespace
-        // {{605}}
-        for (int a = 0; a < BE::AttShipsLeft; a++)
-        {
-            // TODO: What kind of mechanic should there be for not enough screen?
-            // The unit is either in the reserve or is part of the screen
-            if (HasReserve(BE::SpecialA[a]))
-            {
-                AttHasReserveUnits = true;
-            }
-            else
-            {
-                AttHasScreen = true;
-            }
-            // Check if both there is both a screen and a reserve already.
-            if (AttHasScreen && AttHasReserveUnits)
-            {
-                // Leave the loop early as we found a unit in the screen and a unit in the reserve.
-                break;
-            }
-        }
-
-#ifdef CBE_DEBUG
-        CBE::debugFile << "[INFO] Checking defenders screen and reserve" << endl;
-#endif
-
-        // Check for the defender reserve & screen
-        // TODO: Turn this into a function: CheckFleetReserveAndScreen(special[],shipsLeft)
-        DefHasScreen = false;       // TODO: Move to BE namespace
-        DefHasReserveUnits = false; // TODO: Move to BE namespace
-        // {{616}}
-        for (int b = 0; b < BE::DefShipsLeft; b++)
-        {
-            // The unit is either in the reserve or is part of the screen
-            if (HasReserve(BE::SpecialB[b]))
-            {
-                DefHasReserveUnits = true;
-            }
-            else
-            {
-                DefHasScreen = true;
-            }
-            // Check if both there is both a screen and a reserve already.
-            if (DefHasScreen && DefHasReserveUnits)
-            {
-                // Leave the loop early as we found a unit in the screen and a unit in the reserve.
-                break;
-            }
-        }
-
-        // If there is no screen, the reserve automatically fails
-        // NOTE: if Reserve > BreakOff the reserves will NEVER engage.  Handy when you're trying to protect
-        // something like a badly damage capitol ship or freighters and the GM says they're vulnerable to attack.
-        // TODO: Turn this into a function:  BreakOffAndScreenCheck(special[],shipsLeft,hasScreen,hasReserve)
-        // TODO:  I should be able to handle this with the earlier checks?  Maybe...
-        // Check to see if the attackers have a reserve.
-        // {{628}}
-        if (AttHasReserveUnits)
-        {
-#ifdef CBE_DEBUG
-            CBE::debugFile << "[INFO] Attackers have reserve units" << endl;
-            CBE::debugFile << "[INFO] Checking for attackers that need to come out of reserve" << endl;
-#endif
-            // Check those reserve units for BreakOff and for screen
-            for (int a = 0; a < BE::AttShipsLeft; a++)
-            {
-                // Get the reserve tag value of the ship
-                int reserve = HasReserve(BE::SpecialA[a]);
-                // Do the attackers have a screen?
-                if (!AttHasScreen)
-                {
-                    // Does the ship have a reserve value?
-                    if (reserve >= 0)
-                    {
-                        // Remove the reserve tag
-#ifdef CBE_DEBUG
-                        CBE::debugFile << "[INFO] Unit leaving reserve because there is no screen" << endl;
-#endif
-                        BE::SpecialA[a] = RemoveTag(BE::SpecialA[a], "RESERVE", 1);
-                        AttHasReserveUnits = false;
-                    }
+                    DefHasReserveUnits = true;
                 }
                 else
                 {
-                    // Is the reserve tag equal to or less than the attackers BreakOff?
-                    if (BE::BO_Att >= reserve && reserve >= 0)
-                    {
-                        // Remove the reserve tag
+                    DefHasScreen = true;
+                }
+                // Check if both there is both a screen and a reserve already.
+                if (DefHasScreen && DefHasReserveUnits)
+                {
+                    // Leave the loop early as we found a unit in the screen and a unit in the reserve.
+                    break;
+                }
+            }
+
+            // If there is no screen, the reserve automatically fails
+            // NOTE: if Reserve > BreakOff the reserves will NEVER engage.  Handy when you're trying to protect
+            // something like a badly damage capitol ship or freighters and the GM says they're vulnerable to attack.
+            // TODO: Turn this into a function:  BreakOffAndScreenCheck(special[],shipsLeft,hasScreen,hasReserve)
+            // TODO:  I should be able to handle this with the earlier checks?  Maybe...
+            // Check to see if the attackers have a reserve.
+            // {{628}}
+            if (AttHasReserveUnits)
+            {
 #ifdef CBE_DEBUG
-                        CBE::debugFile << "[INFO] Unit leaving reserve because reserve is less than break off" << endl;
+                CBE::debugFile << "[INFO] Attackers have reserve units" << endl;
+                CBE::debugFile << "[INFO] Checking for attackers that need to come out of reserve" << endl;
 #endif
-                        BE::SpecialA[a] = RemoveTag(BE::SpecialA[a], "RESERVE", 1);
+                // Check those reserve units for BreakOff and for screen
+                for (int a = 0; a < BE::AttShipsLeft; a++)
+                {
+                    // Get the reserve tag value of the ship
+                    int reserve = HasReserve(BE::SpecialA[a]);
+                    // Do the attackers have a screen?
+                    if (!AttHasScreen)
+                    {
+                        // Does the ship have a reserve value?
+                        if (reserve >= 0)
+                        {
+                            // Remove the reserve tag
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO] Unit leaving reserve because there is no screen" << endl;
+#endif
+                            BE::SpecialA[a] = RemoveTag(BE::SpecialA[a], "RESERVE", 1);
+                            AttHasReserveUnits = false;
+                        }
+                    }
+                    else
+                    {
+                        // Is the reserve tag equal to or less than the attackers BreakOff?
+                        if (BE::BO_Att >= reserve && reserve >= 0)
+                        {
+                            // Remove the reserve tag
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO] Unit leaving reserve because reserve is less than break off" << endl;
+#endif
+                            BE::SpecialA[a] = RemoveTag(BE::SpecialA[a], "RESERVE", 1);
+                        }
                     }
                 }
             }
-        }
 
-        // {{643}}
-        if (DefHasReserveUnits)
-        {
-#ifdef CBE_DEBUG
-            CBE::debugFile << "[INFO] Defenders have reserve units" << endl;
-            CBE::debugFile << "[INFO] Checking for defenders that need to come out of reserve" << endl;
-#endif
-            // Check those reserve units for BreakOff and for screen
-            for (int b = 0; b < BE::AttShipsLeft; b++)
+            // {{643}}
+            if (DefHasReserveUnits)
             {
-                // Get the reserve tag from the ship
-                int reserve = HasReserve(BE::SpecialB[b]);
-                // Do the defenders have a screen?
-                if (!DefHasScreen)
-                {
-                    // Does the ship have a reserve value?
-                    if (reserve >= 0)
-                    {
 #ifdef CBE_DEBUG
-                        CBE::debugFile << "[INFO] Unit leaving reserve because there is no screen" << endl;
+                CBE::debugFile << "[INFO] Defenders have reserve units" << endl;
+                CBE::debugFile << "[INFO] Checking for defenders that need to come out of reserve" << endl;
 #endif
-                        // Remove the reserve tag
-                        BE::SpecialB[b] = RemoveTag(BE::SpecialB[b], "RESERVE", 1);
+                // Check those reserve units for BreakOff and for screen
+                for (int b = 0; b < BE::AttShipsLeft; b++)
+                {
+                    // Get the reserve tag from the ship
+                    int reserve = HasReserve(BE::SpecialB[b]);
+                    // Do the defenders have a screen?
+                    if (!DefHasScreen)
+                    {
+                        // Does the ship have a reserve value?
+                        if (reserve >= 0)
+                        {
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO] Unit leaving reserve because there is no screen" << endl;
+#endif
+                            // Remove the reserve tag
+                            BE::SpecialB[b] = RemoveTag(BE::SpecialB[b], "RESERVE", 1);
+                        }
                     }
+                    else
+                    {
+                        // Is the reserve tag equal to or less than the defenders BreakOff?
+                        if (BE::BO_Def >= reserve && reserve >= 0)
+                        {
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO] Unit leaving reserve because reserve is less than break off" << endl;
+#endif
+                            // Remove the reserve tag
+                            BE::SpecialB[b] = RemoveTag(BE::SpecialB[b], "RESERVE", 1);
+                        }
+                    }
+                }
+            }
+
+            // UNKNOWN: Resetting AttackIndexes?
+            // {{659}}
+            if (BE::AttacksIndex > 0)
+            {
+                for (int i = 0; i < BE::AttacksIndex; i++)
+                {
+                    BE::Attacks[i].AttackID = 0;
+                    BE::Attacks[i].TargetID = 0;
+                    BE::Attacks[i].Damage = 0;
+                    BE::Attacks[i].Weapon = 0;
+                    BE::Attacks[i].Special = "";
+                }
+                BE::AttacksIndex = 0;
+            }
+
+#ifdef CBE_DEBUG
+            CBE::debugFile << "[INFO] Begin spawning missiles" << endl;
+#endif
+
+            // Spawn missiles routine
+            TempAttShipsLeft = BE::AttShipsLeft;
+            TempDefShipsLeft = BE::DefShipsLeft;
+            missile_counter = 0;
+            // Loop through a combined total of all remaining attacking and defending ships
+            // This is horribley convoluted
+            // TODO: make a funciton for this...not sure what it needs to look like
+            // {{676}}
+            for (int A = 0; A < (BE::AttShipsLeft + BE::DefShipsLeft); A++)
+            {
+                // Determine ForceID
+                // 0 => attackers
+                // 1 => defenders
+                int B = A;
+                ForceID = 0; // TODO: Make this a local scope variable
+                // Are we done with attackers?
+                if (A >= BE::AttShipsLeft)
+                {
+                    B = A - BE::AttShipsLeft;
+                    ForceID = 1; // Defenders
+                }
+
+#ifdef CBE_DEBUG
+                CBE::debugFile << "[INFO] Unit index B " << B << endl;
+#endif
+
+                // Reset temp_str
+                temp_str = "";
+
+                // Get unit values depending on ForceID
+                if (ForceID == 0)
+                {
+#ifdef CBE_DEBUG
+                    CBE::debugFile << "[INFO] Doing missile check for " << BE::AttShipStr[B] << "," << BE::SpecialA[B] << endl;
+#endif
+                    temp_str = BE::SpecialA[B]; // TODO: Make this local to the loop scope.  May not be necessary if a function is built.
+                    tmp = BE::CurTorpA[B];      // TODO: Make this local to the loop scope.  May not be necessary if a function is built.
                 }
                 else
                 {
-                    // Is the reserve tag equal to or less than the defenders BreakOff?
-                    if (BE::BO_Def >= reserve && reserve >= 0)
-                    {
 #ifdef CBE_DEBUG
-                        CBE::debugFile << "[INFO] Unit leaving reserve because reserve is less than break off" << endl;
+                    CBE::debugFile << "[INFO] Doing missile check for " << BE::DefShipStr[B] << "," << BE::SpecialB[B] << endl;
 #endif
-                        // Remove the reserve tag
-                        BE::SpecialB[b] = RemoveTag(BE::SpecialB[b], "RESERVE", 1);
-                    }
+                    temp_str = BE::SpecialB[B];
+                    tmp = BE::CurTorpB[B];
                 }
-            }
-        }
 
-        // UNKNOWN: Resetting AttackIndexes?
-        // {{659}}
-        if (BE::AttacksIndex > 0)
-        {
-            for (int i = 0; i < BE::AttacksIndex; i++)
-            {
-                BE::Attacks[i].AttackID = 0;
-                BE::Attacks[i].TargetID = 0;
-                BE::Attacks[i].Damage = 0;
-                BE::Attacks[i].Weapon = 0;
-                BE::Attacks[i].Special = "";
-            }
-            BE::AttacksIndex = 0;
-        }
-
-#ifdef CBE_DEBUG
-        CBE::debugFile << "[INFO] Begin spawning missiles" << endl;
-#endif
-
-        // Spawn missiles routine
-        TempAttShipsLeft = BE::AttShipsLeft;
-        TempDefShipsLeft = BE::DefShipsLeft;
-        missile_counter = 0;
-        // Loop through a combined total of all remaining attacking and defending ships
-        // This is horribley convoluted
-        // TODO: make a funciton for this...not sure what it needs to look like
-        // {{676}}
-        for (int A = 0; A < (BE::AttShipsLeft + BE::DefShipsLeft); A++)
-        {
-            // Determine ForceID
-            // 0 => attackers
-            // 1 => defenders
-            int B = A;
-            ForceID = 0; // TODO: Make this a local scope variable
-            // Are we done with attackers?
-            if (A >= BE::AttShipsLeft)
-            {
-                B = A - BE::AttShipsLeft;
-                ForceID = 1; // Defenders
-            }
-
-#ifdef CBE_DEBUG
-            CBE::debugFile << "[INFO] Unit index B " << B << endl;
-#endif
-
-            // Reset temp_str
-            temp_str = "";
-
-            // Get unit values depending on ForceID
-            if (ForceID == 0)
-            {
-#ifdef CBE_DEBUG
-                CBE::debugFile << "[INFO] Doing missile check for " << BE::AttShipStr[B] << "," << BE::SpecialA[B] << endl;
-#endif
-                temp_str = BE::SpecialA[B]; // TODO: Make this local to the loop scope.  May not be necessary if a function is built.
-                tmp = BE::CurTorpA[B];      // TODO: Make this local to the loop scope.  May not be necessary if a function is built.
-            }
-            else
-            {
-#ifdef CBE_DEBUG
-                CBE::debugFile << "[INFO] Doing missile check for " << BE::DefShipStr[B] << "," << BE::SpecialB[B] << endl;
-#endif
-                temp_str = BE::SpecialB[B];
-                tmp = BE::CurTorpB[B];
-            }
-
-            // Check if the unit is crippled or is suprised.  If either is true, then skip the unit
-            if (IsCrippled(temp_str) || IsSurprise(temp_str))
-            {
-#ifdef CBE_DEBUG
-                CBE::debugFile << "[INFO] Unit is crippled or suprised.  Skipping missiles spawning." << endl;
-#endif
-                continue;
-            }
-
-            // Check for batteries in the special string
-            // TODO: Get batteries then do missile test on each bracket?
-            // TODO: Separate HasMissileWT and GetMissileStats
-            // {{695}}
-            if (HasBatteries(temp_str) > 0)
-            {
-                // Check if any of the batteries has a `misXXXX` tag
-                if (!HasMissileWT(temp_str))
+                // Check if the unit is crippled or is suprised.  If either is true, then skip the unit
+                if (IsCrippled(temp_str) || IsSurprise(temp_str))
                 {
 #ifdef CBE_DEBUG
-                    CBE::debugFile << "[INFO] Unit doesn't have a missile salvo.  Skipping missile spawning." << endl;
+                    CBE::debugFile << "[INFO] Unit is crippled or suprised.  Skipping missiles spawning." << endl;
 #endif
-                    // Skip the unit since there is no missile tag in a bracket
                     continue;
                 }
 
-#ifdef CBE_DEBUG
-                CBE::debugFile << "[INFO] Unit has a missile savlo(s)." << endl;
-#endif
-
-                tmp = 0;            // TODO: Make this a local variable
-                int SalvoCount = 0; // FIXME: This might not be local?
-                int sc = 0;         // TODO: Make this local to the loop below
-                // Reset the salvo array
-                for (sc = 0; sc < 200; sc++) // TODO: Replace 200 with constant
+                // Check for batteries in the special string
+                // TODO: Get batteries then do missile test on each bracket?
+                // TODO: Separate HasMissileWT and GetMissileStats
+                // {{695}}
+                if (HasBatteries(temp_str) > 0)
                 {
-                    BE::Salvos[sc].MissileS = 0;
-                    BE::Salvos[sc].DataStr = "";
-                }
-
-                // Get the first openning weapons bracket
-                old_start = temp_str.find("[");
-                sc = 0; // TODO: Not sure what to do with this yet.
-                // Get the brackets for this unit
-                vector<string> brackets = GetBrackets(temp_str);
-                for (int i = 0; i < brackets.size(); i++)
-                {
-                    // Setup the salvo object
-                    BE::Salvos[sc].DataStr = brackets[i];
-                    BE::Salvos[sc].MissileS = 0;
-
-#ifdef CBE_DEBUG
-                    CBE::debugFile << "[INFO] Creating savlo for: " << brackets[i] << endl;
-#endif
-
-                    // Does the bracket have a missile tag?
-                    if (HasMissileWT(BE::Salvos[sc].DataStr))
+                    // Check if any of the batteries has a `misXXXX` tag
+                    if (!HasMissileWT(temp_str))
                     {
 #ifdef CBE_DEBUG
-                        CBE::debugFile << "[INFO] Salvo has a missile tag" << endl;
+                        CBE::debugFile << "[INFO] Unit doesn't have a missile salvo.  Skipping missile spawning." << endl;
 #endif
-                        // Is the unit in reserve and without an artillery tag?
-                        if (HasReserve(temp_str) > 0 && !HasArtilleryWT(BE::Salvos[sc].DataStr))
+                        // Skip the unit since there is no missile tag in a bracket
+                        continue;
+                    }
+
+#ifdef CBE_DEBUG
+                    CBE::debugFile << "[INFO] Unit has a missile savlo(s)." << endl;
+#endif
+
+                    tmp = 0;            // TODO: Make this a local variable
+                    int SalvoCount = 0; // FIXME: This might not be local?
+                    int sc = 0;         // TODO: Make this local to the loop below
+                    // Reset the salvo array
+                    for (sc = 0; sc < 200; sc++) // TODO: Replace 200 with constant
+                    {
+                        BE::Salvos[sc].MissileS = 0;
+                        BE::Salvos[sc].DataStr = "";
+                    }
+
+                    // Get the first openning weapons bracket
+                    old_start = temp_str.find("[");
+                    sc = 0; // TODO: Not sure what to do with this yet.
+                    // Get the brackets for this unit
+                    vector<string> brackets = GetBrackets(temp_str);
+                    for (int i = 0; i < brackets.size(); i++)
+                    {
+                        // Setup the salvo object
+                        BE::Salvos[sc].DataStr = brackets[i];
+                        BE::Salvos[sc].MissileS = 0;
+
+#ifdef CBE_DEBUG
+                        CBE::debugFile << "[INFO] Creating savlo for: " << brackets[i] << endl;
+#endif
+
+                        // Does the bracket have a missile tag?
+                        if (HasMissileWT(BE::Salvos[sc].DataStr))
                         {
 #ifdef CBE_DEBUG
-                            CBE::debugFile << "[INFO] Salvo does not have an artillery tag and the unit has a reserve tag.  No missile spawnning" << endl;
+                            CBE::debugFile << "[INFO] Salvo has a missile tag" << endl;
 #endif
-                            // This unit is in reserve and doesn't have an artillery tag
-                        }
-                        else
-                        {
-
-                            // This unit is either NOT in the reserve or HAS an artillery tag
-                            // Do the long range checks.
-                            if ((BE::AttHasLongRange > 0 || BE::DefHasLongRange > 0) && !HasLongWT(BE::Salvos[sc].DataStr))
+                            // Is the unit in reserve and without an artillery tag?
+                            if (HasReserve(temp_str) > 0 && !HasArtilleryWT(BE::Salvos[sc].DataStr))
                             {
 #ifdef CBE_DEBUG
-                                CBE::debugFile << "[INFO] Salvo does not have a long range tag and the combat is at long range" << endl;
+                                CBE::debugFile << "[INFO] Salvo does not have an artillery tag and the unit has a reserve tag.  No missile spawnning" << endl;
 #endif
-                                // We are at long range BUT this unit does NOT have a long tag.
-                                // Do nothing.
+                                // This unit is in reserve and doesn't have an artillery tag
                             }
                             else
                             {
-                                // Either we are at standard range or this unit has a long tag.
-                                // Does the unit have ammo?
-                                int ammo = HasAmmoWT(BE::Salvos[sc].DataStr);
-                                if (ammo > CBE::AMMO_EMPTY)
+
+                                // This unit is either NOT in the reserve or HAS an artillery tag
+                                // Do the long range checks.
+                                if ((BE::AttHasLongRange > 0 || BE::DefHasLongRange > 0) && !HasLongWT(BE::Salvos[sc].DataStr))
                                 {
 #ifdef CBE_DEBUG
-                                    CBE::debugFile << "[INFO] Salvo has ammo" << endl;
+                                    CBE::debugFile << "[INFO] Salvo does not have a long range tag and the combat is at long range" << endl;
 #endif
-                                    // The bracket has ammo OR doesn't use ammo
-                                    // ORIGINAL is VAL(MID$(Salvo(sc).DataStr,2)) which is the numeric value of the substring from position 2 to end of string...I think
-                                    // VAL(MID$("[2 mis0041 ammo 1 target 15]")) ==> VAL("2 mis0041 ammo 1 target 15]") ==> 2 (Wow...I really dislike QBASIC)
-                                    // Essentially it grabs the number at the beginning of the string.  VAL might only return the first number it finds?
-                                    // So, we get to do this the hard way for now because I'm not going to learn C++ regex right now.  See TODO below.
-                                    // TODO: Convert this mess to a regex extraction of the first number in the string
-                                    int start = BE::Salvos[sc].DataStr.find("[");
-                                    // If start is npos then there is no "[" in the string.  So the first item in the string should be the size of the salvo.
-                                    if (start == string::npos)
-                                    {
-                                        start = 0;
-                                    }
-                                    else
-                                    {
-                                        start++;
-                                    }
-                                    string sizeStr = BE::Salvos[sc].DataStr.substr(start); // Grab everything past the openning bracket or the start of string
-                                    int size = stoi(sizeStr);                              // This will only grab the first number in the string and it must start with a string
-#ifdef CBE_DEBUG
-                                    CBE::debugFile << "[INFO] Salvo Size: " << size << endl;
-#endif
-                                    BE::Salvos[sc].MissileS = size; // This is simultaneously the number of missiles to launch and the volley size for non-missile salvos
+                                    // We are at long range BUT this unit does NOT have a long tag.
+                                    // Do nothing.
                                 }
-                                else if (ammo == CBE::AMMO_INFINITE)
-                                {
-                                    // The bracket doesn't need ammo
-                                    // Do the same things as above....which is a mess
-                                    // TODO: Redo logic to collapse these two paths
-                                    int start = BE::Salvos[sc].DataStr.find("[");
-                                    // If start is npos then there is no "[" in the string.  So the first item in the string should be the size of the salvo.
-                                    if (start == string::npos)
-                                    {
-                                        start = 0;
-                                    }
-                                    else
-                                    {
-                                        start++;
-                                    }
-                                    string sizeStr = BE::Salvos[sc].DataStr.substr(start); // Grab everything past the openning bracket or the start of string
-                                    int size = stoi(sizeStr);                              // This will only grab the first number in the string and it must start with a string
-#ifdef CBE_DEBUG
-                                    CBE::debugFile << "[INFO] Salvo Size: " << size << endl;
-#endif
-                                    BE::Salvos[sc].MissileS = size; // This is simultaneously the number of missiles to launch and the volley size for non-missile salvos
-                                }
-#ifdef CBE_DEBUG
                                 else
                                 {
-                                    CBE::debugFile << "[INFO] Salvo is out of ammo" << endl;
+                                    // Either we are at standard range or this unit has a long tag.
+                                    // Does the unit have ammo?
+                                    int ammo = HasAmmoWT(BE::Salvos[sc].DataStr);
+                                    if (ammo > CBE::AMMO_EMPTY)
+                                    {
+#ifdef CBE_DEBUG
+                                        CBE::debugFile << "[INFO] Salvo has ammo" << endl;
+#endif
+                                        // The bracket has ammo OR doesn't use ammo
+                                        // ORIGINAL is VAL(MID$(Salvo(sc).DataStr,2)) which is the numeric value of the substring from position 2 to end of string...I think
+                                        // VAL(MID$("[2 mis0041 ammo 1 target 15]")) ==> VAL("2 mis0041 ammo 1 target 15]") ==> 2 (Wow...I really dislike QBASIC)
+                                        // Essentially it grabs the number at the beginning of the string.  VAL might only return the first number it finds?
+                                        // So, we get to do this the hard way for now because I'm not going to learn C++ regex right now.  See TODO below.
+                                        // TODO: Convert this mess to a regex extraction of the first number in the string
+                                        int start = BE::Salvos[sc].DataStr.find("[");
+                                        // If start is npos then there is no "[" in the string.  So the first item in the string should be the size of the salvo.
+                                        if (start == string::npos)
+                                        {
+                                            start = 0;
+                                        }
+                                        else
+                                        {
+                                            start++;
+                                        }
+                                        string sizeStr = BE::Salvos[sc].DataStr.substr(start); // Grab everything past the openning bracket or the start of string
+                                        int size = stoi(sizeStr);                              // This will only grab the first number in the string and it must start with a string
+#ifdef CBE_DEBUG
+                                        CBE::debugFile << "[INFO] Salvo Size: " << size << endl;
+#endif
+                                        BE::Salvos[sc].MissileS = size; // This is simultaneously the number of missiles to launch and the volley size for non-missile salvos
+                                    }
+                                    else if (ammo == CBE::AMMO_INFINITE)
+                                    {
+                                        // The bracket doesn't need ammo
+                                        // Do the same things as above....which is a mess
+                                        // TODO: Redo logic to collapse these two paths
+                                        int start = BE::Salvos[sc].DataStr.find("[");
+                                        // If start is npos then there is no "[" in the string.  So the first item in the string should be the size of the salvo.
+                                        if (start == string::npos)
+                                        {
+                                            start = 0;
+                                        }
+                                        else
+                                        {
+                                            start++;
+                                        }
+                                        string sizeStr = BE::Salvos[sc].DataStr.substr(start); // Grab everything past the openning bracket or the start of string
+                                        int size = stoi(sizeStr);                              // This will only grab the first number in the string and it must start with a string
+#ifdef CBE_DEBUG
+                                        CBE::debugFile << "[INFO] Salvo Size: " << size << endl;
+#endif
+                                        BE::Salvos[sc].MissileS = size; // This is simultaneously the number of missiles to launch and the volley size for non-missile salvos
+                                    }
+#ifdef CBE_DEBUG
+                                    else
+                                    {
+                                        CBE::debugFile << "[INFO] Salvo is out of ammo" << endl;
+                                    }
+#endif
                                 }
-#endif
                             }
                         }
+
+                        // Increment the salvo count
+                        sc = sc + 1;
                     }
 
-                    // Increment the salvo count
-                    sc = sc + 1;
-                }
-
-                // Loop through the salvo count and spawn a missile 'unit' for each entity
-                SalvoCount = sc;
-                // TODO: Clean up the reused sc variable.  Poor thing, mistreated like that.
-                for (sc = 0; sc < SalvoCount; sc++)
-                {
-                    // Does the salvo have a size greater than 0?  TODO: Move this check to the loop above?  Might mess with the [0] tags on units that shouldn't flee.  Maybe BRAVE tag.
-                    int size = BE::Salvos[sc].MissileS;
-                    if (size > 0)
+                    // Loop through the salvo count and spawn a missile 'unit' for each entity
+                    SalvoCount = sc;
+                    // TODO: Clean up the reused sc variable.  Poor thing, mistreated like that.
+                    for (sc = 0; sc < SalvoCount; sc++)
                     {
-#ifdef CBE_DEBUG
-                        CBE::debugFile << "[INFO] Spawning " << size << " missiles" << endl;
-                        CBE::debugFile << "[INFO] " << size + TempAttShipsLeft + TempDefShipsLeft << " total units" << endl;
-#endif
-                        // The salvo has a size.  Do all the things!!!
-                        // But first, check to make sure the salvo size won't overflow the 9999 max unit limit
-                        // TODO: Setup a preprocessor variable for maximum number of units
-                        if (size + TempAttShipsLeft + TempDefShipsLeft > 9999)
+                        // Does the salvo have a size greater than 0?  TODO: Move this check to the loop above?  Might mess with the [0] tags on units that shouldn't flee.  Maybe BRAVE tag.
+                        int size = BE::Salvos[sc].MissileS;
+                        if (size > 0)
                         {
-                            // There will be a problem.  We should throw an exception here rather than just exiting
-                            // TODO: Throw an exception
-                            cerr << "The 9999 ship limit has been exceeded while spawning missiles.  Simulation aborted." << endl;
-                            exit(1); // TODO: Define error codes...and more constants for consistancy and clarity.
-                        }
-
-                        // Check for a missile tag and get the BSTH values from the tag
-                        // TODO: Add a flags member to the SalvoInfo struct so these tests don't need to be constantly done over and over and over and over again...
-                        // This also sets BE::MissileB, BE::MissileS, BE::MissileT, and BE:MissileH
-                        const string &special = BE::Salvos[sc].DataStr; // I got tired of accessing this variable in every function call....
-                        HasMissileWT(special);                          // FIXME: I can't describe how much I hate this line.
-                        // Check to see if the salvo need ammo.  See todo above...damn.
-                        int ammo = HasAmmoWT(special);
-                        if (ammo > CBE::AMMO_EMPTY)
-                        {
-                            NewTag = "ammo " + to_string((ammo - 1)); // Decrement the ammo counter.  TODO: Make this a local variable
-                            // NewTag += " ";                                           // Had to make this a new line do to type converstion of the (ammo -1) expression.
-                            temp_str = RemoveTag(BE::Salvos[sc].DataStr, "ammo", 1); // FIXME: This is so clunky to update the string in the middle of the round
-                            temp_str = AddTag(temp_str, NewTag);
-                            BE::Salvos[sc].DataStr = temp_str; // FIXME: And this breaks my pointer above?  Maybe not.  We'll see!!!
-                            // Remove the ammo string from missiles so there are no 'duds'
-                            missile_str = RemoveTag(BE::Salvos[sc].DataStr, "ammo", 1); // Remove the ammo tag and save as missile_str.  TODO: Local?  I'm not sure where this is used next.
-                            missile_str = RemoveTag(missile_str, "shots", 1);           // Remove the shots tag because redundancy
-                        }
-                        else if (ammo == CBE::AMMO_INFINITE)
-                        {
-                            missile_str = BE::Salvos[sc].DataStr; // Just use the salve string since there is no ammo
-                        }
-
-                        // Modify missile_str here instead of below when building the missile units
 #ifdef CBE_DEBUG
-                        CBE::debugFile << "[INFO] missile_str(old): \"" << missile_str << "\"" << endl;
+                            CBE::debugFile << "[INFO] Spawning " << size << " missiles" << endl;
+                            CBE::debugFile << "[INFO] " << size + TempAttShipsLeft + TempDefShipsLeft << " total units" << endl;
 #endif
-                        // [JLL] This converts the B and T portions of the missile to a single salvo so that it is processed correctly.
-                        // [JLL] For example, [4 mis0021] becomes 4 units that have [2] as their single salvo bracket
-                        /* [JLL] The original code looks for the first space in the special string.
-                                Then creates a salvo bracket and appends the original special string from the " " onward.
-                                This looses information from the missile_str...maybe the salvo size?
-                            1) Remove the "[\d+" from the missile special
-                            2) Add a "[" + (Beam+Torp) to the missile special
-                            3) Remove the "mis" tag from the missile special
-                            4) Add "MSL" to denote the unit is a missile
-                            5) Add "SUICIDE" to denote the unit should be destroyed at end of turn
-                        */
-                        int start = missile_str.find(" ");
-                        missile_str = "[" + to_string(BE::MissileB + BE::MissileT) + missile_str.substr(start); // Combine Beam and Torp from missile battery for total damage FIXME: This assumes that the string starts with a battery tag and has a closing ']'
-                        missile_str = RemoveTag(missile_str, "mis", 0);                                         // Remove the `mis` tag or missiles will spawn missiles.  Could be used for submunitions...
-                        missile_str = AddTag(missile_str, "MSL");                                               // Denotes the unit is a missile
-                        missile_str = AddTag(missile_str, "SUICIDE");                                           // Suicide denotes that the unit should be removed at the end of combat
-#ifdef CBE_DEBUG
-                        CBE::debugFile << "[INFO] missile_str(new): \"" << missile_str << "\"" << endl;
-#endif
-
-                        // Spawn those babies...
-                        for (int i = 0; i < size; i++)
-                        {
-                            missile_counter = missile_counter + 1; // This is a global variable that was zeroed at the start of this section.  This tracks all missiles launched from both sides?
-#ifdef CBE_DEBUG
-                            CBE::debugFile << "[INFO] Spawnning missile " << missile_counter << endl;
-#endif
-                            // Check the ForceID...TODO: Get rid of ForceID so that multiple fleets can be added.  Not to mention factions
-                            // TODO: Make a spawn missile function
-                            if (ForceID == 0)
+                            // The salvo has a size.  Do all the things!!!
+                            // But first, check to make sure the salvo size won't overflow the 9999 max unit limit
+                            // TODO: Setup a preprocessor variable for maximum number of units
+                            if (size + TempAttShipsLeft + TempDefShipsLeft > 9999)
                             {
-                                // VB sucks.  Where do MissileB, MissileS, MissileT, and Missile H come from?  From the call to HasMissileWT() about 20 lines up!
-                                // [JLL] This block of code makes me want to vomit.  No wonder tags jump between units.  Argh!!
-                                BE::AttShipStr[TempAttShipsLeft] = "missile " + to_string(missile_counter); // Global missile names too...
-                                BE::MaxBeamA[TempAttShipsLeft] = BE::MissileB;
-                                BE::CurBeamA[TempAttShipsLeft] = BE::MissileB;
-                                BE::MaxShieldA[TempAttShipsLeft] = BE::MissileS;
-                                BE::CurShieldA[TempAttShipsLeft] = BE::MissileS;
-                                BE::MaxTorpA[TempAttShipsLeft] = BE::MissileT;
-                                BE::CurTorpA[TempAttShipsLeft] = BE::MissileT;
-                                BE::MaxHullA[TempAttShipsLeft] = BE::MissileH;
-                                BE::CurHullA[TempAttShipsLeft] = BE::MissileH;
-                                // Inherit tags from the launcher and convert to a missile
-                                BE::SpecialA[TempAttShipsLeft] = missile_str; // Use the missile string the the salvos array ~20-25 lines up.
-                                TempAttShipsLeft = TempAttShipsLeft + 1;
+                                // There will be a problem.  We should throw an exception here rather than just exiting
+                                // TODO: Throw an exception
+                                cerr << "The 9999 ship limit has been exceeded while spawning missiles.  Simulation aborted." << endl;
+                                exit(1); // TODO: Define error codes...and more constants for consistancy and clarity.
                             }
-                            else
+
+                            // Check for a missile tag and get the BSTH values from the tag
+                            // TODO: Add a flags member to the SalvoInfo struct so these tests don't need to be constantly done over and over and over and over again...
+                            // This also sets BE::MissileB, BE::MissileS, BE::MissileT, and BE:MissileH
+                            const string &special = BE::Salvos[sc].DataStr; // I got tired of accessing this variable in every function call....
+                            HasMissileWT(special);                          // FIXME: I can't describe how much I hate this line.
+                            // Check to see if the salvo need ammo.  See todo above...damn.
+                            int ammo = HasAmmoWT(special);
+                            if (ammo > CBE::AMMO_EMPTY)
                             {
-                                // Do the other foce
-                                // [JLL] TODO: Make this a function
-                                BE::DefShipStr[TempDefShipsLeft] = "missile " + to_string(missile_counter); // Global missile names too...
-                                BE::MaxBeamB[TempDefShipsLeft] = BE::MissileB;
-                                BE::CurBeamB[TempDefShipsLeft] = BE::MissileB;
-                                BE::MaxShieldB[TempDefShipsLeft] = BE::MissileS;
-                                BE::CurShieldB[TempDefShipsLeft] = BE::MissileS;
-                                BE::MaxTorpB[TempDefShipsLeft] = BE::MissileT;
-                                BE::CurTorpB[TempDefShipsLeft] = BE::MissileT;
-                                BE::MaxHullB[TempDefShipsLeft] = BE::MissileH;
-                                BE::CurHullB[TempDefShipsLeft] = BE::MissileH;
-                                // Inherit tags from the launcher and convert to a missile
-                                BE::SpecialB[TempDefShipsLeft] = missile_str; // Use the missile string the the salvos array ~20-25 lines up.
-                                TempDefShipsLeft = TempDefShipsLeft + 1;
+                                NewTag = "ammo " + to_string((ammo - 1)); // Decrement the ammo counter.  TODO: Make this a local variable
+                                // NewTag += " ";                                           // Had to make this a new line do to type converstion of the (ammo -1) expression.
+                                temp_str = RemoveTag(BE::Salvos[sc].DataStr, "ammo", 1); // FIXME: This is so clunky to update the string in the middle of the round
+                                temp_str = AddTag(temp_str, NewTag);
+                                BE::Salvos[sc].DataStr = temp_str; // FIXME: And this breaks my pointer above?  Maybe not.  We'll see!!!
+                                // Remove the ammo string from missiles so there are no 'duds'
+                                missile_str = RemoveTag(BE::Salvos[sc].DataStr, "ammo", 1); // Remove the ammo tag and save as missile_str.  TODO: Local?  I'm not sure where this is used next.
+                                missile_str = RemoveTag(missile_str, "shots", 1);           // Remove the shots tag because redundancy
+                            }
+                            else if (ammo == CBE::AMMO_INFINITE)
+                            {
+                                missile_str = BE::Salvos[sc].DataStr; // Just use the salve string since there is no ammo
+                            }
+
+                            // Modify missile_str here instead of below when building the missile units
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO] missile_str(old): \"" << missile_str << "\"" << endl;
+#endif
+                            // [JLL] This converts the B and T portions of the missile to a single salvo so that it is processed correctly.
+                            // [JLL] For example, [4 mis0021] becomes 4 units that have [2] as their single salvo bracket
+                            /* [JLL] The original code looks for the first space in the special string.
+                                    Then creates a salvo bracket and appends the original special string from the " " onward.
+                                    This looses information from the missile_str...maybe the salvo size?
+                                1) Remove the "[\d+" from the missile special
+                                2) Add a "[" + (Beam+Torp) to the missile special
+                                3) Remove the "mis" tag from the missile special
+                                4) Add "MSL" to denote the unit is a missile
+                                5) Add "SUICIDE" to denote the unit should be destroyed at end of turn
+                            */
+                            int start = missile_str.find(" ");
+                            missile_str = "[" + to_string(BE::MissileB + BE::MissileT) + missile_str.substr(start); // Combine Beam and Torp from missile battery for total damage FIXME: This assumes that the string starts with a battery tag and has a closing ']'
+                            missile_str = RemoveTag(missile_str, "mis", 0);                                         // Remove the `mis` tag or missiles will spawn missiles.  Could be used for submunitions...
+                            missile_str = AddTag(missile_str, "MSL");                                               // Denotes the unit is a missile
+                            missile_str = AddTag(missile_str, "SUICIDE");                                           // Suicide denotes that the unit should be removed at the end of combat
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO] missile_str(new): \"" << missile_str << "\"" << endl;
+#endif
+
+                            // Spawn those babies...
+                            for (int i = 0; i < size; i++)
+                            {
+                                missile_counter = missile_counter + 1; // This is a global variable that was zeroed at the start of this section.  This tracks all missiles launched from both sides?
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Spawnning missile " << missile_counter << endl;
+#endif
+                                // Check the ForceID...TODO: Get rid of ForceID so that multiple fleets can be added.  Not to mention factions
+                                // TODO: Make a spawn missile function
+                                if (ForceID == 0)
+                                {
+                                    // VB sucks.  Where do MissileB, MissileS, MissileT, and Missile H come from?  From the call to HasMissileWT() about 20 lines up!
+                                    // [JLL] This block of code makes me want to vomit.  No wonder tags jump between units.  Argh!!
+                                    BE::AttShipStr[TempAttShipsLeft] = "missile " + to_string(missile_counter); // Global missile names too...
+                                    BE::MaxBeamA[TempAttShipsLeft] = BE::MissileB;
+                                    BE::CurBeamA[TempAttShipsLeft] = BE::MissileB;
+                                    BE::MaxShieldA[TempAttShipsLeft] = BE::MissileS;
+                                    BE::CurShieldA[TempAttShipsLeft] = BE::MissileS;
+                                    BE::MaxTorpA[TempAttShipsLeft] = BE::MissileT;
+                                    BE::CurTorpA[TempAttShipsLeft] = BE::MissileT;
+                                    BE::MaxHullA[TempAttShipsLeft] = BE::MissileH;
+                                    BE::CurHullA[TempAttShipsLeft] = BE::MissileH;
+                                    // Inherit tags from the launcher and convert to a missile
+                                    BE::SpecialA[TempAttShipsLeft] = missile_str; // Use the missile string the the salvos array ~20-25 lines up.
+                                    TempAttShipsLeft = TempAttShipsLeft + 1;
+                                }
+                                else
+                                {
+                                    // Do the other foce
+                                    // [JLL] TODO: Make this a function
+                                    BE::DefShipStr[TempDefShipsLeft] = "missile " + to_string(missile_counter); // Global missile names too...
+                                    BE::MaxBeamB[TempDefShipsLeft] = BE::MissileB;
+                                    BE::CurBeamB[TempDefShipsLeft] = BE::MissileB;
+                                    BE::MaxShieldB[TempDefShipsLeft] = BE::MissileS;
+                                    BE::CurShieldB[TempDefShipsLeft] = BE::MissileS;
+                                    BE::MaxTorpB[TempDefShipsLeft] = BE::MissileT;
+                                    BE::CurTorpB[TempDefShipsLeft] = BE::MissileT;
+                                    BE::MaxHullB[TempDefShipsLeft] = BE::MissileH;
+                                    BE::CurHullB[TempDefShipsLeft] = BE::MissileH;
+                                    // Inherit tags from the launcher and convert to a missile
+                                    BE::SpecialB[TempDefShipsLeft] = missile_str; // Use the missile string the the salvos array ~20-25 lines up.
+                                    TempDefShipsLeft = TempDefShipsLeft + 1;
+                                }
                             }
                         }
                     }
-                }
 
-                // Reassemble weapon tags back into a unit's appropriate Special tag
-                // Get the Specail tag from the special array.  Again with the ForceID junk.  Functions are your friend...
-                // [JLL] This is why string manipulation is bad.  A well built class or struct will render a lot of this code useless.
-                // Check ForceID
-                // TODO: Replace this with a call to RebuildBatteryTags
-                if (ForceID == 0)
-                {
-                    temp_str = BE::SpecialA[B]; // [JLL] TODO: Stop global variable abuse!
-                }
+                    // Reassemble weapon tags back into a unit's appropriate Special tag
+                    // Get the Specail tag from the special array.  Again with the ForceID junk.  Functions are your friend...
+                    // [JLL] This is why string manipulation is bad.  A well built class or struct will render a lot of this code useless.
+                    // Check ForceID
+                    // TODO: Replace this with a call to RebuildBatteryTags
+                    if (ForceID == 0)
+                    {
+                        temp_str = BE::SpecialA[B]; // [JLL] TODO: Stop global variable abuse!
+                    }
+                    else
+                    {
+                        temp_str = BE::SpecialB[B];
+                    }
+
+                    Strip = false;
+                    new_str = "";
+
+                    // Not entirely sure what this is for.  Might be for removing the [] from the string?
+                    // Or does it remove the first salvo from the string?
+                    // [JLL] This removes all salvos from the string!  Because they will be rebuilt from the Salvos array below.
+                    // [JLL] This builds a new string for the unit, sans salvos, character by character.  Vomit inducing...
+                    for (swt = 0; swt < temp_str.size(); swt++)
+                    {
+                        if (temp_str[swt] == '[')
+                        {
+                            Strip = true;
+                        }
+                        if (Strip == false)
+                        {
+                            new_str = new_str + temp_str[swt];
+                        }
+                        if (temp_str[swt] == ']')
+                        {
+                            Strip = false;
+                        }
+                    }
+
+                    // This builds a new string of Salvos from the Salvos array?  But why?
+                    // Also, 200 salvos for the entire simulation...that isn't enough for one fleet!
+                    // See the code below this block.  The salvos array is per unit, I think.
+                    // [JLL] The Salvos array is per unit.
+                    // [JLL] FIXME: This is why salvos jump units some times.  This loops through all 200 Salvos.
+                    for (sc = 0; sc < 200; sc++)
+                    {
+                        if (BE::Salvos[sc].DataStr == "")
+                        {
+                            break;
+                        }
+                        new_str = BE::Salvos[sc].DataStr + new_str;
+                    }
+
+                    // Assign the new specials string to the SpecialA or SpecialB array for the unit in question depending on ForceID
+                    // [JLL] FIXME: This explains why the salvo string jumps from attackers to defenders and vice versa.
+                    if (ForceID == 0)
+                    {
+                        BE::SpecialA[B] = new_str;
+                    }
+                    else
+                    {
+                        BE::SpecialB[B] = new_str;
+                    }
+                } // End of HasBatteries If Block
                 else
                 {
-                    temp_str = BE::SpecialB[B];
+                    // This unit has no batteries.
+                    // [JLL] TODO: Discontinue use of non-battery weapons
+                    // Check unit torpedo rating and for Missile
+                    // [JLL] I am skipping this for now pending response from the FOTS group - 2023-01-11
+#ifdef CBE_DEBUG
+                    CBE::debugFile << "[WARNING] Unit has no batteries" << endl;
+#endif
                 }
+            } // End of spawn missile loop....
 
-                Strip = false;
-                new_str = "";
+            // [JLL] Since missiles are added at the end of the units array the code below keeps other units from targeting them.
+            AttNumValidTargets = BE::AttShipsLeft;
+            DefNumValidTargets = BE::DefShipsLeft;
+            BE::AttShipsLeft = TempAttShipsLeft; // [JLL] Need to keep track of missiles
+            BE::DefShipsLeft = TempDefShipsLeft; // [JLL] Need to keep track of missiles
 
-                // Not entirely sure what this is for.  Might be for removing the [] from the string?
-                // Or does it remove the first salvo from the string?
-                // [JLL] This removes all salvos from the string!  Because they will be rebuilt from the Salvos array below.
-                // [JLL] This builds a new string for the unit, sans salvos, character by character.  Vomit inducing...
-                for (swt = 0; swt < temp_str.size(); swt++)
-                {
-                    if (temp_str[swt] == '[')
-                    {
-                        Strip = true;
-                    }
-                    if (Strip == false)
-                    {
-                        new_str = new_str + temp_str[swt];
-                    }
-                    if (temp_str[swt] == ']')
-                    {
-                        Strip = false;
-                    }
-                }
-
-                // This builds a new string of Salvos from the Salvos array?  But why?
-                // Also, 200 salvos for the entire simulation...that isn't enough for one fleet!
-                // See the code below this block.  The salvos array is per unit, I think.
-                // [JLL] The Salvos array is per unit.
-                // [JLL] FIXME: This is why salvos jump units some times.  This loops through all 200 Salvos.
-                for (sc = 0; sc < 200; sc++)
-                {
-                    if (BE::Salvos[sc].DataStr == "")
-                    {
-                        break;
-                    }
-                    new_str = BE::Salvos[sc].DataStr + new_str;
-                }
-
-                // Assign the new specials string to the SpecialA or SpecialB array for the unit in question depending on ForceID
-                // [JLL] FIXME: This explains why the salvo string jumps from attackers to defenders and vice versa.
-                if (ForceID == 0)
-                {
-                    BE::SpecialA[B] = new_str;
-                }
-                else
-                {
-                    BE::SpecialB[B] = new_str;
-                }
-            } // End of HasBatteries If Block
-            else
+            // Copy real values to temp fields so that combat will be fair
+            for (int i = 0; i < BE::AttShipsLeft; i++)
             {
-                // This unit has no batteries.
-                // [JLL] TODO: Discontinue use of non-battery weapons
-                // Check unit torpedo rating and for Missile
-                // [JLL] I am skipping this for now pending response from the FOTS group - 2023-01-11
-#ifdef CBE_DEBUG
-                CBE::debugFile << "[WARNING] Unit has no batteries" << endl;
-#endif
+                BE::TempAttCritStr[i] = BE::AttCritStr[i];
+                BE::TempCurBeamA[i] = BE::CurBeamA[i];
+                BE::TempCurShieldA[i] = BE::CurShieldA[i];
+                BE::TempCurTorpA[i] = BE::CurTorpA[i];
+                BE::TempCurHullA[i] = BE::CurHullA[i];
+                BE::TempHitsA[i] = BE::HitsA[i];
+                BE::TempPenHitsA[i] = BE::HitsA[i];
+                BE::TempCurDamA[i] = BE::CurDamA[i];
+                BE::TempSpecialA[i] = BE::SpecialA[i];
             }
-        } // End of spawn missile loop....
-
-        // [JLL] Since missiles are added at the end of the units array the code below keeps other units from targeting them.
-        AttNumValidTargets = BE::AttShipsLeft;
-        DefNumValidTargets = BE::DefShipsLeft;
-        BE::AttShipsLeft = TempAttShipsLeft; // [JLL] Need to keep track of missiles
-        BE::DefShipsLeft = TempDefShipsLeft; // [JLL] Need to keep track of missiles
-
-        // Copy real values to temp fields so that combat will be fair
-        for (int i = 0; i < BE::AttShipsLeft; i++)
-        {
-            BE::TempAttCritStr[i] = BE::AttCritStr[i];
-            BE::TempCurBeamA[i] = BE::CurBeamA[i];
-            BE::TempCurShieldA[i] = BE::CurShieldA[i];
-            BE::TempCurTorpA[i] = BE::CurTorpA[i];
-            BE::TempCurHullA[i] = BE::CurHullA[i];
-            BE::TempHitsA[i] = BE::HitsA[i];
-            BE::TempPenHitsA[i] = BE::HitsA[i];
-            BE::TempCurDamA[i] = BE::CurDamA[i];
-            BE::TempSpecialA[i] = BE::SpecialA[i];
-        }
-        for (int i = 0; i < BE::DefShipsLeft; i++)
-        {
-            BE::TempDefCritStr[i] = BE::DefCritStr[i];
-            BE::TempCurBeamB[i] = BE::CurBeamB[i];
-            BE::TempCurShieldB[i] = BE::CurShieldB[i];
-            BE::TempCurTorpB[i] = BE::CurTorpB[i];
-            BE::TempCurHullB[i] = BE::CurHullB[i];
-            BE::TempHitsB[i] = BE::HitsB[i];
-            BE::TempPenHitsB[i] = BE::HitsB[i];
-            BE::TempCurDamB[i] = BE::CurDamB[i];
-            BE::TempSpecialB[i] = BE::SpecialB[i];
-        }
+            for (int i = 0; i < BE::DefShipsLeft; i++)
+            {
+                BE::TempDefCritStr[i] = BE::DefCritStr[i];
+                BE::TempCurBeamB[i] = BE::CurBeamB[i];
+                BE::TempCurShieldB[i] = BE::CurShieldB[i];
+                BE::TempCurTorpB[i] = BE::CurTorpB[i];
+                BE::TempCurHullB[i] = BE::CurHullB[i];
+                BE::TempHitsB[i] = BE::HitsB[i];
+                BE::TempPenHitsB[i] = BE::HitsB[i];
+                BE::TempCurDamB[i] = BE::CurDamB[i];
+                BE::TempSpecialB[i] = BE::SpecialB[i];
+            }
 
 // ------------------------------------------------------------------------------------------
 // Attack Routine
 #ifdef CBE_DEBUG
-        CBE::debugFile << "[INFO] Beginning the attack loop" << endl;
+            CBE::debugFile << "[INFO] Beginning the attack loop" << endl;
 #endif
-        for (BE::A = 0; BE::A < (BE::AttShipsLeft + BE::DefShipsLeft); BE::A++)
-        {
-            // The same BS about ForceID...
-            int B = BE::A;
-            ForceID = 0;
-            if (BE::A >= BE::AttShipsLeft)
+            for (BE::A = 0; BE::A < (BE::AttShipsLeft + BE::DefShipsLeft); BE::A++)
             {
-                B = BE::A - BE::AttShipsLeft;
-                ForceID = 1;
-            }
-            if (BE::A == BE::AttShipsLeft)
-            {
-                // Print a space in the report file
-                reportFile << endl;
-            }
+                // The same BS about ForceID...
+                int B = BE::A;
+                ForceID = 0;
+                if (BE::A >= BE::AttShipsLeft)
+                {
+                    B = BE::A - BE::AttShipsLeft;
+                    ForceID = 1;
+                }
+                if (BE::A == BE::AttShipsLeft)
+                {
+                    // Print a space in the report file
+                    reportFile << endl;
+                }
 
-            Special1 = 0;
-            Special2 = 0;
-            FirePower1 = 0;
-            FirePower2 = 0;
+                Special1 = 0;
+                Special2 = 0;
+                FirePower1 = 0;
+                FirePower2 = 0;
 
 #ifdef CBE_DEBUG
-            CBE::debugFile << "[INFO] Attack Loop Index B " << B << endl;
+                CBE::debugFile << "[INFO] Attack Loop Index B " << B << endl;
 #endif
 
-            /*
-                OK, here's the problem in a nut shell.  Each ship can have multiple
-                attacks.  In the past, the firepower was added up and the damage
-                spread out.  But that won't work with the new multi's, Special
-                effect weapons, and resistant defenses.  The firepower needs to be
-                divided before combat and each shot rolled and applied separately.
+                /*
+                    OK, here's the problem in a nut shell.  Each ship can have multiple
+                    attacks.  In the past, the firepower was added up and the damage
+                    spread out.  But that won't work with the new multi's, Special
+                    effect weapons, and resistant defenses.  The firepower needs to be
+                    divided before combat and each shot rolled and applied separately.
 
-                Determine the number of attacks:  Split, Multi, Flak, Special
-                Effect weapons that are unsplit are lumped together into a
-                single attack.  [ie. A 4 pt heat beam plus a 6 pt pen torp
-                becomes a 10 pt heat+pen attack.]  I'll assume that 200
-                individual attacks is enough to drive most individual units.
-            */
+                    Determine the number of attacks:  Split, Multi, Flak, Special
+                    Effect weapons that are unsplit are lumped together into a
+                    single attack.  [ie. A 4 pt heat beam plus a 6 pt pen torp
+                    becomes a 10 pt heat+pen attack.]  I'll assume that 200
+                    individual attacks is enough to drive most individual units.
+                */
 
-            // Clear the firepower and TempSpecial attributes arrays.
-            for (int i = 0; i < 200; i++)
-            {
-                Hits[i].firepower = 0;
-                Hits[i].special = 0;
-                Hits[i].tag = "";
-                Hits[i].valid = true;
-            }
-            number_of_attacks = 0; // Assume the attacker has no weapons
+                // Clear the firepower and TempSpecial attributes arrays.
+                for (int i = 0; i < 200; i++)
+                {
+                    Hits[i].firepower = 0;
+                    Hits[i].special = 0;
+                    Hits[i].tag = "";
+                    Hits[i].valid = true;
+                }
+                number_of_attacks = 0; // Assume the attacker has no weapons
 
-            // Determine eligibility and the number of attacks (if any)
-            switch (ForceID)
-            {
-            case 0: // Attacking fleet
+                // Determine eligibility and the number of attacks (if any)
+                switch (ForceID)
+                {
+                case 0: // Attacking fleet
 #ifdef CBE_DEBUG
-                CBE::debugFile << "[INFO] Attack Loop for: " + BE::AttRaceName + " " + BE::AttShipStr[B] << endl;
+                    CBE::debugFile << "[INFO] Attack Loop for: " + BE::AttRaceName + " " + BE::AttShipStr[B] << endl;
 #endif
 
-                if (BE::AttShipStr[B].find("missile") != string::npos)
-                {
-                    // [JLL] Why the hell do we care if the name of the unit has "missile" in it?
-                    BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " is a drone or decoy."; // Check the name of the ship for missile?  Assume it is a drone or decoy.
-                }
-                else
-                {
-                    BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " did not fire beams or torps."; // If missile is not in the name then the unit did not fire? [JLL] This is the default state for a unit, the unit did not fire.
-                }
-                // [JLL] I am so confused by the if/else blocks above.  TODO: Can I remove these?
-
-                // Check if the unit is NOT drifting AND NOT nomove
-                if (!IsDrifting(BE::SpecialA[B]) && !IsNoMove(BE::SpecialA[B]))
-                {
-                    // The unit is neither drifting nor nomove
-                    // Check if the unit is fleeing
-                    if (IsFlee(BE::SpecialA[B]))
+                    if (BE::AttShipStr[B].find("missile") != string::npos)
                     {
-                        // The unit is fleeing.  Remove flee and add fled
-                        BE::TempSpecialA[B] = RemoveTag(BE::TempSpecialA[B], "FLEE", 0);
-                        BE::TempSpecialA[B] = AddTag(BE::TempSpecialA[B], "FLED");
-                        // Check for a DEFENSE tag
-                        int defense = HasDefense(BE::TempSpecialA[B]);
-                        if (defense != std::numeric_limits<int>::min())
-                        {                                                                       // TODO: Replace the limit call with a constant for clarity and consistancy
-                            BE::TempSpecialA[B] = RemoveTag(BE::TempSpecialA[B], "DEFENSE", 1); // Remove the defense tag
-                        }
-                        NewTag = "DEFENSE " + int(defense + BaseAccuracy / 2); // TODO: Replace with local variable.
-                        BE::TempSpecialA[B] = AddTag(BE::TempSpecialA[B], NewTag);
-
-                        // Check if the unit has a TARGET tag
-                        int target = HasTarget(BE::TempSpecialA[B]);
-                        if (target != std::numeric_limits<int>::min())
-                        { // TODO: Replace the limit::min call with a constant
-                            BE::TempSpecialA[B] = RemoveTag(BE::TempSpecialA[B], "TARGET", 1);
-                        }
-                        NewTag = "TARGET " + int(target + BaseAccuracy / 2); // TODO: Replace with local variable.  TODO: Replace BaseAccuracy/2 with a constant
-                        BE::TempSpecialA[B] = AddTag(BE::TempSpecialA[B], NewTag);
-#ifdef CBE_DEBUG
-                        CBE::debugFile << "[INFO] Checking unit \"" << BE::AttShipStr[B] << "\" is fleeing." << endl;
-                        CBE::debugFile << "[INFO] Old Special String: \"" << BE::SpecialA[B] << "\"" << endl;
-                        CBE::debugFile << "[INFO] New Special String: \"" << BE::TempSpecialA[B] << "\"" << endl;
-#endif
-                        BE::SpecialA[B] = BE::TempSpecialA[B]; // Replace the unit's special string NOTE: Why is this replaced now?
+                        // [JLL] Why the hell do we care if the name of the unit has "missile" in it?
+                        BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " is a drone or decoy."; // Check the name of the ship for missile?  Assume it is a drone or decoy.
                     }
-                }
-                // Check if the unit is drifting
-                // NOTE: [JLL] This appears to be linked with the flee/fled check above.  Meaning, a unit can not flee if it is drifting.  Not really connected to the checks below to see if the unit is skipped.
-                if (IsDrifting(BE::SpecialA[B]))
-                {
-                    // Remove the DRIFTING tag.  NOTE: This must be a transitory tag
-                    BE::TempSpecialA[B] = RemoveTag(BE::TempSpecialA[B], "DRIFTING", 0);
-#ifdef CBE_DEBUG
-                    CBE::debugFile << "[INFO] " << BE::AttShipStr[B] << " is no longer drifting." << endl;
-#endif
-                }
-                // Check if the unit is surprised!
-                if (IsSurprise(BE::SpecialA[B]))
-                {
-                    // Print the unit is suprised message
-                    BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " is surprised!";
-                    // Skip the rest of this unit's round
-                    break; // TODO: This might need to be continue but I don't think so.
-                }
-                // Check if the unit is captured! TODO: Have the capture mechanic move the unit to the opposing fleet
-                if (IsCaptured(BE::SpecialA[B]))
-                {
-                    // Print the unit has been captured
-                    BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " has been captured and can not attack!";
-                    // Skip the rest of this unit's round
-                    break;
-                }
-                // Check if the unit is crippled!
-                if (IsCrippled(BE::SpecialA[B]))
-                {
-                    // Print the unit is crippled
-                    BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " is crippled and can not attack!";
-                    // Skip the rest of this unit's round
-                    break;
-                }
-                // Check if the defending fleet has a cloak
-                if (BE::DefIsCloaked == 1)
-                {
-                    // TODO: This needs to be generalized to are there targets availabled?  Move to target selection code!
-                    BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " can not lock onto a target!";
-                    // Skip the rest of the unit's round
-                    break;
-                }
-                // This is the start of the battery processing
-                // Check if the unit has batteries
-                if (HasBatteries(BE::SpecialA[B]))
-                {
-                    // Check if the unit is in the RESERVE and NOT ARTILLERY
-                    if (HasReserve(BE::SpecialA[B]) > 0 && !HasArtilleryWT(BE::SpecialA[B]))
+                    else
                     {
-                        // The unit can not fire from the reserve
-                        BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " is being held in reserve!";
+                        BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " did not fire beams or torps."; // If missile is not in the name then the unit did not fire? [JLL] This is the default state for a unit, the unit did not fire.
+                    }
+                    // [JLL] I am so confused by the if/else blocks above.  TODO: Can I remove these?
+
+                    // Check if the unit is NOT drifting AND NOT nomove
+                    if (!IsDrifting(BE::SpecialA[B]) && !IsNoMove(BE::SpecialA[B]))
+                    {
+                        // The unit is neither drifting nor nomove
+                        // Check if the unit is fleeing
+                        if (IsFlee(BE::SpecialA[B]))
+                        {
+                            // The unit is fleeing.  Remove flee and add fled
+                            BE::TempSpecialA[B] = RemoveTag(BE::TempSpecialA[B], "FLEE", 0);
+                            BE::TempSpecialA[B] = AddTag(BE::TempSpecialA[B], "FLED");
+                            // Check for a DEFENSE tag
+                            int defense = HasDefense(BE::TempSpecialA[B]);
+                            if (defense != std::numeric_limits<int>::min())
+                            {                                                                       // TODO: Replace the limit call with a constant for clarity and consistancy
+                                BE::TempSpecialA[B] = RemoveTag(BE::TempSpecialA[B], "DEFENSE", 1); // Remove the defense tag
+                            }
+                            NewTag = "DEFENSE " + int(defense + BaseAccuracy / 2); // TODO: Replace with local variable.
+                            BE::TempSpecialA[B] = AddTag(BE::TempSpecialA[B], NewTag);
+
+                            // Check if the unit has a TARGET tag
+                            int target = HasTarget(BE::TempSpecialA[B]);
+                            if (target != std::numeric_limits<int>::min())
+                            { // TODO: Replace the limit::min call with a constant
+                                BE::TempSpecialA[B] = RemoveTag(BE::TempSpecialA[B], "TARGET", 1);
+                            }
+                            NewTag = "TARGET " + int(target + BaseAccuracy / 2); // TODO: Replace with local variable.  TODO: Replace BaseAccuracy/2 with a constant
+                            BE::TempSpecialA[B] = AddTag(BE::TempSpecialA[B], NewTag);
 #ifdef CBE_DEBUG
-                        CBE::debugFile << "[INFO] " + BE::AttRaceName + " " + BE::AttShipStr[B] + " is being held in reserve" << endl;
+                            CBE::debugFile << "[INFO] Checking unit \"" << BE::AttShipStr[B] << "\" is fleeing." << endl;
+                            CBE::debugFile << "[INFO] Old Special String: \"" << BE::SpecialA[B] << "\"" << endl;
+                            CBE::debugFile << "[INFO] New Special String: \"" << BE::TempSpecialA[B] << "\"" << endl;
 #endif
+                            BE::SpecialA[B] = BE::TempSpecialA[B]; // Replace the unit's special string NOTE: Why is this replaced now?
+                        }
+                    }
+                    // Check if the unit is drifting
+                    // NOTE: [JLL] This appears to be linked with the flee/fled check above.  Meaning, a unit can not flee if it is drifting.  Not really connected to the checks below to see if the unit is skipped.
+                    if (IsDrifting(BE::SpecialA[B]))
+                    {
+                        // Remove the DRIFTING tag.  NOTE: This must be a transitory tag
+                        BE::TempSpecialA[B] = RemoveTag(BE::TempSpecialA[B], "DRIFTING", 0);
+#ifdef CBE_DEBUG
+                        CBE::debugFile << "[INFO] " << BE::AttShipStr[B] << " is no longer drifting." << endl;
+#endif
+                    }
+                    // Check if the unit is surprised!
+                    if (IsSurprise(BE::SpecialA[B]))
+                    {
+                        // Print the unit is suprised message
+                        BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " is surprised!";
+                        // Skip the rest of this unit's round
+                        break; // TODO: This might need to be continue but I don't think so.
+                    }
+                    // Check if the unit is captured! TODO: Have the capture mechanic move the unit to the opposing fleet
+                    if (IsCaptured(BE::SpecialA[B]))
+                    {
+                        // Print the unit has been captured
+                        BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " has been captured and can not attack!";
+                        // Skip the rest of this unit's round
+                        break;
+                    }
+                    // Check if the unit is crippled!
+                    if (IsCrippled(BE::SpecialA[B]))
+                    {
+                        // Print the unit is crippled
+                        BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " is crippled and can not attack!";
+                        // Skip the rest of this unit's round
+                        break;
+                    }
+                    // Check if the defending fleet has a cloak
+                    if (BE::DefIsCloaked == 1)
+                    {
+                        // TODO: This needs to be generalized to are there targets availabled?  Move to target selection code!
+                        BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " can not lock onto a target!";
                         // Skip the rest of the unit's round
                         break;
                     }
-
-                    // Getting the bracket attacks and adding them to the Salvos array
-                    number_of_attacks = 0;      // TODO: Replace with a local variable
-                    temp_str = BE::SpecialA[B]; // TODO: Replace with a local variable
-                    // old_start = temp_str.find("["); // TODO: Replace with a local variable
-                    old_start = 0;
-                    sc = 0; // TODO: Replace with a local variable?  This may be used later
-#ifdef CBE_DEBUG
-                    CBE::debugFile << "[INFO] " << BE::AttRaceName << " " << BE::AttShipStr[B] << " looking for batteries: " << temp_str << endl;
-#endif
-                    // Reset all salvo objects
-                    for (int i = 0; i < 200; i++)
+                    // This is the start of the battery processing
+                    // Check if the unit has batteries
+                    if (HasBatteries(BE::SpecialA[B]))
                     {
-                        BE::Salvos[i].DataStr.clear();
-                        BE::Salvos[i].MissileS = 0;
-                        BE::Salvos[i].valid = true;
-                    }
-
-                    // TODO: Turn the code below into a function?  Use GetBrackets()
-                    while (old_start != string::npos)
-                    {
-                        start = temp_str.find("[", old_start); // TODO: Replace with a local variable
-                        start1 = temp_str.find("]", start);    // TODO: Replace with a local variable
-                        // NOTE: [JLL] Not sure what the below does
-                        if (start1 == string::npos)
+                        // Check if the unit is in the RESERVE and NOT ARTILLERY
+                        if (HasReserve(BE::SpecialA[B]) > 0 && !HasArtilleryWT(BE::SpecialA[B]))
                         {
-                            old_start = int(string::npos); // Set to no position so that the loop stops NOTE: [JLL] Explicit typecast to int causes this to be -1.
-                            start1 = temp_str.size();      // Get the whole string since there is no closing bracket TODO: This should be handled at load with a validation check.
+                            // The unit can not fire from the reserve
+                            BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " is being held in reserve!";
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO] " + BE::AttRaceName + " " + BE::AttShipStr[B] + " is being held in reserve" << endl;
+#endif
+                            // Skip the rest of the unit's round
+                            break;
                         }
-                        else
+
+                        // Getting the bracket attacks and adding them to the Salvos array
+                        number_of_attacks = 0;      // TODO: Replace with a local variable
+                        temp_str = BE::SpecialA[B]; // TODO: Replace with a local variable
+                        // old_start = temp_str.find("["); // TODO: Replace with a local variable
+                        old_start = 0;
+                        sc = 0; // TODO: Replace with a local variable?  This may be used later
+#ifdef CBE_DEBUG
+                        CBE::debugFile << "[INFO] " << BE::AttRaceName << " " << BE::AttShipStr[B] << " looking for batteries: " << temp_str << endl;
+#endif
+                        // Reset all salvo objects
+                        for (int i = 0; i < 200; i++)
                         {
-                            old_start = temp_str.find("[", start1); // Find the start of the next salvo string
+                            BE::Salvos[i].DataStr.clear();
+                            BE::Salvos[i].MissileS = 0;
+                            BE::Salvos[i].valid = true;
                         }
-                        // Save the bracket string
-                        BE::Salvos[sc].DataStr = temp_str.substr(start, start1 - start + 1);
-                        BE::Salvos[sc].MissileS = stoi(temp_str.substr(1));
-#ifdef CBE_DEBUG
-                        CBE::debugFile << "[INFO] " << BE::AttRaceName << " " << BE::AttShipStr[B] << " has battery[" << sc << "]: " << BE::Salvos[sc].DataStr << endl;
-#endif
-                        // Increment the salvo count
-                        sc = sc + 1;
-                    }
 
-#ifdef CBE_DEBUG
-                    CBE::debugFile << "[INFO] Number of salvos " << sc << endl;
-#endif
-                    // Did we find any salvos?
-                    if (sc > 0)
-                    {
-                        for (int i = 0; i < sc; i++)
+                        // TODO: Turn the code below into a function?  Use GetBrackets()
+                        while (old_start != string::npos)
                         {
-#ifdef CBE_DEBUG
-                            CBE::debugFile << "[INFO] Determining hits for: \"" << BE::Salvos[i].DataStr << "\"" << endl;
-#endif
-                            // Do everything we can to set the firepower to zero [JLL] Meaning, if there is a reason to set the firepower to 0 do so.  Such as missile, lack long, ROF, offline, etc.
-                            // Check if this is a missile battery which was taken care of earlier
-                            int ammo = HasAmmoWT(BE::Salvos[i].DataStr);
-                            if (HasMissileWT(BE::Salvos[i].DataStr))
+                            start = temp_str.find("[", old_start); // TODO: Replace with a local variable
+                            start1 = temp_str.find("]", start);    // TODO: Replace with a local variable
+                            // NOTE: [JLL] Not sure what the below does
+                            if (start1 == string::npos)
                             {
-                                BE::Salvos[i].MissileS = 0; // TODO: Can I move these checks to building the salvo array above?
-                                BE::Salvos[i].valid = false;
-#ifdef CBE_DEBUG
-                                CBE::debugFile << "[INFO] Is a missile battery.  That was handled earlier." << endl;
-#endif
+                                old_start = int(string::npos); // Set to no position so that the loop stops NOTE: [JLL] Explicit typecast to int causes this to be -1.
+                                start1 = temp_str.size();      // Get the whole string since there is no closing bracket TODO: This should be handled at load with a validation check.
                             }
-                            // Check if the battery is offline
-                            else if (IsOffline(BE::Salvos[i].DataStr))
+                            else
                             {
-                                BE::Salvos[i].MissileS = 0;
-                                BE::Salvos[i].valid = false;
-#ifdef CBE_DEBUG
-                                CBE::debugFile << "[INFO] Battery is offline." << endl;
-#endif
+                                old_start = temp_str.find("[", start1); // Find the start of the next salvo string
                             }
-                            // Check for a firing delay in the ROF tag
-                            else if (GetROFDelayWT(BE::Salvos[i].DataStr) > 0)
-                            {
-                                BE::Salvos[i].MissileS = 0;
-                                BE::Salvos[i].valid = false;
+                            // Save the bracket string
+                            BE::Salvos[sc].DataStr = temp_str.substr(start, start1 - start + 1);
+                            BE::Salvos[sc].MissileS = stoi(temp_str.substr(1));
 #ifdef CBE_DEBUG
-                                CBE::debugFile << "[INFO] ROF delay is not this round" << endl;
+                            CBE::debugFile << "[INFO] " << BE::AttRaceName << " " << BE::AttShipStr[B] << " has battery[" << sc << "]: " << BE::Salvos[sc].DataStr << endl;
 #endif
-                            }
-                            // Check if only LR attacks are valid and if the battery is NOT long
-                            else if ((BE::AttHasLongRange > 0 || BE::DefHasLongRange > 0) && !HasLongWT(BE::Salvos[i].DataStr))
-                            {
-                                BE::Salvos[i].MissileS = 0;
-                                BE::Salvos[i].valid = false;
-#ifdef CBE_DEBUG
-                                CBE::debugFile << "[INFO] Battery is not long range" << endl;
-#endif
-                            }
-                            // Check for reserve and artillery tags
-                            // TODO: Can't this be removed?  The checks before salvos are built should skip this
-                            else if (HasReserve(BE::SpecialA[B]) > 0 && !HasArtilleryWT(BE::Salvos[i].DataStr))
-                            {
-                                BE::Salvos[i].MissileS = 0;
-                                BE::Salvos[i].valid = false;
-#ifdef CBE_DEBUG
-                                CBE::debugFile << "[INFO] Battery is not artillery and unit is in reserve" << endl;
-#endif
-                            }
-                            // Check if the battery needs ammo and has some
-                            else if (ammo == CBE::AMMO_EMPTY)
-                            {
-                                BE::Salvos[i].MissileS = 0;
-                                BE::Salvos[i].valid = false;
-#ifdef CBE_DEBUG
-                                CBE::debugFile << "[INFO] Battery is out of ammo" << endl;
-#endif
-                            }
+                            // Increment the salvo count
+                            sc = sc + 1;
+                        }
 
-                            // Cycle weapons updating counters and removing offline tags
-                            // TODO: Check for offline tag first?
-                            BE::Salvos[i].DataStr = RemoveTag(BE::Salvos[i].DataStr, "offline", 0);
-                            // Update the ROF tag if it is present
-                            int rate = GetROFRateWT(BE::Salvos[i].DataStr);
-                            if (rate > 0)
+#ifdef CBE_DEBUG
+                        CBE::debugFile << "[INFO] Number of salvos " << sc << endl;
+#endif
+                        // Did we find any salvos?
+                        if (sc > 0)
+                        {
+                            for (int i = 0; i < sc; i++)
                             {
-                                // Weapon is cycling using ROF rate
-                                int delay = GetROFDelayWT(BE::Salvos[i].DataStr);
-                                string newROF = "";
-                                if (delay > 0)
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Determining hits for: \"" << BE::Salvos[i].DataStr << "\"" << endl;
+#endif
+                                // Do everything we can to set the firepower to zero [JLL] Meaning, if there is a reason to set the firepower to 0 do so.  Such as missile, lack long, ROF, offline, etc.
+                                // Check if this is a missile battery which was taken care of earlier
+                                int ammo = HasAmmoWT(BE::Salvos[i].DataStr);
+                                if (HasMissileWT(BE::Salvos[i].DataStr))
                                 {
-                                    // Compute a new ROF tag by decrementing the delay value by 1.
-                                    newROF = "rof " + to_string(rate) + " " + to_string(delay - 1);
+                                    BE::Salvos[i].MissileS = 0; // TODO: Can I move these checks to building the salvo array above?
+                                    BE::Salvos[i].valid = false;
+#ifdef CBE_DEBUG
+                                    CBE::debugFile << "[INFO] Is a missile battery.  That was handled earlier." << endl;
+#endif
                                 }
-                                else
+                                // Check if the battery is offline
+                                else if (IsOffline(BE::Salvos[i].DataStr))
                                 {
-                                    // Compute a new ROF tag by setting the delay value to the rate value
-                                    newROF = "rof " + to_string(rate) + " " + to_string(rate - 1); // Minus 1 because a rate of 2 is fire every other turn
+                                    BE::Salvos[i].MissileS = 0;
+                                    BE::Salvos[i].valid = false;
+#ifdef CBE_DEBUG
+                                    CBE::debugFile << "[INFO] Battery is offline." << endl;
+#endif
                                 }
-                                string temp = RemoveTag(BE::Salvos[i].DataStr, "rof", 2); // Remove the old ROF tag
-                                temp = AddTag(temp, newROF);                              // Add the new ROF tag
-                                BE::Salvos[i].DataStr = temp;
-                            }
-
-                            // [JLL] Now that the salvo strings have been updated (offline & rof)
-                            // [JLL] rebuild the battery tags in the unit special string
-                            // [JLL] FIXME: This should only happen at the end of processing this unit.
-                            string temp = RebuildBatteryTags(BE::TempSpecialA[B], BE::Salvos, sc);
-                            BE::TempSpecialA[B] = temp;
-                            BE::SpecialA[B] = temp;
-
-                            // Does the salvo have firepower?
-                            if (BE::Salvos[i].MissileS > 0)
-                            {
-                                // Flag the salvo as valid
-                                BE::Salvos[i].valid = true;
-                                // Does the battery have FLAK and does the defense have fighters?
-                                if (HasFlakWT(BE::Salvos[i].DataStr) && BE::DefHasFighters > 0)
+                                // Check for a firing delay in the ROF tag
+                                else if (GetROFDelayWT(BE::Salvos[i].DataStr) > 0)
                                 {
-                                    // Create the flak packets
-                                    for (int j = 0; j < BE::Salvos[i].MissileS; j++)
+                                    BE::Salvos[i].MissileS = 0;
+                                    BE::Salvos[i].valid = false;
+#ifdef CBE_DEBUG
+                                    CBE::debugFile << "[INFO] ROF delay is not this round" << endl;
+#endif
+                                }
+                                // Check if only LR attacks are valid and if the battery is NOT long
+                                else if ((BE::AttHasLongRange > 0 || BE::DefHasLongRange > 0) && !HasLongWT(BE::Salvos[i].DataStr))
+                                {
+                                    BE::Salvos[i].MissileS = 0;
+                                    BE::Salvos[i].valid = false;
+#ifdef CBE_DEBUG
+                                    CBE::debugFile << "[INFO] Battery is not long range" << endl;
+#endif
+                                }
+                                // Check for reserve and artillery tags
+                                // TODO: Can't this be removed?  The checks before salvos are built should skip this
+                                else if (HasReserve(BE::SpecialA[B]) > 0 && !HasArtilleryWT(BE::Salvos[i].DataStr))
+                                {
+                                    BE::Salvos[i].MissileS = 0;
+                                    BE::Salvos[i].valid = false;
+#ifdef CBE_DEBUG
+                                    CBE::debugFile << "[INFO] Battery is not artillery and unit is in reserve" << endl;
+#endif
+                                }
+                                // Check if the battery needs ammo and has some
+                                else if (ammo == CBE::AMMO_EMPTY)
+                                {
+                                    BE::Salvos[i].MissileS = 0;
+                                    BE::Salvos[i].valid = false;
+#ifdef CBE_DEBUG
+                                    CBE::debugFile << "[INFO] Battery is out of ammo" << endl;
+#endif
+                                }
+
+                                // Cycle weapons updating counters and removing offline tags
+                                // TODO: Check for offline tag first?
+                                BE::Salvos[i].DataStr = RemoveTag(BE::Salvos[i].DataStr, "offline", 0);
+                                // Update the ROF tag if it is present
+                                int rate = GetROFRateWT(BE::Salvos[i].DataStr);
+                                if (rate > 0)
+                                {
+                                    // Weapon is cycling using ROF rate
+                                    int delay = GetROFDelayWT(BE::Salvos[i].DataStr);
+                                    string newROF = "";
+                                    if (delay > 0)
                                     {
-                                        Hits[number_of_attacks].firepower = 1;                                                                // Fill out the hits array, with the firepower split into packets of 1
-                                        Hits[number_of_attacks].special = BE::saMulti;                                                        // Batteries are multi-targetting
-                                        Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, Hits[number_of_attacks].special); // Combine any bitwise flags
-                                        Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                                                  // Set the tags for the `hit` [JLL] Really this is a possible hit at this point.  More like shots.
-                                        number_of_attacks = number_of_attacks + 1;                                                            // Increment the number of attacks
+                                        // Compute a new ROF tag by decrementing the delay value by 1.
+                                        newROF = "rof " + to_string(rate) + " " + to_string(delay - 1);
                                     }
-                                }
-                                else if (HasMultiWT(BE::Salvos[i].DataStr) > 0)
-                                { // TODO: Use a constant here
-                                    // This is a multi attack
-                                    packet_size = HasMultiWT(BE::Salvos[i].DataStr); // TODO: Convert to local variable TODO: Differentiate HasMulti and GetMulti functions
-                                    for (int j = 0; j < int(BE::Salvos[i].MissileS / packet_size); j++)
+                                    else
                                     {
-                                        Hits[number_of_attacks].firepower = packet_size;
-                                        Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, BE::saMulti); // Start with multi because batteries
-                                        Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                              // Set the tags for the hit
-                                        number_of_attacks = number_of_attacks + 1;                                        // Incremet the number of attacks
+                                        // Compute a new ROF tag by setting the delay value to the rate value
+                                        newROF = "rof " + to_string(rate) + " " + to_string(rate - 1); // Minus 1 because a rate of 2 is fire every other turn
                                     }
-                                    // Check for left over firepower due to packet sizing
-                                    if ((BE::Salvos[i].MissileS % packet_size) > 0)
-                                    {
-                                        // Yep, there is a remainder
-                                        Hits[number_of_attacks].firepower = BE::Salvos[i].MissileS % packet_size;
-                                        Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, BE::saMulti); // Start with multi because batteries
-                                        Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                              // Set the tags for the hit
-                                        number_of_attacks = number_of_attacks + 1;                                        // Incremet the number of attacks
-                                    }
+                                    string temp = RemoveTag(BE::Salvos[i].DataStr, "rof", 2); // Remove the old ROF tag
+                                    temp = AddTag(temp, newROF);                              // Add the new ROF tag
+                                    BE::Salvos[i].DataStr = temp;
                                 }
-                                else
-                                {
-                                    // If it is not flak and not multi then it must be a single target attack!
-                                    Hits[number_of_attacks].firepower = BE::Salvos[i].MissileS;                       // Set the firepower from the salvo
-                                    Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, BE::saMulti); // Start with multi because batteries
-                                    Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                              // Set the tags for the hit
-                                    number_of_attacks = number_of_attacks + 1;                                        // Incremet the number of attacks
-                                }
-                            }
 
-#ifdef CBE_DEBUG
-                            CBE::debugFile << "[INFO] (Att) Salvo has no firepower" << endl;
-#endif
-
-                            // Check for ammo
-                            ammo = HasAmmoWT(BE::Salvos[i].DataStr);
-                            if (!HasMissileWT(BE::Salvos[i].DataStr) && ammo != CBE::AMMO_INFINITE && ammo > CBE::AMMO_EMPTY)
-                            {
-                                // We are using ammo
-                                // Create a new ammo tag
-                                string newTag = "ammo " + to_string((ammo - 1));
-                                string tempStr = RemoveTag(BE::Salvos[i].DataStr, "ammo", 1);
-                                tempStr = AddTag(tempStr, newTag);
-                                BE::Salvos[i].DataStr = tempStr;
-
-                                // Reassemble the weapon tags again for the unit
-                                // TODO: Why are we doing this again so soon?  Why not at the end?  Need to check the logic in the hit building above.
+                                // [JLL] Now that the salvo strings have been updated (offline & rof)
+                                // [JLL] rebuild the battery tags in the unit special string
+                                // [JLL] FIXME: This should only happen at the end of processing this unit.
                                 string temp = RebuildBatteryTags(BE::TempSpecialA[B], BE::Salvos, sc);
                                 BE::TempSpecialA[B] = temp;
                                 BE::SpecialA[B] = temp;
+
+                                // Does the salvo have firepower?
+                                if (BE::Salvos[i].MissileS > 0)
+                                {
+                                    // Flag the salvo as valid
+                                    BE::Salvos[i].valid = true;
+                                    // Does the battery have FLAK and does the defense have fighters?
+                                    if (HasFlakWT(BE::Salvos[i].DataStr) && BE::DefHasFighters > 0)
+                                    {
+                                        // Create the flak packets
+                                        for (int j = 0; j < BE::Salvos[i].MissileS; j++)
+                                        {
+                                            Hits[number_of_attacks].firepower = 1;                                                                // Fill out the hits array, with the firepower split into packets of 1
+                                            Hits[number_of_attacks].special = BE::saMulti;                                                        // Batteries are multi-targetting
+                                            Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, Hits[number_of_attacks].special); // Combine any bitwise flags
+                                            Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                                                  // Set the tags for the `hit` [JLL] Really this is a possible hit at this point.  More like shots.
+                                            number_of_attacks = number_of_attacks + 1;                                                            // Increment the number of attacks
+                                        }
+                                    }
+                                    else if (HasMultiWT(BE::Salvos[i].DataStr) > 0)
+                                    { // TODO: Use a constant here
+                                        // This is a multi attack
+                                        packet_size = HasMultiWT(BE::Salvos[i].DataStr); // TODO: Convert to local variable TODO: Differentiate HasMulti and GetMulti functions
+                                        for (int j = 0; j < int(BE::Salvos[i].MissileS / packet_size); j++)
+                                        {
+                                            Hits[number_of_attacks].firepower = packet_size;
+                                            Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, BE::saMulti); // Start with multi because batteries
+                                            Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                              // Set the tags for the hit
+                                            number_of_attacks = number_of_attacks + 1;                                        // Incremet the number of attacks
+                                        }
+                                        // Check for left over firepower due to packet sizing
+                                        if ((BE::Salvos[i].MissileS % packet_size) > 0)
+                                        {
+                                            // Yep, there is a remainder
+                                            Hits[number_of_attacks].firepower = BE::Salvos[i].MissileS % packet_size;
+                                            Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, BE::saMulti); // Start with multi because batteries
+                                            Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                              // Set the tags for the hit
+                                            number_of_attacks = number_of_attacks + 1;                                        // Incremet the number of attacks
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // If it is not flak and not multi then it must be a single target attack!
+                                        Hits[number_of_attacks].firepower = BE::Salvos[i].MissileS;                       // Set the firepower from the salvo
+                                        Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, BE::saMulti); // Start with multi because batteries
+                                        Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                              // Set the tags for the hit
+                                        number_of_attacks = number_of_attacks + 1;                                        // Incremet the number of attacks
+                                    }
+                                }
+
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] (Att) Salvo has no firepower" << endl;
+#endif
+
+                                // Check for ammo
+                                ammo = HasAmmoWT(BE::Salvos[i].DataStr);
+                                if (!HasMissileWT(BE::Salvos[i].DataStr) && ammo != CBE::AMMO_INFINITE && ammo > CBE::AMMO_EMPTY)
+                                {
+                                    // We are using ammo
+                                    // Create a new ammo tag
+                                    string newTag = "ammo " + to_string((ammo - 1));
+                                    string tempStr = RemoveTag(BE::Salvos[i].DataStr, "ammo", 1);
+                                    tempStr = AddTag(tempStr, newTag);
+                                    BE::Salvos[i].DataStr = tempStr;
+
+                                    // Reassemble the weapon tags again for the unit
+                                    // TODO: Why are we doing this again so soon?  Why not at the end?  Need to check the logic in the hit building above.
+                                    string temp = RebuildBatteryTags(BE::TempSpecialA[B], BE::Salvos, sc);
+                                    BE::TempSpecialA[B] = temp;
+                                    BE::SpecialA[B] = temp;
+                                }
                             }
                         }
                     }
-                }
-                break;
-            case 1: // Defending fleet //////////////////////////////////////////////////////////////////////////////////////////////
+                    break;
+                case 1: // Defending fleet //////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef CBE_DEBUG
-                CBE::debugFile << "[INFO] Attack Loop for: " + BE::DefRaceName + " " + BE::DefShipStr[B] << endl;
+                    CBE::debugFile << "[INFO] Attack Loop for: " + BE::DefRaceName + " " + BE::DefShipStr[B] << endl;
 #endif
-                if (BE::DefShipStr[B].find("missile") != string::npos)
-                {
-                    // [JLL] Why the hell do we care if the name of the unit has "missile" in it?
-                    BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " is a drone or decoy."; // Check the name of the ship for missile?  Assume it is a drone or decoy.
-                }
-                else
-                {
-                    BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " did not fire beams or torps."; // If missile is not in the name then the unit did not fire?
-                }
-                // [JLL] I am so confused by the if/else blocks above.  TODO: Can I remove these?
-
-                // Check if the unit is NOT drifting AND NOT nomove
-                if (!IsDrifting(BE::SpecialB[B]) && !IsNoMove(BE::SpecialB[B]))
-                {
-                    // The unit is neither drifting nor nomove
-                    // Check if the unit is fleeing
-                    if (IsFlee(BE::SpecialB[B]))
+                    if (BE::DefShipStr[B].find("missile") != string::npos)
                     {
-                        // The unit is fleeing.  Remove flee and add fled
-                        BE::TempSpecialB[B] = RemoveTag(BE::TempSpecialB[B], "FLEE", 0);
-                        BE::TempSpecialB[B] = AddTag(BE::TempSpecialB[B], "FLED");
-                        // Check for a DEFENSE tag
-                        int defense = HasDefense(BE::TempSpecialB[B]);
-                        if (defense != std::numeric_limits<int>::min())
-                        {                                                                       // TODO: Replace the limit call with a constant for clarity and consistancy
-                            BE::TempSpecialB[B] = RemoveTag(BE::TempSpecialB[B], "DEFENSE", 1); // Remove the defense tag
-                        }
-                        NewTag = "DEFENSE " + int(defense + BaseAccuracy / 2); // TODO: Replace with local variable.
-                        BE::TempSpecialB[B] = AddTag(BE::TempSpecialB[B], NewTag);
-
-                        // Check if the unit has a TARGET tag
-                        int target = HasTarget(BE::TempSpecialB[B]);
-                        if (target != std::numeric_limits<int>::min())
-                        { // TODO: Replace the limit::min call with a constant
-                            BE::TempSpecialB[B] = RemoveTag(BE::TempSpecialB[B], "TARGET", 1);
-                        }
-                        NewTag = "TARGET " + int(target + BaseAccuracy / 2); // TODO: Replace with local variable.  TODO: Replace BaseAccuracy/2 with a constant
-                        BE::TempSpecialB[B] = AddTag(BE::TempSpecialB[B], NewTag);
-#ifdef CBE_DEBUG
-                        CBE::debugFile << "[INFO] Checking unit \"" << BE::DefShipStr[B] << "\" is fleeing." << endl;
-                        CBE::debugFile << "[INFO] Old Special String: \"" << BE::SpecialB[B] << "\"" << endl;
-                        CBE::debugFile << "[INFO] New Special String: \"" << BE::TempSpecialB[B] << "\"" << endl;
-#endif
-                        BE::SpecialB[B] = BE::TempSpecialB[B]; // Replace the unit's special string NOTE: Why is this replaced now?
+                        // [JLL] Why the hell do we care if the name of the unit has "missile" in it?
+                        BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " is a drone or decoy."; // Check the name of the ship for missile?  Assume it is a drone or decoy.
                     }
-                }
-                // Check if the unit is drifting
-                // NOTE: [JLL] This appears to be linked with the flee/fled check above.  Meaning, a unit can not flee if it is drifting.  Not really connected to the checks below to see if the unit is skipped.
-                if (IsDrifting(BE::SpecialB[B]))
-                {
-                    // Remove the DRIFTING tag.  NOTE: This must be a transitory tag
-                    BE::TempSpecialB[B] = RemoveTag(BE::TempSpecialB[B], "DRIFTING", 0);
-#ifdef CBE_DEBUG
-                    CBE::debugFile << "[INFO] " << BE::DefShipStr[B] << " is no longer drifting." << endl;
-#endif
-                }
-                // Check if the unit is surprised!
-                if (IsSurprise(BE::SpecialB[B]))
-                {
-                    // Print the unit is suprised message
-                    BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " is surprised!";
-                    // Skip the rest of this unit's round
-                    break; // TODO: This might need to be continue but I don't think so.
-                }
-                // Check if the unit is captured! TODO: Have the capture mechanic move the unit to the opposing fleet
-                if (IsCaptured(BE::SpecialB[B]))
-                {
-                    // Print the unit has been captured
-                    BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " has been captured and can not attack!";
-                    // Skip the rest of this unit's round
-                    break;
-                }
-                // Check if the unit is crippled!
-                if (IsCrippled(BE::SpecialB[B]))
-                {
-                    // Print the unit is crippled
-                    BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " is crippled and can not attack!";
-                    // Skip the rest of this unit's round
-                    break;
-                }
-                // Check if the defending fleet has a cloak
-                if (BE::DefIsCloaked == 1)
-                {
-                    // TODO: This needs to be generalized to are there targets availabled?  Move to target selection code!
-                    BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " can not lock onto a target!";
-                    // Skip the rest of the unit's round
-                    break;
-                }
-                // This is the start of the battery processing
-                // Check if the unit has batteries
-                if (HasBatteries(BE::SpecialB[B]))
-                {
-                    // Check if the unit is in the RESERVE and NOT ARTILLERY
-                    if (HasReserve(BE::SpecialB[B]) > 0 && !HasArtilleryWT(BE::SpecialB[B]))
+                    else
                     {
-                        // The unit can not fire from the reserve
-                        BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " is being held in reserve!";
+                        BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " did not fire beams or torps."; // If missile is not in the name then the unit did not fire?
+                    }
+                    // [JLL] I am so confused by the if/else blocks above.  TODO: Can I remove these?
+
+                    // Check if the unit is NOT drifting AND NOT nomove
+                    if (!IsDrifting(BE::SpecialB[B]) && !IsNoMove(BE::SpecialB[B]))
+                    {
+                        // The unit is neither drifting nor nomove
+                        // Check if the unit is fleeing
+                        if (IsFlee(BE::SpecialB[B]))
+                        {
+                            // The unit is fleeing.  Remove flee and add fled
+                            BE::TempSpecialB[B] = RemoveTag(BE::TempSpecialB[B], "FLEE", 0);
+                            BE::TempSpecialB[B] = AddTag(BE::TempSpecialB[B], "FLED");
+                            // Check for a DEFENSE tag
+                            int defense = HasDefense(BE::TempSpecialB[B]);
+                            if (defense != std::numeric_limits<int>::min())
+                            {                                                                       // TODO: Replace the limit call with a constant for clarity and consistancy
+                                BE::TempSpecialB[B] = RemoveTag(BE::TempSpecialB[B], "DEFENSE", 1); // Remove the defense tag
+                            }
+                            NewTag = "DEFENSE " + int(defense + BaseAccuracy / 2); // TODO: Replace with local variable.
+                            BE::TempSpecialB[B] = AddTag(BE::TempSpecialB[B], NewTag);
+
+                            // Check if the unit has a TARGET tag
+                            int target = HasTarget(BE::TempSpecialB[B]);
+                            if (target != std::numeric_limits<int>::min())
+                            { // TODO: Replace the limit::min call with a constant
+                                BE::TempSpecialB[B] = RemoveTag(BE::TempSpecialB[B], "TARGET", 1);
+                            }
+                            NewTag = "TARGET " + int(target + BaseAccuracy / 2); // TODO: Replace with local variable.  TODO: Replace BaseAccuracy/2 with a constant
+                            BE::TempSpecialB[B] = AddTag(BE::TempSpecialB[B], NewTag);
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO] Checking unit \"" << BE::DefShipStr[B] << "\" is fleeing." << endl;
+                            CBE::debugFile << "[INFO] Old Special String: \"" << BE::SpecialB[B] << "\"" << endl;
+                            CBE::debugFile << "[INFO] New Special String: \"" << BE::TempSpecialB[B] << "\"" << endl;
+#endif
+                            BE::SpecialB[B] = BE::TempSpecialB[B]; // Replace the unit's special string NOTE: Why is this replaced now?
+                        }
+                    }
+                    // Check if the unit is drifting
+                    // NOTE: [JLL] This appears to be linked with the flee/fled check above.  Meaning, a unit can not flee if it is drifting.  Not really connected to the checks below to see if the unit is skipped.
+                    if (IsDrifting(BE::SpecialB[B]))
+                    {
+                        // Remove the DRIFTING tag.  NOTE: This must be a transitory tag
+                        BE::TempSpecialB[B] = RemoveTag(BE::TempSpecialB[B], "DRIFTING", 0);
+#ifdef CBE_DEBUG
+                        CBE::debugFile << "[INFO] " << BE::DefShipStr[B] << " is no longer drifting." << endl;
+#endif
+                    }
+                    // Check if the unit is surprised!
+                    if (IsSurprise(BE::SpecialB[B]))
+                    {
+                        // Print the unit is suprised message
+                        BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " is surprised!";
+                        // Skip the rest of this unit's round
+                        break; // TODO: This might need to be continue but I don't think so.
+                    }
+                    // Check if the unit is captured! TODO: Have the capture mechanic move the unit to the opposing fleet
+                    if (IsCaptured(BE::SpecialB[B]))
+                    {
+                        // Print the unit has been captured
+                        BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " has been captured and can not attack!";
+                        // Skip the rest of this unit's round
+                        break;
+                    }
+                    // Check if the unit is crippled!
+                    if (IsCrippled(BE::SpecialB[B]))
+                    {
+                        // Print the unit is crippled
+                        BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " is crippled and can not attack!";
+                        // Skip the rest of this unit's round
+                        break;
+                    }
+                    // Check if the defending fleet has a cloak
+                    if (BE::DefIsCloaked == 1)
+                    {
+                        // TODO: This needs to be generalized to are there targets availabled?  Move to target selection code!
+                        BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " can not lock onto a target!";
                         // Skip the rest of the unit's round
                         break;
                     }
-
-                    // Getting the bracket attacks and adding them to the Salvos array
-                    number_of_attacks = 0;      // TODO: Replace with a local variable
-                    temp_str = BE::SpecialB[B]; // TODO: Replace with a local variable
-                    // old_start = temp_str.find("["); // TODO: Replace with a local variable
-                    old_start = 0;
-                    sc = 0; // TODO: Replace with a local variable?  This may be used later
-#ifdef CBE_DEBUG
-                    CBE::debugFile << "[INFO] " << BE::DefRaceName << " " << BE::DefShipStr[B] << " looking for batteries: " << temp_str << endl;
-#endif
-                    // Reset all salvo objects
-                    for (int i = 0; i < 200; i++)
+                    // This is the start of the battery processing
+                    // Check if the unit has batteries
+                    if (HasBatteries(BE::SpecialB[B]))
                     {
-                        BE::Salvos[i].DataStr.clear();
-                        BE::Salvos[i].MissileS = 0;
-                        BE::Salvos[i].valid = true;
-                    }
-
-                    // TODO: Turn the code below into a function?
-                    while (old_start != string::npos)
-                    {
-                        start = temp_str.find("[", old_start); // TODO: Replace with a local variable
-                        start1 = temp_str.find("]", start);    // TODO: Replace with a local variable
-                        // NOTE: [JLL] Not sure what the below does
-                        if (start1 == string::npos)
+                        // Check if the unit is in the RESERVE and NOT ARTILLERY
+                        if (HasReserve(BE::SpecialB[B]) > 0 && !HasArtilleryWT(BE::SpecialB[B]))
                         {
-                            old_start = int(string::npos); // Set to no position so that the loop stops NOTE: [JLL] Explicit typecast to int causes this to be -1.
-                            start1 = temp_str.size();      // Get the whole string since there is no closing bracket TODO: This should be handled at load with a validation check.
+                            // The unit can not fire from the reserve
+                            BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " is being held in reserve!";
+                            // Skip the rest of the unit's round
+                            break;
                         }
-                        else
+
+                        // Getting the bracket attacks and adding them to the Salvos array
+                        number_of_attacks = 0;      // TODO: Replace with a local variable
+                        temp_str = BE::SpecialB[B]; // TODO: Replace with a local variable
+                        // old_start = temp_str.find("["); // TODO: Replace with a local variable
+                        old_start = 0;
+                        sc = 0; // TODO: Replace with a local variable?  This may be used later
+#ifdef CBE_DEBUG
+                        CBE::debugFile << "[INFO] " << BE::DefRaceName << " " << BE::DefShipStr[B] << " looking for batteries: " << temp_str << endl;
+#endif
+                        // Reset all salvo objects
+                        for (int i = 0; i < 200; i++)
                         {
-                            old_start = temp_str.find("[", start1); // Find the start of the next salvo string
+                            BE::Salvos[i].DataStr.clear();
+                            BE::Salvos[i].MissileS = 0;
+                            BE::Salvos[i].valid = true;
                         }
-                        // Save the bracket string
-                        BE::Salvos[sc].DataStr = temp_str.substr(start, start1 - start + 1);
-                        BE::Salvos[sc].MissileS = stoi(temp_str.substr(1));
-#ifdef CBE_DEBUG
-                        CBE::debugFile << "[INFO] " << BE::DefRaceName << " " << BE::DefShipStr[B] << " has battery[" << sc << "]: " << BE::Salvos[sc].DataStr << endl;
-#endif
-                        // Increment the salvo count
-                        sc = sc + 1;
-                    }
 
-#ifdef CBE_DEBUG
-                    CBE::debugFile << "[INFO] Number of salvos " << sc << endl;
-#endif
-
-                    // Did we find any salvos?
-                    if (sc > 0)
-                    {
-                        for (int i = 0; i < sc; i++)
+                        // TODO: Turn the code below into a function?
+                        while (old_start != string::npos)
                         {
-#ifdef CBE_DEBUG
-                            CBE::debugFile << "[INFO] Determining hits for: \"" << BE::Salvos[i].DataStr << "\"" << endl;
-#endif
-                            // Do everything we can to set the firepower to zero [JLL] Meaning, if there is a reason to set the firepower to 0 do so.  Such as missile, lack long, ROF, offline, etc.
-                            // Check if this is a missile battery which was taken care of earlier
-                            int ammo = HasAmmoWT(BE::Salvos[i].DataStr);
-                            if (HasMissileWT(BE::Salvos[i].DataStr))
+                            start = temp_str.find("[", old_start); // TODO: Replace with a local variable
+                            start1 = temp_str.find("]", start);    // TODO: Replace with a local variable
+                            // NOTE: [JLL] Not sure what the below does
+                            if (start1 == string::npos)
                             {
-                                BE::Salvos[i].MissileS = 0; // TODO: Can I move these checks to building the salvo array above?
-                                BE::Salvos[i].valid = false;
-#ifdef CBE_DEBUG
-                                CBE::debugFile << "[INFO] Is a missile battery.  That was handled earlier." << endl;
-#endif
+                                old_start = int(string::npos); // Set to no position so that the loop stops NOTE: [JLL] Explicit typecast to int causes this to be -1.
+                                start1 = temp_str.size();      // Get the whole string since there is no closing bracket TODO: This should be handled at load with a validation check.
                             }
-                            // Check if the battery is offline
-                            else if (IsOffline(BE::Salvos[i].DataStr))
-                            {
-                                BE::Salvos[i].MissileS = 0;
-                                BE::Salvos[i].valid = false;
-#ifdef CBE_DEBUG
-                                CBE::debugFile << "[INFO] Battery is offline." << endl;
-#endif
-                            }
-                            // Check for a firing delay in the ROF tag
-                            else if (GetROFDelayWT(BE::Salvos[i].DataStr) > 0)
-                            {
-                                BE::Salvos[i].MissileS = 0;
-                                BE::Salvos[i].valid = false;
-#ifdef CBE_DEBUG
-                                CBE::debugFile << "[INFO] ROF delay is not this round" << endl;
-#endif
-                            }
-                            // Check if only LR attacks are valid and if the battery is NOT long
-                            else if ((BE::AttHasLongRange > 0 || BE::DefHasLongRange > 0) && !HasLongWT(BE::Salvos[i].DataStr))
-                            {
-                                BE::Salvos[i].MissileS = 0;
-                                BE::Salvos[i].valid = false;
-#ifdef CBE_DEBUG
-                                CBE::debugFile << "[INFO] Battery is not long range" << endl;
-#endif
-                            }
-                            // Check for reserve and artillery tags
-                            // TODO: Can't this be removed?  The checks before salvos are built should skip this
-                            else if (HasReserve(BE::SpecialB[B]) > 0 && !HasArtilleryWT(BE::Salvos[i].DataStr))
-                            {
-                                BE::Salvos[i].MissileS = 0;
-                                BE::Salvos[i].valid = false;
-#ifdef CBE_DEBUG
-                                CBE::debugFile << "[INFO] Battery is not artillery and unit is in reserve" << endl;
-#endif
-                            }
-                            // Check if the battery needs ammo and has some
-                            else if (ammo == CBE::AMMO_EMPTY)
-                            {
-                                BE::Salvos[i].MissileS = 0;
-                                BE::Salvos[i].valid = false;
-#ifdef CBE_DEBUG
-                                CBE::debugFile << "[INFO] Battery is out of ammo" << endl;
-#endif
-                            }
-
-                            // Cycle weapons updating counters and removing offline tags
-                            // TODO: Check for offline tag first?
-                            BE::Salvos[i].DataStr = RemoveTag(BE::Salvos[i].DataStr, "offline", 0);
-                            // Update the ROF tag if it is present
-                            int rate = GetROFRateWT(BE::Salvos[i].DataStr);
-                            if (rate > 0)
-                            {
-                                // Weapon is cycling using ROF rate
-                                int delay = GetROFDelayWT(BE::Salvos[i].DataStr);
-                                string newROF = "";
-                                if (delay > 0)
-                                {
-                                    // Compute a new ROF tag by decrementing the delay value by 1.
-                                    newROF = "rof " + to_string(rate) + " " + to_string(delay - 1);
-                                }
-                                else
-                                {
-                                    // Compute a new ROF tag by setting the delay value to the rate value
-                                    newROF = "rof " + to_string(rate) + " " + to_string(rate - 1); // Minus 1 because a rate of 2 is fire every other turn
-                                }
-                                string temp = RemoveTag(BE::Salvos[i].DataStr, "rof", 2); // Remove the old ROF tag
-                                temp = AddTag(temp, newROF);                              // Add the new ROF tag
-                                BE::Salvos[i].DataStr = temp;
-                            }
-
-                            // [JLL] Now that the salvo strings have been updated (offline & rof)
-                            // [JLL] rebuild the battery tags in the unit special string
-                            // [JLL] FIXME: This should only happen at the end of processing this unit.
-                            string temp = RebuildBatteryTags(BE::TempSpecialB[B], BE::Salvos, sc);
-                            BE::TempSpecialB[B] = temp;
-                            BE::SpecialB[B] = temp;
-
-                            // Does the salvo have firepower?
-                            if (BE::Salvos[i].MissileS > 0)
-                            {
-                                // Mark this salvo is valid
-                                BE::Salvos[i].valid = true;
-                                // Does the battery have FLAK and does the defense have fighters?
-                                if (HasFlakWT(BE::Salvos[i].DataStr) && BE::DefHasFighters > 0)
-                                {
-                                    // Create the flak packets
-                                    for (int j = 0; j < BE::Salvos[i].MissileS; j++)
-                                    {
-                                        Hits[number_of_attacks].firepower = 1;                                                                // Fill out the hits array, with the firepower split into packets of 1
-                                        Hits[number_of_attacks].special = BE::saMulti;                                                        // Batteries are multi-targetting
-                                        Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, Hits[number_of_attacks].special); // Combine any bitwise flags
-                                        Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                                                  // Set the tags for the `hit` [JLL] Really this is a possible hit at this point.  More like shots.
-                                        number_of_attacks = number_of_attacks + 1;                                                            // Increment the number of attacks
-                                    }
-                                }
-                                else if (HasMultiWT(BE::Salvos[i].DataStr) > 0)
-                                { // TODO: Use a constant here
-                                    // This is a multi attack
-                                    packet_size = HasMultiWT(BE::Salvos[i].DataStr); // TODO: Convert to local variable TODO: Differentiate HasMulti and GetMulti functions
-                                    for (int j = 0; j < int(BE::Salvos[i].MissileS / packet_size); j++)
-                                    {
-                                        Hits[number_of_attacks].firepower = packet_size;
-                                        Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, BE::saMulti); // Start with multi because batteries
-                                        Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                              // Set the tags for the hit
-                                        number_of_attacks = number_of_attacks + 1;                                        // Incremet the number of attacks
-                                    }
-                                    // Check for left over firepower due to packet sizing
-                                    if ((BE::Salvos[i].MissileS % packet_size) > 0)
-                                    {
-                                        // Yep, there is a remainder
-                                        Hits[number_of_attacks].firepower = BE::Salvos[i].MissileS % packet_size;
-                                        Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, BE::saMulti); // Start with multi because batteries
-                                        Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                              // Set the tags for the hit
-                                        number_of_attacks = number_of_attacks + 1;                                        // Incremet the number of attacks
-                                    }
-                                }
-                                else
-                                {
-                                    // If it is not flak and not multi then it must be a single target attack!
-                                    Hits[number_of_attacks].firepower = BE::Salvos[i].MissileS;                       // Set the firepower from the salvo
-                                    Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, BE::saMulti); // Start with multi because batteries
-                                    Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                              // Set the tags for the hit
-                                    number_of_attacks = number_of_attacks + 1;                                        // Incremet the number of attacks
-                                }
-                            }
-#ifdef CBE_DEBUG
                             else
                             {
-                                CBE::debugFile << "[INFO] (DEF) Salvo has no firepower" << endl;
+                                old_start = temp_str.find("[", start1); // Find the start of the next salvo string
                             }
+                            // Save the bracket string
+                            BE::Salvos[sc].DataStr = temp_str.substr(start, start1 - start + 1);
+                            BE::Salvos[sc].MissileS = stoi(temp_str.substr(1));
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO] " << BE::DefRaceName << " " << BE::DefShipStr[B] << " has battery[" << sc << "]: " << BE::Salvos[sc].DataStr << endl;
+#endif
+                            // Increment the salvo count
+                            sc = sc + 1;
+                        }
+
+#ifdef CBE_DEBUG
+                        CBE::debugFile << "[INFO] Number of salvos " << sc << endl;
 #endif
 
-                            // Check for ammo
-                            ammo = HasAmmoWT(BE::Salvos[i].DataStr);
-                            if (!HasMissileWT(BE::Salvos[i].DataStr) && ammo != CBE::AMMO_INFINITE && ammo > CBE::AMMO_EMPTY)
+                        // Did we find any salvos?
+                        if (sc > 0)
+                        {
+                            for (int i = 0; i < sc; i++)
                             {
-                                // We are using ammo
-                                // Create a new ammo tag
-                                string newTag = "ammo " + to_string((ammo - 1));
-                                string tempStr = RemoveTag(BE::Salvos[i].DataStr, "ammo", 1);
-                                tempStr = AddTag(tempStr, newTag);
-                                BE::Salvos[i].DataStr = tempStr;
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Determining hits for: \"" << BE::Salvos[i].DataStr << "\"" << endl;
+#endif
+                                // Do everything we can to set the firepower to zero [JLL] Meaning, if there is a reason to set the firepower to 0 do so.  Such as missile, lack long, ROF, offline, etc.
+                                // Check if this is a missile battery which was taken care of earlier
+                                int ammo = HasAmmoWT(BE::Salvos[i].DataStr);
+                                if (HasMissileWT(BE::Salvos[i].DataStr))
+                                {
+                                    BE::Salvos[i].MissileS = 0; // TODO: Can I move these checks to building the salvo array above?
+                                    BE::Salvos[i].valid = false;
+#ifdef CBE_DEBUG
+                                    CBE::debugFile << "[INFO] Is a missile battery.  That was handled earlier." << endl;
+#endif
+                                }
+                                // Check if the battery is offline
+                                else if (IsOffline(BE::Salvos[i].DataStr))
+                                {
+                                    BE::Salvos[i].MissileS = 0;
+                                    BE::Salvos[i].valid = false;
+#ifdef CBE_DEBUG
+                                    CBE::debugFile << "[INFO] Battery is offline." << endl;
+#endif
+                                }
+                                // Check for a firing delay in the ROF tag
+                                else if (GetROFDelayWT(BE::Salvos[i].DataStr) > 0)
+                                {
+                                    BE::Salvos[i].MissileS = 0;
+                                    BE::Salvos[i].valid = false;
+#ifdef CBE_DEBUG
+                                    CBE::debugFile << "[INFO] ROF delay is not this round" << endl;
+#endif
+                                }
+                                // Check if only LR attacks are valid and if the battery is NOT long
+                                else if ((BE::AttHasLongRange > 0 || BE::DefHasLongRange > 0) && !HasLongWT(BE::Salvos[i].DataStr))
+                                {
+                                    BE::Salvos[i].MissileS = 0;
+                                    BE::Salvos[i].valid = false;
+#ifdef CBE_DEBUG
+                                    CBE::debugFile << "[INFO] Battery is not long range" << endl;
+#endif
+                                }
+                                // Check for reserve and artillery tags
+                                // TODO: Can't this be removed?  The checks before salvos are built should skip this
+                                else if (HasReserve(BE::SpecialB[B]) > 0 && !HasArtilleryWT(BE::Salvos[i].DataStr))
+                                {
+                                    BE::Salvos[i].MissileS = 0;
+                                    BE::Salvos[i].valid = false;
+#ifdef CBE_DEBUG
+                                    CBE::debugFile << "[INFO] Battery is not artillery and unit is in reserve" << endl;
+#endif
+                                }
+                                // Check if the battery needs ammo and has some
+                                else if (ammo == CBE::AMMO_EMPTY)
+                                {
+                                    BE::Salvos[i].MissileS = 0;
+                                    BE::Salvos[i].valid = false;
+#ifdef CBE_DEBUG
+                                    CBE::debugFile << "[INFO] Battery is out of ammo" << endl;
+#endif
+                                }
 
-                                // Reassemble the weapon tags again for the unit
-                                // TODO: Why are we doing this again so soon?  Why not at the end?  Need to check the logic in the hit building above.
+                                // Cycle weapons updating counters and removing offline tags
+                                // TODO: Check for offline tag first?
+                                BE::Salvos[i].DataStr = RemoveTag(BE::Salvos[i].DataStr, "offline", 0);
+                                // Update the ROF tag if it is present
+                                int rate = GetROFRateWT(BE::Salvos[i].DataStr);
+                                if (rate > 0)
+                                {
+                                    // Weapon is cycling using ROF rate
+                                    int delay = GetROFDelayWT(BE::Salvos[i].DataStr);
+                                    string newROF = "";
+                                    if (delay > 0)
+                                    {
+                                        // Compute a new ROF tag by decrementing the delay value by 1.
+                                        newROF = "rof " + to_string(rate) + " " + to_string(delay - 1);
+                                    }
+                                    else
+                                    {
+                                        // Compute a new ROF tag by setting the delay value to the rate value
+                                        newROF = "rof " + to_string(rate) + " " + to_string(rate - 1); // Minus 1 because a rate of 2 is fire every other turn
+                                    }
+                                    string temp = RemoveTag(BE::Salvos[i].DataStr, "rof", 2); // Remove the old ROF tag
+                                    temp = AddTag(temp, newROF);                              // Add the new ROF tag
+                                    BE::Salvos[i].DataStr = temp;
+                                }
+
+                                // [JLL] Now that the salvo strings have been updated (offline & rof)
+                                // [JLL] rebuild the battery tags in the unit special string
+                                // [JLL] FIXME: This should only happen at the end of processing this unit.
                                 string temp = RebuildBatteryTags(BE::TempSpecialB[B], BE::Salvos, sc);
                                 BE::TempSpecialB[B] = temp;
                                 BE::SpecialB[B] = temp;
+
+                                // Does the salvo have firepower?
+                                if (BE::Salvos[i].MissileS > 0)
+                                {
+                                    // Mark this salvo is valid
+                                    BE::Salvos[i].valid = true;
+                                    // Does the battery have FLAK and does the defense have fighters?
+                                    if (HasFlakWT(BE::Salvos[i].DataStr) && BE::DefHasFighters > 0)
+                                    {
+                                        // Create the flak packets
+                                        for (int j = 0; j < BE::Salvos[i].MissileS; j++)
+                                        {
+                                            Hits[number_of_attacks].firepower = 1;                                                                // Fill out the hits array, with the firepower split into packets of 1
+                                            Hits[number_of_attacks].special = BE::saMulti;                                                        // Batteries are multi-targetting
+                                            Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, Hits[number_of_attacks].special); // Combine any bitwise flags
+                                            Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                                                  // Set the tags for the `hit` [JLL] Really this is a possible hit at this point.  More like shots.
+                                            number_of_attacks = number_of_attacks + 1;                                                            // Increment the number of attacks
+                                        }
+                                    }
+                                    else if (HasMultiWT(BE::Salvos[i].DataStr) > 0)
+                                    { // TODO: Use a constant here
+                                        // This is a multi attack
+                                        packet_size = HasMultiWT(BE::Salvos[i].DataStr); // TODO: Convert to local variable TODO: Differentiate HasMulti and GetMulti functions
+                                        for (int j = 0; j < int(BE::Salvos[i].MissileS / packet_size); j++)
+                                        {
+                                            Hits[number_of_attacks].firepower = packet_size;
+                                            Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, BE::saMulti); // Start with multi because batteries
+                                            Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                              // Set the tags for the hit
+                                            number_of_attacks = number_of_attacks + 1;                                        // Incremet the number of attacks
+                                        }
+                                        // Check for left over firepower due to packet sizing
+                                        if ((BE::Salvos[i].MissileS % packet_size) > 0)
+                                        {
+                                            // Yep, there is a remainder
+                                            Hits[number_of_attacks].firepower = BE::Salvos[i].MissileS % packet_size;
+                                            Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, BE::saMulti); // Start with multi because batteries
+                                            Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                              // Set the tags for the hit
+                                            number_of_attacks = number_of_attacks + 1;                                        // Incremet the number of attacks
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // If it is not flak and not multi then it must be a single target attack!
+                                        Hits[number_of_attacks].firepower = BE::Salvos[i].MissileS;                       // Set the firepower from the salvo
+                                        Hits[number_of_attacks].special = SetFlagsWT(BE::Salvos[i].DataStr, BE::saMulti); // Start with multi because batteries
+                                        Hits[number_of_attacks].tag = BE::Salvos[i].DataStr;                              // Set the tags for the hit
+                                        number_of_attacks = number_of_attacks + 1;                                        // Incremet the number of attacks
+                                    }
+                                }
+#ifdef CBE_DEBUG
+                                else
+                                {
+                                    CBE::debugFile << "[INFO] (DEF) Salvo has no firepower" << endl;
+                                }
+#endif
+
+                                // Check for ammo
+                                ammo = HasAmmoWT(BE::Salvos[i].DataStr);
+                                if (!HasMissileWT(BE::Salvos[i].DataStr) && ammo != CBE::AMMO_INFINITE && ammo > CBE::AMMO_EMPTY)
+                                {
+                                    // We are using ammo
+                                    // Create a new ammo tag
+                                    string newTag = "ammo " + to_string((ammo - 1));
+                                    string tempStr = RemoveTag(BE::Salvos[i].DataStr, "ammo", 1);
+                                    tempStr = AddTag(tempStr, newTag);
+                                    BE::Salvos[i].DataStr = tempStr;
+
+                                    // Reassemble the weapon tags again for the unit
+                                    // TODO: Why are we doing this again so soon?  Why not at the end?  Need to check the logic in the hit building above.
+                                    string temp = RebuildBatteryTags(BE::TempSpecialB[B], BE::Salvos, sc);
+                                    BE::TempSpecialB[B] = temp;
+                                    BE::SpecialB[B] = temp;
+                                }
                             }
                         }
                     }
+                    break;
                 }
-                break;
-            }
-            // ROLL ATTACKS
-            HasRaided = 0;
-            if (number_of_attacks == 0)
-            {
+                // ROLL ATTACKS
+                HasRaided = 0;
+                if (number_of_attacks == 0)
+                {
 // Skip the rest of the unit's round
 #ifdef CBE_DEBUG
-                CBE::debugFile << "[INFO] Unit has no attackes! Skipping rest of unit's turn." << endl;
+                    CBE::debugFile << "[INFO] Unit has no attackes! Skipping rest of unit's turn." << endl;
 #endif
-                if (ForceID == 0)
-                {
-                    // TODO: Change AttBattleStr and DefBattleStr to a single local variable.  Unless these get added to later in the loop. (Written at the Salvos point)
-                    if (BE::AttBattleStr != "")
+                    if (ForceID == 0)
                     {
-                        reportFile << BE::AttBattleStr << "\n";
-                    }
-                }
-                else
-                {
-                    if (BE::DefBattleStr != "")
-                    {
-                        reportFile << BE::DefBattleStr << "\n";
-                    }
-                }
-                continue;
-            }
-            // Handle the attacks
-            for (int i = 0; i < number_of_attacks; i++)
-            {
-#ifdef CBE_DEBUG
-                CBE::debugFile << "[INFO] Processing hit " << i << endl;
-#endif
-                int firepower = Hits[i].firepower;
-                // Is the firepower greater than 0
-                if (firepower > 0)
-                {
-                    int AbortCounter = 0;
-                    do
-                    {
-#ifdef CBE_DEBUG
-                        CBE::debugFile << "[INFO] Seeking a target" << endl;
-#endif
-                        AbortCounter++;
-                        if (AbortCounter >= 10)
+                        // TODO: Change AttBattleStr and DefBattleStr to a single local variable.  Unless these get added to later in the loop. (Written at the Salvos point)
+                        if (BE::AttBattleStr != "")
                         {
-                            // We have tried 10 times with this attack.  Skip it.
-                            // Check forceID
-                            if (ForceID == 0)
-                            {
-                                BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " aborts attack!";
-                                reportFile << BE::AttBattleStr << "\n";
-                            }
-                            else
-                            {
-                                BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " aborts attack!";
-                                reportFile << BE::DefBattleStr << "\n";
-                            }
-#ifdef CBE_DEBUG
-                            CBE::debugFile << "[INFO] Unit has aborted an attack after 10 tries!" << endl;
-#endif
-                            continue;
+                            reportFile << BE::AttBattleStr << "\n";
                         }
-
-                        // This section of code sets Target1.  The variable is set/reset if it is
-                        // the first attack roll (i = 0) or bit 16 is set for scatter pack targetting.
-                        // [JLL] I removed the logic tests for first hit and for bit 16 as all hits now have bit 16 set
-                        int HullTarget = 0;
-                        if (ForceID == 0) // Attackers
+                    }
+                    else
+                    {
+                        if (BE::DefBattleStr != "")
                         {
-                            string CombatStr = Hits[i].tag;
-                            int HullScope = 0;
-                            // Does the fleet have a target priority?
-                            if (BE::AttTargetPriority > 0)
-                            {
-                                HullTarget = BE::AttTargetPriority;
-                            }
-                            HasHull(CombatStr, HullTarget, HullScope);
-                            HasScan(CombatStr, HullTarget, HullScope);
-                            int dlGroup = -1; // TODO: Replace -1 with constant
-                            if (HasDatalinkWT(CombatStr, dlGroup))
-                            {
+                            reportFile << BE::DefBattleStr << "\n";
+                        }
+                    }
+                    continue;
+                }
+                // Handle the attacks
+                for (int i = 0; i < number_of_attacks; i++)
+                {
 #ifdef CBE_DEBUG
-                                CBE::debugFile << "[INFO] Hit has datalink, group " << dlGroup << endl;
+                    CBE::debugFile << "[INFO] Processing hit " << i << endl;
 #endif
-                                BE::Target1 = DataLinkA[dlGroup];
-                                // [JLL] Check if there is a target for the datalink group already
-                                if (BE::Target1 == -1) // TODO: Replace -1 with a constant
+                    int firepower = Hits[i].firepower;
+                    // Is the firepower greater than 0
+                    if (firepower > 0)
+                    {
+                        int AbortCounter = 0;
+                        do
+                        {
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO] Seeking a target" << endl;
+#endif
+                            AbortCounter++;
+                            if (AbortCounter >= 10)
+                            {
+                                // We have tried 10 times with this attack.  Skip it.
+                                // Check forceID
+                                if (ForceID == 0)
                                 {
+                                    BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " aborts attack!";
+                                    reportFile << BE::AttBattleStr << "\n";
+                                }
+                                else
+                                {
+                                    BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " aborts attack!";
+                                    reportFile << BE::DefBattleStr << "\n";
+                                }
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Unit has aborted an attack after 10 tries!" << endl;
+#endif
+                                continue;
+                            }
+
+                            // This section of code sets Target1.  The variable is set/reset if it is
+                            // the first attack roll (i = 0) or bit 16 is set for scatter pack targetting.
+                            // [JLL] I removed the logic tests for first hit and for bit 16 as all hits now have bit 16 set
+                            int HullTarget = 0;
+                            if (ForceID == 0) // Attackers
+                            {
+                                string CombatStr = Hits[i].tag;
+                                int HullScope = 0;
+                                // Does the fleet have a target priority?
+                                if (BE::AttTargetPriority > 0)
+                                {
+                                    HullTarget = BE::AttTargetPriority;
+                                }
+                                HasHull(CombatStr, HullTarget, HullScope);
+                                HasScan(CombatStr, HullTarget, HullScope);
+                                int dlGroup = -1; // TODO: Replace -1 with constant
+                                if (HasDatalinkWT(CombatStr, dlGroup))
+                                {
+#ifdef CBE_DEBUG
+                                    CBE::debugFile << "[INFO] Hit has datalink, group " << dlGroup << endl;
+#endif
+                                    BE::Target1 = DataLinkA[dlGroup];
+                                    // [JLL] Check if there is a target for the datalink group already
+                                    if (BE::Target1 == -1) // TODO: Replace -1 with a constant
+                                    {
+                                        if (HasScan(CombatStr, HullTarget, HullScope))
+                                        {
+                                            // Get a scan target
+                                            BE::Target1 = GetScanTarget(ForceID, CombatStr, HullTarget, HullScope, DefNumValidTargets);
+                                        }
+                                        else if (HasHull(CombatStr, HullTarget, HullScope))
+                                        {
+                                            // Get a hull target
+                                            BE::Target1 = GetHullTarget(ForceID, CombatStr, HullTarget, HullScope, DefNumValidTargets);
+                                        }
+                                        else
+                                        {
+                                            // Get a random target
+                                            BE::Target1 = GetRandomTarget(ForceID, CombatStr, DefNumValidTargets);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    // No datalink, just get a target
+#ifdef CBE_DEBUG
+                                    CBE::debugFile << "[INFO] No datalink, just get a target" << endl;
+#endif
                                     if (HasScan(CombatStr, HullTarget, HullScope))
                                     {
                                         // Get a scan target
@@ -4506,2156 +4539,2162 @@ void be_main()
                                     }
                                 }
                             }
-                            else
+                            else // Defenders
                             {
-                                // No datalink, just get a target
-#ifdef CBE_DEBUG
-                                CBE::debugFile << "[INFO] No datalink, just get a target" << endl;
-#endif
-                                if (HasScan(CombatStr, HullTarget, HullScope))
+                                string CombatStr = Hits[i].tag;
+                                int HullScope = 0;
+                                // Does the fleet have a target priority?
+                                if (BE::DefTargetPriority > 0)
                                 {
-                                    // Get a scan target
-                                    BE::Target1 = GetScanTarget(ForceID, CombatStr, HullTarget, HullScope, DefNumValidTargets);
+                                    HullTarget = BE::DefTargetPriority;
                                 }
-                                else if (HasHull(CombatStr, HullTarget, HullScope))
+                                int dlGroup = -1;
+                                if (HasDatalinkWT(CombatStr, dlGroup))
                                 {
-                                    // Get a hull target
-                                    BE::Target1 = GetHullTarget(ForceID, CombatStr, HullTarget, HullScope, DefNumValidTargets);
+                                    BE::Target1 = DataLinkB[dlGroup];
+                                    // Check if there is a target for the datalink group already
+                                    if (BE::Target1 == -1)
+                                    {
+                                        // No, get a target
+                                        // Check for scan tag
+                                        if (HasScan(CombatStr, HullTarget, HullScope))
+                                        {
+                                            // Yes to scan tag
+                                            BE::Target1 = GetScanTarget(ForceID, CombatStr, HullTarget, HullScope, AttNumValidTargets);
+                                        }
+                                        // Check for hull tag
+                                        else if (HasHull(CombatStr, HullTarget, HullScope))
+                                        {
+                                            // Yes to hull tag
+                                            BE::Target1 = GetHullTarget(ForceID, CombatStr, HullTarget, HullScope, AttNumValidTargets);
+                                        }
+                                        else
+                                        {
+                                            // Get a random target if all else failes
+                                            BE::Target1 = GetRandomTarget(ForceID, CombatStr, AttNumValidTargets);
+                                        }
+                                    }
                                 }
                                 else
                                 {
-                                    // Get a random target
-                                    BE::Target1 = GetRandomTarget(ForceID, CombatStr, DefNumValidTargets);
+                                    // No datalink, just get a target
+#ifdef CBE_DEBUG
+                                    CBE::debugFile << "[INFO] No datalink, just get a target" << endl;
+#endif
+                                    if (HasScan(CombatStr, HullTarget, HullScope))
+                                    {
+                                        // Get a scan target
+                                        BE::Target1 = GetScanTarget(ForceID, CombatStr, HullTarget, HullScope, AttNumValidTargets);
+                                    }
+                                    else if (HasHull(CombatStr, HullTarget, HullScope))
+                                    {
+                                        // Get a hull target
+                                        BE::Target1 = GetHullTarget(ForceID, CombatStr, HullTarget, HullScope, AttNumValidTargets);
+                                    }
+                                    else
+                                    {
+                                        // Get a random target
+                                        BE::Target1 = GetRandomTarget(ForceID, CombatStr, AttNumValidTargets);
+                                    }
+                                }
+                            }
+
+                            SeekTarget = 0;
+                            // Reject captured, just captured, and cloaked targets
+                            if (ForceID == 0)
+                            {
+                                // TODO: Replace 99 with a constance (See next line)
+                                if (IsCaptured(BE::SpecialB[BE::Target1]) || BE::BPAttackCritB[BE::Target1] > 99 || IsCloak(BE::SpecialB[BE::Target1]))
+                                {
+                                    SeekTarget = 1;
+                                }
+                            }
+                            else
+                            {
+                                // TODO: Replace 99 with a constance (See next line)
+                                if (IsCaptured(BE::SpecialA[BE::Target1]) || BE::BPAttackCritA[BE::Target1] > 99 || IsCloak(BE::SpecialA[BE::Target1]))
+                                {
+                                    SeekTarget = 1;
+                                }
+                            }
+                        } while (SeekTarget == 1);
+
+#ifdef CBE_DEBUG
+                        CBE::debugFile << "[INFO] Target selected: index=" << BE::Target1 << endl;
+#endif
+
+                        //  Since target selection is not done until now, point defense can not engage missiles until now
+                        if (ForceID == 0)
+                        {
+                            // Does the target have PD and is the attacker a missile?
+                            int pd = 0;
+                            if (HasPointDefense(BE::SpecialB[BE::Target1], pd) && IsMissile(BE::SpecialA[B]))
+                            {
+                                // Roll for a missile intercept
+                                int roll = rand() % 100;
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] PD=" << pd << "; Roll=" << roll << endl;
+#endif
+                                // Check if the roll succeded: roll must be less than pd tag value
+                                if (roll < pd)
+                                {
+                                    // The missile was intercepted
+                                    BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " missile intercepted!";
+                                    BE::CurHullA[B] = 0;
+                                    Hits[i].valid = false;
+                                    writeBattleString(reportFile, BE::AttBattleStr); // TODO: Remove
+                                    continue;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // Does the target have PD and is the attacker a missile?
+                            int pd = 0;
+                            if (HasPointDefense(BE::SpecialA[BE::Target1], pd) && IsMissile(BE::SpecialB[B]))
+                            {
+                                // Roll for the missile intercept
+                                int roll = rand() % 100;
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] PD=" << pd << "; Roll=" << roll << endl;
+#endif
+                                // Check if the roll succedded: roll must be less than pd tag value
+                                if (roll < pd)
+                                {
+                                    // The missiles was intercepted
+                                    BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " missile intercepted!";
+                                    BE::CurHullB[B] = 0;
+                                    Hits[i].valid = false;
+                                    writeBattleString(reportFile, BE::DefBattleStr); // TODO: Remove
+                                    continue;
+                                }
+                            }
+                        }
+
+                        // Determine attack roll and damage inflicted
+
+                        /*
+                         * Base chance to hit is 100% modified by targeting and defense
+                         * Base damage multiplier (1d100 + yield - resistance + get_hit_bonus) [min 1, max 100]
+                         * Base damage is int((firepower * multiplier) / 100)
+                         * Suicide adds to hit which may add to the great_hit_bonus
+                         * BPs always 'hit' but may not be effective due to enemy shields or defenders
+                         */
+
+                        switch (ForceID)
+                        {
+                        case 0: // Attackers
+                            if (Hits[i].special & BE::saBp == BE::saBp)
+                            {
+                                // This is a boarding party attack
+                                // Invalid targets are: solid, fighter, ground, vehicle, mine, and shielded targets unless the bp has pen
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Boarding party attack" << endl;
+#endif
+                                bool attempt = true;
+                                if (IsSolid(BE::SpecialB[BE::Target1]))
+                                {
+                                    attempt = false;
+                                }
+                                if (IsFighter(BE::SpecialB[BE::Target1]))
+                                {
+                                    attempt = false;
+                                }
+                                if (IsGround(BE::SpecialB[BE::Target1]))
+                                {
+                                    attempt = false;
+                                }
+                                if (IsVehicle(BE::SpecialB[BE::Target1]))
+                                {
+                                    attempt = false;
+                                }
+                                if (IsMine(BE::SpecialB[BE::Target1]))
+                                {
+                                    attempt = false;
+                                }
+                                if (BE::CurShieldB[BE::Target1] > 0 && Hits[i].special & BE::saPen != BE::saPen)
+                                {
+                                    attempt = false;
+                                }
+                                if (attempt)
+                                {
+                                    BE::dice1 = 100;
+                                }
+                                else
+                                {
+                                    BE::dice1 = 0;
+                                }
+                            }
+                            else
+                            {
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Regular attack" << endl;
+#endif
+                                // A non-boarding patry attack
+                                SuicideBonus = 0;
+                                CombatBonus = BE::AttTargetBonus;
+                                YieldBonus = 0;
+                                if (IsScuicide(BE::SpecialA[B]))
+                                {
+                                    SuicideBonus = 1 + rand() % 99;
+                                }
+                                int target = HasTarget(CombatStr);
+                                if (target > 0)
+                                {
+                                    CombatBonus = target; // FIXME: Should this not be additive to the fleet's target bonus?
+                                }
+                                HasYield(CombatStr, YieldBonus);
+                                long resist = 0;
+                                if (HasResist(BE::SpecialB[BE::Target1], resist))
+                                {
+                                    YieldBonus -= resist;
+                                }
+                                long defense = HasDefense(BE::SpecialB[BE::Target1]);
+                                if (defense <= 0)
+                                {
+                                    defense = 0;
+                                }
+                                AutoHit = 0;
+                                AutoMiss = 0;
+                                BE::dice1 = 1 + (rand() % 99);
+                                if (BE::dice1 == 0)
+                                {
+                                    AutoMiss = 1;
+#ifdef CBE_DEBUG
+                                    CBE::debugFile << "[INFO] Automatic miss due to dice roll of 1" << endl;
+#endif
+                                }
+                                else if (BE::dice1 == 100)
+                                {
+                                    AutoHit = 1;
+#ifdef CBE_DEBUG
+                                    CBE::debugFile << "[INFO] Automatic hit due to dice roll of 100" << endl;
+#endif
+                                }
+                                BE::dice1 = BE::dice1 + BE::DM_ToHitA + CombatBonus - defense;
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Target dice: " << BE::dice1 << endl;
+#endif
+                            }
+                            break;
+                        case 1: // Defenders
+                            if (Hits[i].special & BE::saBp == BE::saBp)
+                            {
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Boarding party attack" << endl;
+#endif
+                                // This is a boarding party attack
+                                // Invalid targets are: solid, fighter, ground, vehicle, mine, and shielded targets unless the bp has pen
+                                bool attempt = true;
+                                if (IsSolid(BE::SpecialA[BE::Target1]))
+                                {
+                                    attempt = false;
+                                }
+                                if (IsFighter(BE::SpecialA[BE::Target1]))
+                                {
+                                    attempt = false;
+                                }
+                                if (IsGround(BE::SpecialA[BE::Target1]))
+                                {
+                                    attempt = false;
+                                }
+                                if (IsVehicle(BE::SpecialA[BE::Target1]))
+                                {
+                                    attempt = false;
+                                }
+                                if (IsMine(BE::SpecialA[BE::Target1]))
+                                {
+                                    attempt = false;
+                                }
+                                if (BE::CurShieldA[BE::Target1] > 0 && Hits[i].special & BE::saPen != BE::saPen)
+                                {
+                                    attempt = false;
+                                }
+                                if (attempt)
+                                {
+                                    BE::dice1 = 100;
+                                }
+                                else
+                                {
+                                    BE::dice1 = 0;
+                                }
+                            }
+                            else
+                            {
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Regular attack" << endl;
+#endif
+                                // A non-boarding patry attack
+                                SuicideBonus = 0;
+                                CombatBonus = BE::AttTargetBonus;
+                                YieldBonus = 0;
+                                if (IsScuicide(BE::SpecialB[B]))
+                                {
+                                    SuicideBonus = 1 + rand() % 99;
+                                }
+                                int target = HasTarget(CombatStr);
+                                if (target > 0)
+                                {
+                                    CombatBonus = target; // FIXME: Should this not be additive to the fleet's target bonus?
+                                }
+                                HasYield(CombatStr, YieldBonus);
+                                long resist = 0;
+                                if (HasResist(BE::SpecialA[BE::Target1], resist))
+                                {
+                                    YieldBonus -= resist;
+                                }
+                                long defense = HasDefense(BE::SpecialA[BE::Target1]);
+                                if (defense <= 0)
+                                {
+                                    defense = 0;
+                                }
+                                AutoHit = 0;
+                                AutoMiss = 0;
+                                BE::dice1 = 1 + (rand() % 99);
+                                if (BE::dice1 == 0)
+                                {
+                                    AutoMiss = 1;
+#ifdef CBE_DEBUG
+                                    CBE::debugFile << "[INFO] Automatic miss due to dice roll of 1" << endl;
+#endif
+                                }
+                                else if (BE::dice1 == 100)
+                                {
+                                    AutoHit = 1;
+#ifdef CBE_DEBUG
+                                    CBE::debugFile << "[INFO] Automatic hit due to dice roll of 100" << endl;
+#endif
+                                }
+                                BE::dice1 = BE::dice1 + BE::DM_ToHitB + CombatBonus - defense;
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Target dice: " << BE::dice1 << endl;
+#endif
+                            }
+                            break;
+                        }
+
+                        // Ok, dice1 < 1 is a miss.  Dice1 > 100 earns a Dice1-100 great_hit_bonus
+                        // Dice 1 to 100 is a normal hit
+#ifdef CBE_DEBUG
+                        CBE::debugFile << "[INFO] Calculating damage.  Firepower: " << firepower << endl;
+#endif
+                        if ((BE::dice1 <= (100 - BaseAccuracy) || AutoMiss == 1) && AutoHit == 0)
+                        {
+                            // Miss
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO] The hit is a miss.  dice1:" << BE::dice1 << endl;
+#endif
+                            BE::Damage3 = 0;
+                        }
+                        else
+                        {
+                            // Check if the MaximumDamage option is true
+                            if (BE::MaximumDamage == 1) // TODO: Add to command line arguments
+                            {
+                                BE::Damage3 = firepower;
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Using maximum damage" << endl;
+#endif
+                            }
+                            else
+                            {
+                                // We are not using max damage so roll damage
+                                if (BE::dice1 > 100)
+                                {
+                                    // Calculate the good hit bonu
+                                    YieldBonus += (BE::dice1 - 100);
+#ifdef CBE_DEBUG
+                                    CBE::debugFile << "[INFO] Good hit bonus!" << endl;
+#endif
+                                }
+                                BE::Damage3 = long(round((1 + (rand() % (firepower - 1))) * (1.0f + (float(YieldBonus) / 100.0f))));
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] Raw damage: " << BE::Damage3 << endl;
+#endif
+                                if (BE::Damage3 < 1)
+                                {
+                                    BE::Damage3 = 0;
+                                }
+                                else if (BE::Damage3 > firepower)
+                                {
+                                    BE::Damage3 = firepower;
+                                }
+                            }
+                        }
+                        BE::Damage2 = 0; // Clear pen damage
+                        BE::Damage1 = BE::Damage3;
+#ifdef CBE_DEBUG
+                        CBE::debugFile << "[INFO] damage: " << BE::Damage1 << endl;
+#endif
+                        if (ForceID == 0) // Attackers
+                        {
+                            if (BE::dice1 <= (100 - BaseAccuracy))
+                            {
+                                // This is a miss.  Make the appropriate battle strings to write out later
+                                if (Hits[i].special & BE::saBp == BE::saBp)
+                                {
+                                    BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " can not engage " + BE::DefRaceName + " " + BE::DefShipStr[BE::Target1] + " in boarding party combat.";
+                                }
+                                else
+                                {
+                                    BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " fires on " + BE::DefRaceName + " " + BE::DefShipStr[BE::Target1] + " and misses.";
+                                }
+                            }
+                            else
+                            {
+                                // This is a hit!
+                                // Check if this is a boarding party hit
+                                if (Hits[i].special & BE::saBp == BE::saBp)
+                                {
+                                    AttVal = firepower; // Can just use the bracket firepower as there is no need to check for unit BP attack value.
+
+                                    // Calculate the targets defensive bp value
+                                    DefVal = GetBPDefVal(BE::SpecialB[BE::Target1], BE::CurHullB[BE::Target1]);
+
+                                    // Roll a random number between 1 and (DefVal + AttVal)
+                                    // Then check if the random number is greater than the DefVal of the target
+                                    // If the number is greater, then the attack party was successful
+                                    BPDice = (rand() % (DefVal + AttVal - 1)) + 1;
+                                    if (BPDice > DefVal)
+                                    {
+                                        // Now weee roll another die.  This is for the 25% chance that attacking
+                                        // boarding party captured the target
+                                        // TODO: This should not be a flat 25%.  Should scale with DefVal vs AttVal
+                                        int catpureDie = rand() % 4;
+                                        if (catpureDie == 0)
+                                        {
+                                            // The target was captured.  Setup the report string and the critical hit
+                                            BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " captures " + BE::DefShipStr[BE::Target1];
+                                            BE::BPAttackCritB[BE::Target1] += 100;                                                    // FIXME: Change this to a constant
+                                            BE::TempSpecialB[BE::Target1] = AddTag(BE::TempSpecialB[BE::Target1], "NOMOVE CAPTURED"); // The ship cannot run away
+                                            // FIXME: The BP should be expended
+                                        }
+                                        else
+                                        {
+                                            // The defend has suffered a normal BP crit rather than a capture
+                                            BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " is conducting a hit and run raid on " + BE::DefShipStr[BE::Target1];
+                                            BE::BPAttackCritB[BE::Target1] += 1;
+                                            // [JLL] TODO: I have no idea what this code is for and why it is here...
+                                            BE::Shields = 0;
+                                            BE::Crits = 0;
+                                            BE::Hull = BE::TempCurHullB[BE::Target1];
+                                            BE::X = BE::Target1;
+                                            if (BE::TempCurHullB[BE::Target1] == 0)
+                                            {
+                                                tmp = 0;
+                                            }
+                                            else
+                                            {
+                                                tmp = 100 - ((BE::TempCurHullB[BE::Target1] * 100) / BE::MaxHullB[BE::Target1]); // TODO: Clear up to Cur/Max * 100 for clarity.  Will need to do type casting for this to work well.
+                                            }
+                                            BE::Attacks[BE::AttacksIndex].AttackID = BE::A;
+                                            BE::Attacks[BE::AttacksIndex].TargetID = BE::Target1 + BE::AttShipsLeft;
+                                            BE::Attacks[BE::AttacksIndex].Damage = BE::Damage1;
+                                            BE::Attacks[BE::AttacksIndex].Weapon = Hits[i].special;
+                                            BE::Attacks[BE::AttacksIndex].Special = Hits[i].tag;
+                                            BE::AttacksIndex++;
+                                            // TODO: Better too many hit handling
+                                            if (BE::AttacksIndex >= BE::AttacksMax)
+                                            {
+#ifdef CBE_DEBUG
+                                                CBE::debugFile << "[ERROR] Number of attacks exceeded maximum number allowed.  Max is " << BE::AttacksMax << endl;
+#endif
+                                                cerr << "I have reached the maximum number of attacks I can handle." << endl;
+                                                exit(1);
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // Attackers repulsed
+                                        // TODO: This should scale with AttVal vs DefVal
+                                        if (rand() % 4 == 0)
+                                        {
+                                            // Defenders win and boarding party is expended
+                                            // FIXME: THE BP should be expended
+                                            // TODO: Add which unit (Target1) ambushed the borders.
+                                            BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " borders ambushed, multiple causualties!";
+                                        }
+                                        else
+                                        {
+                                            // Defenders win and boarding party is repulsed.  Boarding party can try again later
+                                            // TODO: Add which unit (Target1) repulsed the boarders
+                                            BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " borders repulsed!";
+                                        }
+                                    }
+                                }
+                                else
+                                {
+#ifdef CBE_DEBUG
+                                    CBE::debugFile << "[INFO] Attacker Regular Attack" << endl;
+#endif
+                                    BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " fires on " + BE::DefRaceName + " " + BE::DefShipStr[BE::Target1] + " scoring " + to_string(BE::Damage1) + " hits (" + to_string(BE::dice1) + "%)";
+                                    BE::Attacks[BE::AttacksIndex].AttackID = BE::A;
+                                    BE::Attacks[BE::AttacksIndex].TargetID = BE::Target1 + BE::AttShipsLeft;
+                                    BE::Attacks[BE::AttacksIndex].Damage = BE::Damage1;
+                                    BE::Attacks[BE::AttacksIndex].Weapon = Hits[i].special;
+                                    BE::Attacks[BE::AttacksIndex].Special = Hits[i].tag;
+                                    BE::AttacksIndex++;
+                                    if (BE::AttacksIndex >= BE::AttacksMax)
+                                    {
+#ifdef CBE_DEBUG
+                                        CBE::debugFile << "[ERROR] Maximum number of attacks exceeded." << endl;
+#endif
+                                        // TODO: Throw an exception to be caught
+                                        exit(1);
+                                    }
+                                }
+                            }
+                            if (number_of_attacks > 1)
+                            {
+                                // This is to indicate in the report file which attack this is from the unit
+                                BE::AttBattleStr = BE::AttBattleStr + "[" + to_string(i) + " of " + to_string(number_of_attacks) + "]";
+                            }
+                        }    // Done with attackers
+                        else // Defenders
+                        {
+                            // ForceID == 1
+                            // Do all of the above again, but now for the defenders.
+                            if (BE::dice1 <= (100 - BaseAccuracy))
+                            {
+                                // This is a miss.  Make the appropriate battle strings to write out later
+                                if (Hits[i].special & BE::saBp == BE::saBp)
+                                {
+                                    BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " can not engage " + BE::AttRaceName + " " + BE::AttShipStr[BE::Target1] + " in boarding party combat.";
+                                }
+                                else
+                                {
+                                    BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " fires on " + BE::AttRaceName + " " + BE::AttShipStr[BE::Target1] + " and misses.";
+                                }
+                            }
+                            else
+                            {
+                                // This is a hit!
+                                // Check if this is a boarding party hit
+                                if (Hits[i].special & BE::saBp == BE::saBp)
+                                {
+                                    AttVal = firepower; // Can just use the bracket firepower as there is no need to check for unit BP attack value.
+
+                                    // Calculate the targets defensive bp value
+                                    DefVal = GetBPDefVal(BE::SpecialA[BE::Target1], BE::CurHullA[BE::Target1]);
+
+                                    // Roll a random number between 1 and (DefVal + AttVal)
+                                    // Then check if the random number is greater than the DefVal of the target
+                                    // If the number is greater, then the attack party was successful
+                                    BPDice = (rand() % (DefVal + AttVal - 1)) + 1;
+                                    if (BPDice > DefVal)
+                                    {
+                                        // Now weee roll another die.  This is for the 25% chance that attacking
+                                        // boarding party captured the target
+                                        // TODO: This should not be a flat 25%.  Should scale with DefVal vs AttVal
+                                        int catpureDie = rand() % 4;
+                                        if (catpureDie == 0)
+                                        {
+                                            // The target was captured.  Setup the report string and the critical hit
+                                            BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " captures " + BE::AttShipStr[BE::Target1];
+                                            BE::BPAttackCritA[BE::Target1] += 100;                                                    // FIXME: Change this to a constant
+                                            BE::TempSpecialA[BE::Target1] = AddTag(BE::TempSpecialA[BE::Target1], "NOMOVE CAPTURED"); // The ship cannot run away
+                                            // FIXME: The BP should be expended
+                                        }
+                                        else
+                                        {
+                                            // The defend has suffered a normal BP crit rather than a capture
+                                            BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " is conducting a hit and run raid on " + BE::AttShipStr[BE::Target1];
+                                            BE::BPAttackCritA[BE::Target1] += 1;
+                                            // [JLL] TODO: I have no idea what this code is for and why it is here...
+                                            BE::Shields = 0;
+                                            BE::Crits = 0;
+                                            BE::Hull = BE::TempCurHullA[BE::Target1];
+                                            BE::X = BE::Target1;
+                                            if (BE::TempCurHullA[BE::Target1] == 0)
+                                            {
+                                                tmp = 0;
+                                            }
+                                            else
+                                            {
+                                                tmp = 100 - ((BE::TempCurHullA[BE::Target1] * 100) / BE::MaxHullA[BE::Target1]); // TODO: Clear up to Cur/Max * 100 for clarity.  Will need to do type casting for this to work well.
+                                            }
+                                            BE::Attacks[BE::AttacksIndex].AttackID = BE::A + BE::AttShipsLeft;
+                                            BE::Attacks[BE::AttacksIndex].TargetID = BE::Target1;
+                                            BE::Attacks[BE::AttacksIndex].Damage = BE::Damage1;
+                                            BE::Attacks[BE::AttacksIndex].Weapon = Hits[i].special;
+                                            BE::Attacks[BE::AttacksIndex].Special = Hits[i].tag;
+                                            BE::AttacksIndex++;
+                                            // TODO: Better too many hit handling
+                                            if (BE::AttacksIndex >= BE::AttacksMax)
+                                            {
+#ifdef CBE_DEBUG
+                                                CBE::debugFile << "[ERROR] Number of attacks exceeded maximum number allowed.  Max is " << BE::AttacksMax << endl;
+#endif
+                                                cerr << "I have reached the maximum number of attacks I can handle." << endl;
+                                                exit(1);
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // Attackers repulsed
+                                        // TODO: This should scale with AttVal vs DefVal
+                                        if (rand() % 4 == 0)
+                                        {
+                                            // Defenders win and boarding party is expended
+                                            // FIXME: THE BP should be expended
+                                            // TODO: Add which unit (Target1) ambushed the borders.
+                                            BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " borders ambushed, multiple causualties!";
+                                        }
+                                        else
+                                        {
+                                            // Defenders win and boarding party is repulsed.  Boarding party can try again later
+                                            // TODO: Add which unit (Target1) repulsed the boarders
+                                            BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " borders repulsed!";
+                                        }
+                                    }
+                                }
+                                else
+                                {
+#ifdef CBE_DEBUG
+                                    CBE::debugFile << "[INFO] Defender regular attack" << endl;
+#endif
+                                    BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " fires on " + BE::AttRaceName + " " + BE::AttShipStr[BE::Target1] + " scoring " + to_string(BE::Damage1) + " hits (" + to_string(BE::dice1) + "%)";
+                                    BE::Attacks[BE::AttacksIndex].AttackID = BE::A + BE::AttShipsLeft;
+                                    BE::Attacks[BE::AttacksIndex].TargetID = BE::Target1;
+                                    BE::Attacks[BE::AttacksIndex].Damage = BE::Damage1;
+                                    BE::Attacks[BE::AttacksIndex].Weapon = Hits[i].special;
+                                    BE::Attacks[BE::AttacksIndex].Special = Hits[i].tag;
+                                    BE::AttacksIndex++;
+                                    if (BE::AttacksIndex >= BE::AttacksMax)
+                                    {
+#ifdef CBE_DEBUG
+                                        CBE::debugFile << "[ERROR] Maximum number of attacks exceeded." << endl;
+#endif
+                                        // TODO: Throw an exception to be caught
+                                        exit(1);
+                                    }
+                                }
+                            }
+                            if (number_of_attacks > 1)
+                            {
+                                // This is to indicate in the report file which attack this is from the unit
+                                BE::DefBattleStr = BE::DefBattleStr + "[" + to_string(i) + " of " + to_string(number_of_attacks) + "]";
+                            }
+                        } // Done with defenders
+                    }
+                    else // firepower is less than or equal to 0?
+                    {
+                        if (ForceID == 0) // Attackers
+                        {
+                            BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " no normal attack. (Firepower is equal to 0)";
+                        }
+                        else // Defenders
+                        {
+                            BE::DefBattleStr = BE::DefBattleStr + " " + BE::DefShipStr[B] + " no normal attack. (Firepower is equal to 0)";
+                        }
+                    }
+
+                    // Check ForceID to print the correct message
+                    if (ForceID == 0)
+                    {
+                        // TODO: Change AttBattleStr and DefBattleStr to a single local variable.  Unless these get added to later in the loop. (Written at the Salvos point)
+                        if (BE::AttBattleStr != "")
+                        {
+                            reportFile << BE::AttBattleStr << "\n";
+                        }
+                    }
+                    else
+                    {
+                        if (BE::DefBattleStr != "")
+                        {
+                            reportFile << BE::DefBattleStr << "\n";
+                        }
+                    }
+                } // End for number_of_attacks
+            }
+
+            reportFile << "\n";
+
+            // Damage routine
+            // Clear the battle strings for some reason
+            BE::AttBattleStr = "";
+            BE::DefBattleStr = "";
+
+#ifdef CBE_DEBUG
+            CBE::debugFile << "[INFO] Begining of damage routine" << endl;
+#endif
+
+            for (long A = 0; A < (BE::AttShipsLeft + BE::DefShipsLeft); A++)
+            {
+                // [JLL] Do the usual convoluted bullshit for attackers and defenders
+                long B = A;
+                ForceID = 0;
+                if (A >= BE::AttShipsLeft)
+                {
+                    B = A - BE::AttShipsLeft;
+                    ForceID = 1;
+                }
+                else if (A == BE::AttShipsLeft)
+                {
+                    reportFile << "\n";
+                }
+
+#ifdef CBE_DEBUG
+                CBE::debugFile << "[INFO][Damage Routine] A=" << A << ";B=" << B << ";ForceID=" << ForceID << endl;
+#endif
+
+                ShipHit = 0;
+                // Check to see if the ship has was attacked
+                // [JLL] Not sure why this is done
+                // This is done to collect all of the attacks against a specific unit
+                // for grouping in the report file
+                // TODO: Store hits by unit rather than globally
+                for (long E = 0; E < BE::AttacksIndex; E++)
+                {
+                    // Check for the target of the attack matching the current ship
+                    // This is to group all attacks against this ship
+                    // For grouping in the reports file
+                    if (BE::Attacks[E].TargetID == A)
+                    {
+                        B = BE::Attacks[E].AttackID;
+#ifdef CBE_DEBUG
+                        CBE::debugFile << "[INFO][Damage Routine] AttackID=" << B << endl;
+#endif
+                        if (B >= BE::AttShipsLeft)
+                        {
+                            B = B - BE::AttShipsLeft;
+                            ForceID = 1;
+                            BE::Target1 = BE::Attacks[E].TargetID;
+                        }
+                        else
+                        {
+                            ForceID = 0;
+                            BE::Target1 = BE::Attacks[E].TargetID - BE::AttShipsLeft;
+                        }
+
+#ifdef CBE_DEBUG
+                        CBE::debugFile << "[INFO][Damage Routine] Target1=" << BE::Target1 << endl;
+#endif
+
+                        BE::Damage1 = BE::Attacks[E].Damage;
+
+                        // [JLL] This set of if statements is used to print out the header for a block of attacks against
+                        // a specific ship.  I have collapsed the logic some from the original and placed the ShipHit check
+                        // first because it is the one that will change most frequently.
+                        if (ShipHit == 0 && ForceID == 0)
+                        {
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO][Damage Routine] Attacker Target1(" << BE::Target1 << "):" << BE::DefShipStr[BE::Target1] << " hit." << endl;
+#endif
+                            reportFile << BE::DefShipStr[BE::Target1] + " has been hit.\n";
+                            ShipHit = 1;
+                        }
+                        else if (ShipHit == 0 && ForceID == 1)
+                        {
+#ifdef CBE_DEBUG
+                            CBE::debugFile << "[INFO][Damage Routine] Defender Target1(" << BE::Target1 << "):" << BE::AttShipStr[BE::Target1] << " hit." << endl;
+#endif
+                            reportFile << BE::AttShipStr[BE::Target1] + " has been hit.\n";
+                            ShipHit = 1;
+                        }
+
+                        if (BE::Attacks[E].Weapon & BE::saBp == BE::saBp)
+                        {
+                            reportFile << "  Boarding party attack is in progress.\n";
+                        }
+                        else
+                        {
+                            // TODO: Think about better logic than simply not boarding party
+                            reportFile << "  Takes " + to_string(BE::Damage1) + " points of damage.";
+                        }
+
+                        if (ForceID == 0)
+                        {
+                            long flicker = 0;
+                            if (HasFlicker(BE::SpecialB[BE::Target1], flicker))
+                            {
+                                long flickerRoll = 1 + (rand() % 99);
+                                if (flickerRoll <= flicker)
+                                {
+                                    BE::Damage1 = 0;
+                                    reportFile << " <attack deflected>";
+                                }
+                            }
+                            // FIXME: If flicker has already worked then why do we need to check for shields?
+                            if (BE::CurShieldB[BE::Target1] > 0)
+                            {
+                                long sr = 0;
+                                if (HasShields(BE::SpecialB[BE::Target1], sr))
+                                {
+                                    BE::Damage1 -= sr;
+                                    if (BE::Damage1 < 1)
+                                    {
+                                        reportFile << " <attack deflected>";
+                                    }
+                                    else
+                                    {
+                                        reportFile << " <" << sr << " pts deflected>";
+                                    }
+                                }
+                                else
+                                {
+                                    // [JLL] Crack only works if SR is not present?
+                                    // TODO: Think about if crack weapons should effect targets with SR
+                                    // FIXME: Need to move this around so that crack is check and damage increased
+                                    // then have the SR checked.
+                                    if (BE::Attacks[E].Weapon & BE::saCrack == BE::saCrack)
+                                    {
+                                        long crackDamage = BE::Damage1 * 2;
+                                        if (crackDamage < BE::TempCurShieldB[BE::Target1])
+                                        {
+                                            // [JLL] Why would ret be set to Damage1 * 2?
+                                            BE::TempCurShieldB[BE::Target1] -= crackDamage;
+                                            BE::Damage1 = 0; // This keeps crack damage from overflowing to armor/hull
+                                            reportFile << " <shield disruption>";
+                                        }
+                                        else
+                                        {
+                                            // [JLL] ret here gets set to the remaining shields...
+                                            BE::TempCurShieldB[BE::Target1] = 0;
+                                            BE::Damage1 = 0; // This keeps crack damage from overflowing to armor/hull
+                                            reportFile << " <shield disrupted>";
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                // No shields, check for crack so that damage can be set to 0.
+                                if (BE::Attacks[E].Weapon & BE::saCrack == BE::saCrack)
+                                {
+                                    BE::Damage1 = 0;
+                                    reportFile << " <attack dissipates>";
                                 }
                             }
                         }
                         else // Defenders
                         {
-                            string CombatStr = Hits[i].tag;
-                            int HullScope = 0;
-                            // Does the fleet have a target priority?
-                            if (BE::DefTargetPriority > 0)
+                            long flicker = 0;
+                            if (HasFlicker(BE::SpecialA[BE::Target1], flicker))
                             {
-                                HullTarget = BE::DefTargetPriority;
-                            }
-                            int dlGroup = -1;
-                            if (HasDatalinkWT(CombatStr, dlGroup))
-                            {
-                                BE::Target1 = DataLinkB[dlGroup];
-                                // Check if there is a target for the datalink group already
-                                if (BE::Target1 == -1)
+                                long flickerRoll = 1 + (rand() % 99);
+                                if (flickerRoll <= flicker)
                                 {
-                                    // No, get a target
-                                    // Check for scan tag
-                                    if (HasScan(CombatStr, HullTarget, HullScope))
+                                    BE::Damage1 = 0;
+                                    reportFile << " <attack deflected>";
+                                }
+                            }
+                            if (BE::CurShieldA[BE::Target1] > 0)
+                            {
+                                long sr = 0;
+                                if (HasShields(BE::SpecialA[BE::Target1], sr))
+                                {
+                                    BE::Damage1 -= sr;
+                                    if (BE::Damage1 < 1)
                                     {
-                                        // Yes to scan tag
-                                        BE::Target1 = GetScanTarget(ForceID, CombatStr, HullTarget, HullScope, AttNumValidTargets);
-                                    }
-                                    // Check for hull tag
-                                    else if (HasHull(CombatStr, HullTarget, HullScope))
-                                    {
-                                        // Yes to hull tag
-                                        BE::Target1 = GetHullTarget(ForceID, CombatStr, HullTarget, HullScope, AttNumValidTargets);
+                                        reportFile << " <attack deflected>";
                                     }
                                     else
                                     {
-                                        // Get a random target if all else failes
-                                        BE::Target1 = GetRandomTarget(ForceID, CombatStr, AttNumValidTargets);
+                                        reportFile << " <" << sr << " pts deflected>";
+                                    }
+                                }
+                                else
+                                {
+                                    // [JLL] Crack only works if SR is not present?
+                                    // TODO: Think about if crack weapons should effect targets with SR
+                                    // FIXME: Need to move this around so that crack is check and damage increased
+                                    // then have the SR checked.
+                                    if (BE::Attacks[E].Weapon & BE::saCrack == BE::saCrack)
+                                    {
+                                        long crackDamage = BE::Damage1 * 2;
+                                        if (crackDamage < BE::TempCurShieldA[BE::Target1])
+                                        {
+                                            // [JLL] Why would ret be set to Damage1 * 2?
+                                            BE::TempCurShieldA[BE::Target1] -= crackDamage;
+                                            BE::Damage1 = 0; // This keeps crack damage from overflowing to armor/hull
+                                            reportFile << " <shield disruption>";
+                                        }
+                                        else
+                                        {
+                                            // [JLL] ret here gets set to the remaining shields...
+                                            BE::TempCurShieldA[BE::Target1] = 0;
+                                            BE::Damage1 = 0; // This keeps crack damage from overflowing to armor/hull
+                                            reportFile << " <shield disrupted>";
+                                        }
                                     }
                                 }
                             }
                             else
                             {
-                                // No datalink, just get a target
-#ifdef CBE_DEBUG
-                                CBE::debugFile << "[INFO] No datalink, just get a target" << endl;
-#endif
-                                if (HasScan(CombatStr, HullTarget, HullScope))
+                                // No shields, check for crack so that damage can be set to 0.
+                                if (BE::Attacks[E].Weapon & BE::saCrack == BE::saCrack)
                                 {
-                                    // Get a scan target
-                                    BE::Target1 = GetScanTarget(ForceID, CombatStr, HullTarget, HullScope, AttNumValidTargets);
-                                }
-                                else if (HasHull(CombatStr, HullTarget, HullScope))
-                                {
-                                    // Get a hull target
-                                    BE::Target1 = GetHullTarget(ForceID, CombatStr, HullTarget, HullScope, AttNumValidTargets);
-                                }
-                                else
-                                {
-                                    // Get a random target
-                                    BE::Target1 = GetRandomTarget(ForceID, CombatStr, AttNumValidTargets);
+                                    BE::Damage1 = 0;
+                                    reportFile << " <attack dissipates>";
                                 }
                             }
                         }
 
-                        SeekTarget = 0;
-                        // Reject captured, just captured, and cloaked targets
+                        // Do the pen damage checks
+                        long X = BE::Target1;
+                        string temp_str = "";
+                        BE::ShipCritStr = ""; // TODO: Change to local scope variable
+                        BE::Crits = 0;        // TODO: Change to local scope variable
+
                         if (ForceID == 0)
                         {
-                            // TODO: Replace 99 with a constance (See next line)
-                            if (IsCaptured(BE::SpecialB[BE::Target1]) || BE::BPAttackCritB[BE::Target1] > 99 || IsCloak(BE::SpecialB[BE::Target1]))
+                            if (BE::TempCurShieldB[X] < BE::Damage1)
                             {
-                                SeekTarget = 1;
-                            }
-                        }
-                        else
-                        {
-                            // TODO: Replace 99 with a constance (See next line)
-                            if (IsCaptured(BE::SpecialA[BE::Target1]) || BE::BPAttackCritA[BE::Target1] > 99 || IsCloak(BE::SpecialA[BE::Target1]))
-                            {
-                                SeekTarget = 1;
-                            }
-                        }
-                    } while (SeekTarget == 1);
-
-#ifdef CBE_DEBUG
-                    CBE::debugFile << "[INFO] Target selected: index=" << BE::Target1 << endl;
-#endif
-
-                    //  Since target selection is not done until now, point defense can not engage missiles until now
-                    if (ForceID == 0)
-                    {
-                        // Does the target have PD and is the attacker a missile?
-                        int pd = 0;
-                        if (HasPointDefense(BE::SpecialB[BE::Target1], pd) && IsMissile(BE::SpecialA[B]))
-                        {
-                            // Roll for a missile intercept
-                            int roll = rand() % 100;
-#ifdef CBE_DEBUG
-                            CBE::debugFile << "[INFO] PD=" << pd << "; Roll=" << roll << endl;
-#endif
-                            // Check if the roll succeded: roll must be less than pd tag value
-                            if (roll < pd)
-                            {
-                                // The missile was intercepted
-                                BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " missile intercepted!";
-                                BE::CurHullA[B] = 0;
-                                Hits[i].valid = false;
-                                writeBattleString(reportFile, BE::AttBattleStr); // TODO: Remove
-                                continue;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // Does the target have PD and is the attacker a missile?
-                        int pd = 0;
-                        if (HasPointDefense(BE::SpecialA[BE::Target1], pd) && IsMissile(BE::SpecialB[B]))
-                        {
-                            // Roll for the missile intercept
-                            int roll = rand() % 100;
-#ifdef CBE_DEBUG
-                            CBE::debugFile << "[INFO] PD=" << pd << "; Roll=" << roll << endl;
-#endif
-                            // Check if the roll succedded: roll must be less than pd tag value
-                            if (roll < pd)
-                            {
-                                // The missiles was intercepted
-                                BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " missile intercepted!";
-                                BE::CurHullB[B] = 0;
-                                Hits[i].valid = false;
-                                writeBattleString(reportFile, BE::DefBattleStr); // TODO: Remove
-                                continue;
-                            }
-                        }
-                    }
-
-                    // Determine attack roll and damage inflicted
-
-                    /*
-                     * Base chance to hit is 100% modified by targeting and defense
-                     * Base damage multiplier (1d100 + yield - resistance + get_hit_bonus) [min 1, max 100]
-                     * Base damage is int((firepower * multiplier) / 100)
-                     * Suicide adds to hit which may add to the great_hit_bonus
-                     * BPs always 'hit' but may not be effective due to enemy shields or defenders
-                     */
-
-                    switch (ForceID)
-                    {
-                    case 0: // Attackers
-                        if (Hits[i].special & BE::saBp == BE::saBp)
-                        {
-                            // This is a boarding party attack
-                            // Invalid targets are: solid, fighter, ground, vehicle, mine, and shielded targets unless the bp has pen
-#ifdef CBE_DEBUG
-                            CBE::debugFile << "[INFO] Boarding party attack" << endl;
-#endif
-                            bool attempt = true;
-                            if (IsSolid(BE::SpecialB[BE::Target1]))
-                            {
-                                attempt = false;
-                            }
-                            if (IsFighter(BE::SpecialB[BE::Target1]))
-                            {
-                                attempt = false;
-                            }
-                            if (IsGround(BE::SpecialB[BE::Target1]))
-                            {
-                                attempt = false;
-                            }
-                            if (IsVehicle(BE::SpecialB[BE::Target1]))
-                            {
-                                attempt = false;
-                            }
-                            if (IsMine(BE::SpecialB[BE::Target1]))
-                            {
-                                attempt = false;
-                            }
-                            if (BE::CurShieldB[BE::Target1] > 0 && Hits[i].special & BE::saPen != BE::saPen)
-                            {
-                                attempt = false;
-                            }
-                            if (attempt)
-                            {
-                                BE::dice1 = 100;
+                                BE::Shields = 0;                                       // TODO: Change to local scope variable
+                                BE::DamageLevel = BE::Damage1 - BE::TempCurShieldB[X]; // TODO: Change to local scope variable
                             }
                             else
                             {
-                                BE::dice1 = 0;
+                                BE::Shields = BE::TempCurShieldB[X] - BE::Damage1;
+                                BE::DamageLevel = 0;
                             }
-                        }
-                        else
-                        {
-#ifdef CBE_DEBUG
-                            CBE::debugFile << "[INFO] Regular attack" << endl;
-#endif
-                            // A non-boarding patry attack
-                            SuicideBonus = 0;
-                            CombatBonus = BE::AttTargetBonus;
-                            YieldBonus = 0;
-                            if (IsScuicide(BE::SpecialA[B]))
-                            {
-                                SuicideBonus = 1 + rand() % 99;
-                            }
-                            int target = HasTarget(CombatStr);
-                            if (target > 0)
-                            {
-                                CombatBonus = target; // FIXME: Should this not be additive to the fleet's target bonus?
-                            }
-                            HasYield(CombatStr, YieldBonus);
-                            long resist = 0;
-                            if (HasResist(BE::SpecialB[BE::Target1], resist))
-                            {
-                                YieldBonus -= resist;
-                            }
-                            long defense = HasDefense(BE::SpecialB[BE::Target1]);
-                            if (defense <= 0)
-                            {
-                                defense = 0;
-                            }
-                            AutoHit = 0;
-                            AutoMiss = 0;
-                            BE::dice1 = 1 + (rand() % 99);
-                            if (BE::dice1 == 0)
-                            {
-                                AutoMiss = 1;
-#ifdef CBE_DEBUG
-                                CBE::debugFile << "[INFO] Automatic miss due to dice roll of 1" << endl;
-#endif
-                            }
-                            else if (BE::dice1 == 100)
-                            {
-                                AutoHit = 1;
-#ifdef CBE_DEBUG
-                                CBE::debugFile << "[INFO] Automatic hit due to dice roll of 100" << endl;
-#endif
-                            }
-                            BE::dice1 = BE::dice1 + BE::DM_ToHitA + CombatBonus - defense;
-#ifdef CBE_DEBUG
-                            CBE::debugFile << "[INFO] Target dice: " << BE::dice1 << endl;
-#endif
-                        }
-                        break;
-                    case 1: // Defenders
-                        if (Hits[i].special & BE::saBp == BE::saBp)
-                        {
-#ifdef CBE_DEBUG
-                            CBE::debugFile << "[INFO] Boarding party attack" << endl;
-#endif
-                            // This is a boarding party attack
-                            // Invalid targets are: solid, fighter, ground, vehicle, mine, and shielded targets unless the bp has pen
-                            bool attempt = true;
-                            if (IsSolid(BE::SpecialA[BE::Target1]))
-                            {
-                                attempt = false;
-                            }
-                            if (IsFighter(BE::SpecialA[BE::Target1]))
-                            {
-                                attempt = false;
-                            }
-                            if (IsGround(BE::SpecialA[BE::Target1]))
-                            {
-                                attempt = false;
-                            }
-                            if (IsVehicle(BE::SpecialA[BE::Target1]))
-                            {
-                                attempt = false;
-                            }
-                            if (IsMine(BE::SpecialA[BE::Target1]))
-                            {
-                                attempt = false;
-                            }
-                            if (BE::CurShieldA[BE::Target1] > 0 && Hits[i].special & BE::saPen != BE::saPen)
-                            {
-                                attempt = false;
-                            }
-                            if (attempt)
-                            {
-                                BE::dice1 = 100;
-                            }
-                            else
-                            {
-                                BE::dice1 = 0;
-                            }
-                        }
-                        else
-                        {
-#ifdef CBE_DEBUG
-                            CBE::debugFile << "[INFO] Regular attack" << endl;
-#endif
-                            // A non-boarding patry attack
-                            SuicideBonus = 0;
-                            CombatBonus = BE::AttTargetBonus;
-                            YieldBonus = 0;
-                            if (IsScuicide(BE::SpecialB[B]))
-                            {
-                                SuicideBonus = 1 + rand() % 99;
-                            }
-                            int target = HasTarget(CombatStr);
-                            if (target > 0)
-                            {
-                                CombatBonus = target; // FIXME: Should this not be additive to the fleet's target bonus?
-                            }
-                            HasYield(CombatStr, YieldBonus);
-                            long resist = 0;
-                            if (HasResist(BE::SpecialA[BE::Target1], resist))
-                            {
-                                YieldBonus -= resist;
-                            }
-                            long defense = HasDefense(BE::SpecialA[BE::Target1]);
-                            if (defense <= 0)
-                            {
-                                defense = 0;
-                            }
-                            AutoHit = 0;
-                            AutoMiss = 0;
-                            BE::dice1 = 1 + (rand() % 99);
-                            if (BE::dice1 == 0)
-                            {
-                                AutoMiss = 1;
-#ifdef CBE_DEBUG
-                                CBE::debugFile << "[INFO] Automatic miss due to dice roll of 1" << endl;
-#endif
-                            }
-                            else if (BE::dice1 == 100)
-                            {
-                                AutoHit = 1;
-#ifdef CBE_DEBUG
-                                CBE::debugFile << "[INFO] Automatic hit due to dice roll of 100" << endl;
-#endif
-                            }
-                            BE::dice1 = BE::dice1 + BE::DM_ToHitB + CombatBonus - defense;
-#ifdef CBE_DEBUG
-                            CBE::debugFile << "[INFO] Target dice: " << BE::dice1 << endl;
-#endif
-                        }
-                        break;
-                    }
 
-                    // Ok, dice1 < 1 is a miss.  Dice1 > 100 earns a Dice1-100 great_hit_bonus
-                    // Dice 1 to 100 is a normal hit
-#ifdef CBE_DEBUG
-                    CBE::debugFile << "[INFO] Calculating damage.  Firepower: " << firepower << endl;
-#endif
-                    if ((BE::dice1 <= (100 - BaseAccuracy) || AutoMiss == 1) && AutoHit == 0)
-                    {
-                        // Miss
-#ifdef CBE_DEBUG
-                        CBE::debugFile << "[INFO] The hit is a miss.  dice1:" << BE::dice1 << endl;
-#endif
-                        BE::Damage3 = 0;
-                    }
-                    else
-                    {
-                        // Check if the MaximumDamage option is true
-                        if (BE::MaximumDamage == 1) // TODO: Add to command line arguments
-                        {
-                            BE::Damage3 = firepower;
-#ifdef CBE_DEBUG
-                            CBE::debugFile << "[INFO] Using maximum damage" << endl;
-#endif
-                        }
-                        else
-                        {
-                            // We are not using max damage so roll damage
-                            if (BE::dice1 > 100)
-                            {
-                                // Calculate the good hit bonu
-                                YieldBonus += (BE::dice1 - 100);
-#ifdef CBE_DEBUG
-                                CBE::debugFile << "[INFO] Good hit bonus!" << endl;
-#endif
-                            }
-                            BE::Damage3 = long(round((1 + (rand() % (firepower - 1))) * (1.0f + (float(YieldBonus) / 100.0f))));
-#ifdef CBE_DEBUG
-                            CBE::debugFile << "[INFO] Raw damage: " << BE::Damage3 << endl;
-#endif
-                            if (BE::Damage3 < 1)
-                            {
-                                BE::Damage3 = 0;
-                            }
-                            else if (BE::Damage3 > firepower)
-                            {
-                                BE::Damage3 = firepower;
-                            }
-                        }
-                    }
-                    BE::Damage2 = 0; // Clear pen damage
-                    BE::Damage1 = BE::Damage3;
-#ifdef CBE_DEBUG
-                    CBE::debugFile << "[INFO] damage: " << BE::Damage1 << endl;
-#endif
-                    if (ForceID == 0) // Attackers
-                    {
-                        if (BE::dice1 <= (100 - BaseAccuracy))
-                        {
-                            // This is a miss.  Make the appropriate battle strings to write out later
-                            if (Hits[i].special & BE::saBp == BE::saBp)
-                            {
-                                BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " can not engage " + BE::DefRaceName + " " + BE::DefShipStr[BE::Target1] + " in boarding party combat.";
-                            }
-                            else
-                            {
-                                BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " fires on " + BE::DefRaceName + " " + BE::DefShipStr[BE::Target1] + " and misses.";
-                            }
-                        }
-                        else
-                        {
-                            // This is a hit!
-                            // Check if this is a boarding party hit
-                            if (Hits[i].special & BE::saBp == BE::saBp)
-                            {
-                                AttVal = firepower; // Can just use the bracket firepower as there is no need to check for unit BP attack value.
+                            BE::DamageLevel += BE::Damage2; // Penetrating damage bypass shields TODO: Rename variables for clearer code
+                            long ar = 0;
 
-                                // Calculate the targets defensive bp value
-                                DefVal = GetBPDefVal(BE::SpecialB[BE::Target1], BE::CurHullB[BE::Target1]);
-
-                                // Roll a random number between 1 and (DefVal + AttVal)
-                                // Then check if the random number is greater than the DefVal of the target
-                                // If the number is greater, then the attack party was successful
-                                BPDice = (rand() % (DefVal + AttVal - 1)) + 1;
-                                if (BPDice > DefVal)
+                            if (BE::DamageLevel > 0 && HasArmor(BE::SpecialB[BE::Target1], ar))
+                            {
+                                BE::DamageLevel -= ar;
+                                if (BE::DamageLevel < 1)
                                 {
-                                    // Now weee roll another die.  This is for the 25% chance that attacking
-                                    // boarding party captured the target
-                                    // TODO: This should not be a flat 25%.  Should scale with DefVal vs AttVal
-                                    int catpureDie = rand() % 4;
-                                    if (catpureDie == 0)
+                                    reportFile << " <attack blocked>";
+                                    BE::TempCurShieldB[X] = BE::Shields;
+                                    // [JLL] FIXME: I have no idea what this code is here for
+                                    if (BE::Attacks[E].Weapon & BE::saBp != BE::saBp)
                                     {
-                                        // The target was captured.  Setup the report string and the critical hit
-                                        BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " captures " + BE::DefShipStr[BE::Target1];
-                                        BE::BPAttackCritB[BE::Target1] += 100;                                                    // FIXME: Change this to a constant
-                                        BE::TempSpecialB[BE::Target1] = AddTag(BE::TempSpecialB[BE::Target1], "NOMOVE CAPTURED"); // The ship cannot run away
-                                        // FIXME: The BP should be expended
-                                    }
-                                    else
-                                    {
-                                        // The defend has suffered a normal BP crit rather than a capture
-                                        BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " is conducting a hit and run raid on " + BE::DefShipStr[BE::Target1];
-                                        BE::BPAttackCritB[BE::Target1] += 1;
-                                        // [JLL] TODO: I have no idea what this code is for and why it is here...
-                                        BE::Shields = 0;
-                                        BE::Crits = 0;
-                                        BE::Hull = BE::TempCurHullB[BE::Target1];
-                                        BE::X = BE::Target1;
-                                        if (BE::TempCurHullB[BE::Target1] == 0)
-                                        {
-                                            tmp = 0;
-                                        }
-                                        else
-                                        {
-                                            tmp = 100 - ((BE::TempCurHullB[BE::Target1] * 100) / BE::MaxHullB[BE::Target1]); // TODO: Clear up to Cur/Max * 100 for clarity.  Will need to do type casting for this to work well.
-                                        }
-                                        BE::Attacks[BE::AttacksIndex].AttackID = BE::A;
-                                        BE::Attacks[BE::AttacksIndex].TargetID = BE::Target1 + BE::AttShipsLeft;
-                                        BE::Attacks[BE::AttacksIndex].Damage = BE::Damage1;
-                                        BE::Attacks[BE::AttacksIndex].Weapon = Hits[i].special;
-                                        BE::Attacks[BE::AttacksIndex].Special = Hits[i].tag;
-                                        BE::AttacksIndex++;
-                                        // TODO: Better too many hit handling
-                                        if (BE::AttacksIndex >= BE::AttacksMax)
-                                        {
-#ifdef CBE_DEBUG
-                                            CBE::debugFile << "[ERROR] Number of attacks exceeded maximum number allowed.  Max is " << BE::AttacksMax << endl;
-#endif
-                                            cerr << "I have reached the maximum number of attacks I can handle." << endl;
-                                            exit(1);
-                                        }
+                                        // [JLL] Something about marines get through.  But this isn't a test for BP, this is for the absence of BP...
+                                        reportFile << "\n";
+                                        continue;
                                     }
                                 }
                                 else
                                 {
-                                    // Attackers repulsed
-                                    // TODO: This should scale with AttVal vs DefVal
-                                    if (rand() % 4 == 0)
-                                    {
-                                        // Defenders win and boarding party is expended
-                                        // FIXME: THE BP should be expended
-                                        // TODO: Add which unit (Target1) ambushed the borders.
-                                        BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " borders ambushed, multiple causualties!";
-                                    }
-                                    else
-                                    {
-                                        // Defenders win and boarding party is repulsed.  Boarding party can try again later
-                                        // TODO: Add which unit (Target1) repulsed the boarders
-                                        BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " borders repulsed!";
-                                    }
+                                    reportFile << " <" << to_string(ar) << " pts blocked>";
                                 }
-                            }
-                            else
-                            {
-#ifdef CBE_DEBUG
-                                CBE::debugFile << "[INFO] Attacker Regular Attack" << endl;
-#endif
-                                BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " fires on " + BE::DefRaceName + " " + BE::DefShipStr[BE::Target1] + " scoring " + to_string(BE::Damage1) + " hits (" + to_string(BE::dice1) + "%)";
-                                BE::Attacks[BE::AttacksIndex].AttackID = BE::A;
-                                BE::Attacks[BE::AttacksIndex].TargetID = BE::Target1 + BE::AttShipsLeft;
-                                BE::Attacks[BE::AttacksIndex].Damage = BE::Damage1;
-                                BE::Attacks[BE::AttacksIndex].Weapon = Hits[i].special;
-                                BE::Attacks[BE::AttacksIndex].Special = Hits[i].tag;
-                                BE::AttacksIndex++;
-                                if (BE::AttacksIndex >= BE::AttacksMax)
-                                {
-#ifdef CBE_DEBUG
-                                    CBE::debugFile << "[ERROR] Maximum number of attacks exceeded." << endl;
-#endif
-                                    // TODO: Throw an exception to be caught
-                                    exit(1);
-                                }
-                            }
-                        }
-                        if (number_of_attacks > 1)
-                        {
-                            // This is to indicate in the report file which attack this is from the unit
-                            BE::AttBattleStr = BE::AttBattleStr + "[" + to_string(i) + " of " + to_string(number_of_attacks) + "]";
-                        }
-                    }    // Done with attackers
-                    else // Defenders
-                    {
-                        // ForceID == 1
-                        // Do all of the above again, but now for the defenders.
-                        if (BE::dice1 <= (100 - BaseAccuracy))
-                        {
-                            // This is a miss.  Make the appropriate battle strings to write out later
-                            if (Hits[i].special & BE::saBp == BE::saBp)
-                            {
-                                BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " can not engage " + BE::AttRaceName + " " + BE::AttShipStr[BE::Target1] + " in boarding party combat.";
-                            }
-                            else
-                            {
-                                BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " fires on " + BE::AttRaceName + " " + BE::AttShipStr[BE::Target1] + " and misses.";
                             }
                         }
                         else
                         {
-                            // This is a hit!
-                            // Check if this is a boarding party hit
-                            if (Hits[i].special & BE::saBp == BE::saBp)
+                            if (BE::TempCurShieldA[X] < BE::Damage1)
                             {
-                                AttVal = firepower; // Can just use the bracket firepower as there is no need to check for unit BP attack value.
+                                BE::Shields = 0;
+                                BE::DamageLevel = BE::Damage1 - BE::TempCurShieldA[X];
+                            }
+                            else
+                            {
+                                BE::Shields = BE::TempCurShieldA[X] - BE::Damage1;
+                                BE::DamageLevel = 0;
+                            }
 
-                                // Calculate the targets defensive bp value
-                                DefVal = GetBPDefVal(BE::SpecialA[BE::Target1], BE::CurHullA[BE::Target1]);
+                            BE::DamageLevel += BE::Damage2;
+                            long ar = 0;
 
-                                // Roll a random number between 1 and (DefVal + AttVal)
-                                // Then check if the random number is greater than the DefVal of the target
-                                // If the number is greater, then the attack party was successful
-                                BPDice = (rand() % (DefVal + AttVal - 1)) + 1;
-                                if (BPDice > DefVal)
+                            if (BE::DamageLevel > 0 && HasArmor(BE::SpecialA[BE::Target1], ar))
+                            {
+                                BE::DamageLevel -= ar;
+                                if (BE::DamageLevel < 1)
                                 {
-                                    // Now weee roll another die.  This is for the 25% chance that attacking
-                                    // boarding party captured the target
-                                    // TODO: This should not be a flat 25%.  Should scale with DefVal vs AttVal
-                                    int catpureDie = rand() % 4;
-                                    if (catpureDie == 0)
+                                    reportFile << " <attack blocked>";
+                                    BE::TempCurShieldA[X] = BE::Shields;
+                                    if (BE::Attacks[E].Weapon & BE::saBp != BE::saBp)
                                     {
-                                        // The target was captured.  Setup the report string and the critical hit
-                                        BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " captures " + BE::AttShipStr[BE::Target1];
-                                        BE::BPAttackCritA[BE::Target1] += 100;                                                    // FIXME: Change this to a constant
-                                        BE::TempSpecialA[BE::Target1] = AddTag(BE::TempSpecialA[BE::Target1], "NOMOVE CAPTURED"); // The ship cannot run away
-                                        // FIXME: The BP should be expended
-                                    }
-                                    else
-                                    {
-                                        // The defend has suffered a normal BP crit rather than a capture
-                                        BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " is conducting a hit and run raid on " + BE::AttShipStr[BE::Target1];
-                                        BE::BPAttackCritA[BE::Target1] += 1;
-                                        // [JLL] TODO: I have no idea what this code is for and why it is here...
-                                        BE::Shields = 0;
-                                        BE::Crits = 0;
-                                        BE::Hull = BE::TempCurHullA[BE::Target1];
-                                        BE::X = BE::Target1;
-                                        if (BE::TempCurHullA[BE::Target1] == 0)
-                                        {
-                                            tmp = 0;
-                                        }
-                                        else
-                                        {
-                                            tmp = 100 - ((BE::TempCurHullA[BE::Target1] * 100) / BE::MaxHullA[BE::Target1]); // TODO: Clear up to Cur/Max * 100 for clarity.  Will need to do type casting for this to work well.
-                                        }
-                                        BE::Attacks[BE::AttacksIndex].AttackID = BE::A + BE::AttShipsLeft;
-                                        BE::Attacks[BE::AttacksIndex].TargetID = BE::Target1;
-                                        BE::Attacks[BE::AttacksIndex].Damage = BE::Damage1;
-                                        BE::Attacks[BE::AttacksIndex].Weapon = Hits[i].special;
-                                        BE::Attacks[BE::AttacksIndex].Special = Hits[i].tag;
-                                        BE::AttacksIndex++;
-                                        // TODO: Better too many hit handling
-                                        if (BE::AttacksIndex >= BE::AttacksMax)
-                                        {
-#ifdef CBE_DEBUG
-                                            CBE::debugFile << "[ERROR] Number of attacks exceeded maximum number allowed.  Max is " << BE::AttacksMax << endl;
-#endif
-                                            cerr << "I have reached the maximum number of attacks I can handle." << endl;
-                                            exit(1);
-                                        }
+                                        reportFile << "\n";
+                                        continue;
                                     }
                                 }
                                 else
                                 {
-                                    // Attackers repulsed
-                                    // TODO: This should scale with AttVal vs DefVal
-                                    if (rand() % 4 == 0)
-                                    {
-                                        // Defenders win and boarding party is expended
-                                        // FIXME: THE BP should be expended
-                                        // TODO: Add which unit (Target1) ambushed the borders.
-                                        BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " borders ambushed, multiple causualties!";
-                                    }
-                                    else
-                                    {
-                                        // Defenders win and boarding party is repulsed.  Boarding party can try again later
-                                        // TODO: Add which unit (Target1) repulsed the boarders
-                                        BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " borders repulsed!";
-                                    }
-                                }
-                            }
-                            else
-                            {
-#ifdef CBE_DEBUG
-                                CBE::debugFile << "[INFO] Defender regular attack" << endl;
-#endif
-                                BE::DefBattleStr = BE::DefRaceName + " " + BE::DefShipStr[B] + " fires on " + BE::AttRaceName + " " + BE::AttShipStr[BE::Target1] + " scoring " + to_string(BE::Damage1) + " hits (" + to_string(BE::dice1) + "%)";
-                                BE::Attacks[BE::AttacksIndex].AttackID = BE::A + BE::AttShipsLeft;
-                                BE::Attacks[BE::AttacksIndex].TargetID = BE::Target1;
-                                BE::Attacks[BE::AttacksIndex].Damage = BE::Damage1;
-                                BE::Attacks[BE::AttacksIndex].Weapon = Hits[i].special;
-                                BE::Attacks[BE::AttacksIndex].Special = Hits[i].tag;
-                                BE::AttacksIndex++;
-                                if (BE::AttacksIndex >= BE::AttacksMax)
-                                {
-#ifdef CBE_DEBUG
-                                    CBE::debugFile << "[ERROR] Maximum number of attacks exceeded." << endl;
-#endif
-                                    // TODO: Throw an exception to be caught
-                                    exit(1);
+                                    reportFile << " <" << to_string(ar) << " pts blocked>";
                                 }
                             }
                         }
-                        if (number_of_attacks > 1)
+
+                        reportFile << "\n";
+
+                        // Stasis snap shield logic
+                        // Statis shield only activates when the shield fails
+                        // so pen-hits get through unless the shield falls at the same time.
+                        if (ForceID == 0)
                         {
-                            // This is to indicate in the report file which attack this is from the unit
-                            BE::DefBattleStr = BE::DefBattleStr + "[" + to_string(i) + " of " + to_string(number_of_attacks) + "]";
-                        }
-                    } // Done with defenders
-                }
-                else // firepower is less than or equal to 0?
-                {
-                    if (ForceID == 0) // Attackers
-                    {
-                        BE::AttBattleStr = BE::AttRaceName + " " + BE::AttShipStr[B] + " no normal attack. (Firepower is equal to 0)";
-                    }
-                    else // Defenders
-                    {
-                        BE::DefBattleStr = BE::DefBattleStr + " " + BE::DefShipStr[B] + " no normal attack. (Firepower is equal to 0)";
-                    }
-                }
-
-                // Check ForceID to print the correct message
-                if (ForceID == 0)
-                {
-                    // TODO: Change AttBattleStr and DefBattleStr to a single local variable.  Unless these get added to later in the loop. (Written at the Salvos point)
-                    if (BE::AttBattleStr != "")
-                    {
-                        reportFile << BE::AttBattleStr << "\n";
-                    }
-                }
-                else
-                {
-                    if (BE::DefBattleStr != "")
-                    {
-                        reportFile << BE::DefBattleStr << "\n";
-                    }
-                }
-            } // End for number_of_attacks
-        }
-
-        reportFile << "\n";
-
-        // Damage routine
-        // Clear the battle strings for some reason
-        BE::AttBattleStr = "";
-        BE::DefBattleStr = "";
-
-#ifdef CBE_DEBUG
-        CBE::debugFile << "[INFO] Begining of damage routine" << endl;
-#endif
-
-        for (long A = 0; A < (BE::AttShipsLeft + BE::DefShipsLeft); A++)
-        {
-            // [JLL] Do the usual convoluted bullshit for attackers and defenders
-            long B = A;
-            ForceID = 0;
-            if (A >= BE::AttShipsLeft)
-            {
-                B = A - BE::AttShipsLeft;
-                ForceID = 1;
-            }
-            else if (A == BE::AttShipsLeft)
-            {
-                reportFile << "\n";
-            }
-
-#ifdef CBE_DEBUG
-            CBE::debugFile << "[INFO][Damage Routine] A=" << A << ";B=" << B << ";ForceID=" << ForceID << endl;
-#endif
-
-            ShipHit = 0;
-            // Check to see if the ship has was attacked
-            // [JLL] Not sure why this is done
-            // This is done to collect all of the attacks against a specific unit
-            // for grouping in the report file
-            // TODO: Store hits by unit rather than globally
-            for (long E = 0; E < BE::AttacksIndex; E++)
-            {
-                // Check for the target of the attack matching the current ship
-                // This is to group all attacks against this ship
-                // For grouping in the reports file
-                if (BE::Attacks[E].TargetID == A)
-                {
-                    B = BE::Attacks[E].AttackID;
-#ifdef CBE_DEBUG
-                    CBE::debugFile << "[INFO][Damage Routine] AttackID=" << B << endl;
-#endif
-                    if (B >= BE::AttShipsLeft)
-                    {
-                        B = B - BE::AttShipsLeft;
-                        ForceID = 1;
-                        BE::Target1 = BE::Attacks[E].TargetID;
-                    }
-                    else
-                    {
-                        ForceID = 0;
-                        BE::Target1 = BE::Attacks[E].TargetID - BE::AttShipsLeft;
-                    }
-
-#ifdef CBE_DEBUG
-                    CBE::debugFile << "[INFO][Damage Routine] Target1=" << BE::Target1 << endl;
-#endif
-
-                    BE::Damage1 = BE::Attacks[E].Damage;
-
-                    // [JLL] This set of if statements is used to print out the header for a block of attacks against
-                    // a specific ship.  I have collapsed the logic some from the original and placed the ShipHit check
-                    // first because it is the one that will change most frequently.
-                    if (ShipHit == 0 && ForceID == 0)
-                    {
-#ifdef CBE_DEBUG
-                        CBE::debugFile << "[INFO][Damage Routine] Attacker Target1(" << BE::Target1 << "):" << BE::DefShipStr[BE::Target1] << " hit." << endl;
-#endif
-                        reportFile << BE::DefShipStr[BE::Target1] + " has been hit.\n";
-                        ShipHit = 1;
-                    }
-                    else if (ShipHit == 0 && ForceID == 1)
-                    {
-#ifdef CBE_DEBUG
-                        CBE::debugFile << "[INFO][Damage Routine] Defender Target1(" << BE::Target1 << "):" << BE::AttShipStr[BE::Target1] << " hit." << endl;
-#endif
-                        reportFile << BE::AttShipStr[BE::Target1] + " has been hit.\n";
-                        ShipHit = 1;
-                    }
-
-                    if (BE::Attacks[E].Weapon & BE::saBp == BE::saBp)
-                    {
-                        reportFile << "  Boarding party attack is in progress.\n";
-                    }
-                    else
-                    {
-                        // TODO: Think about better logic than simply not boarding party
-                        reportFile << "  Takes " + to_string(BE::Damage1) + " points of damage.";
-                    }
-
-                    if (ForceID == 0)
-                    {
-                        long flicker = 0;
-                        if (HasFlicker(BE::SpecialB[BE::Target1], flicker))
-                        {
-                            long flickerRoll = 1 + (rand() % 99);
-                            if (flickerRoll <= flicker)
+                            if (IsStatis(BE::SpecialB[X]))
                             {
-                                BE::Damage1 = 0;
-                                reportFile << " <attack deflected>";
-                            }
-                        }
-                        // FIXME: If flicker has already worked then why do we need to check for shields?
-                        if (BE::CurShieldB[BE::Target1] > 0)
-                        {
-                            long sr = 0;
-                            if (HasShields(BE::SpecialB[BE::Target1], sr))
-                            {
-                                BE::Damage1 -= sr;
-                                if (BE::Damage1 < 1)
+                                if (BE::Shields == 0 && BE::CurShieldB[X] > 0 && BE::DamageLevel > 0)
                                 {
-                                    reportFile << " <attack deflected>";
-                                }
-                                else
-                                {
-                                    reportFile << " <" << sr << " pts deflected>";
-                                }
-                            }
-                            else
-                            {
-                                // [JLL] Crack only works if SR is not present?
-                                // TODO: Think about if crack weapons should effect targets with SR
-                                // FIXME: Need to move this around so that crack is check and damage increased
-                                // then have the SR checked.
-                                if (BE::Attacks[E].Weapon & BE::saCrack == BE::saCrack)
-                                {
-                                    long crackDamage = BE::Damage1 * 2;
-                                    if (crackDamage < BE::TempCurShieldB[BE::Target1])
-                                    {
-                                        // [JLL] Why would ret be set to Damage1 * 2?
-                                        BE::TempCurShieldB[BE::Target1] -= crackDamage;
-                                        BE::Damage1 = 0; // This keeps crack damage from overflowing to armor/hull
-                                        reportFile << " <shield disruption>";
-                                    }
-                                    else
-                                    {
-                                        // [JLL] ret here gets set to the remaining shields...
-                                        BE::TempCurShieldB[BE::Target1] = 0;
-                                        BE::Damage1 = 0; // This keeps crack damage from overflowing to armor/hull
-                                        reportFile << " <shield disrupted>";
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            // No shields, check for crack so that damage can be set to 0.
-                            if (BE::Attacks[E].Weapon & BE::saCrack == BE::saCrack)
-                            {
-                                BE::Damage1 = 0;
-                                reportFile << " <attack dissipates>";
-                            }
-                        }
-                    }
-                    else // Defenders
-                    {
-                        long flicker = 0;
-                        if (HasFlicker(BE::SpecialA[BE::Target1], flicker))
-                        {
-                            long flickerRoll = 1 + (rand() % 99);
-                            if (flickerRoll <= flicker)
-                            {
-                                BE::Damage1 = 0;
-                                reportFile << " <attack deflected>";
-                            }
-                        }
-                        if (BE::CurShieldA[BE::Target1] > 0)
-                        {
-                            long sr = 0;
-                            if (HasShields(BE::SpecialA[BE::Target1], sr))
-                            {
-                                BE::Damage1 -= sr;
-                                if (BE::Damage1 < 1)
-                                {
-                                    reportFile << " <attack deflected>";
-                                }
-                                else
-                                {
-                                    reportFile << " <" << sr << " pts deflected>";
-                                }
-                            }
-                            else
-                            {
-                                // [JLL] Crack only works if SR is not present?
-                                // TODO: Think about if crack weapons should effect targets with SR
-                                // FIXME: Need to move this around so that crack is check and damage increased
-                                // then have the SR checked.
-                                if (BE::Attacks[E].Weapon & BE::saCrack == BE::saCrack)
-                                {
-                                    long crackDamage = BE::Damage1 * 2;
-                                    if (crackDamage < BE::TempCurShieldA[BE::Target1])
-                                    {
-                                        // [JLL] Why would ret be set to Damage1 * 2?
-                                        BE::TempCurShieldA[BE::Target1] -= crackDamage;
-                                        BE::Damage1 = 0; // This keeps crack damage from overflowing to armor/hull
-                                        reportFile << " <shield disruption>";
-                                    }
-                                    else
-                                    {
-                                        // [JLL] ret here gets set to the remaining shields...
-                                        BE::TempCurShieldA[BE::Target1] = 0;
-                                        BE::Damage1 = 0; // This keeps crack damage from overflowing to armor/hull
-                                        reportFile << " <shield disrupted>";
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            // No shields, check for crack so that damage can be set to 0.
-                            if (BE::Attacks[E].Weapon & BE::saCrack == BE::saCrack)
-                            {
-                                BE::Damage1 = 0;
-                                reportFile << " <attack dissipates>";
-                            }
-                        }
-                    }
-
-                    // Do the pen damage checks
-                    long X = BE::Target1;
-                    string temp_str = "";
-                    BE::ShipCritStr = ""; // TODO: Change to local scope variable
-                    BE::Crits = 0;        // TODO: Change to local scope variable
-
-                    if (ForceID == 0)
-                    {
-                        if (BE::TempCurShieldB[X] < BE::Damage1)
-                        {
-                            BE::Shields = 0;                                       // TODO: Change to local scope variable
-                            BE::DamageLevel = BE::Damage1 - BE::TempCurShieldB[X]; // TODO: Change to local scope variable
-                        }
-                        else
-                        {
-                            BE::Shields = BE::TempCurShieldB[X] - BE::Damage1;
-                            BE::DamageLevel = 0;
-                        }
-
-                        BE::DamageLevel += BE::Damage2; // Penetrating damage bypass shields TODO: Rename variables for clearer code
-                        long ar = 0;
-
-                        if (BE::DamageLevel > 0 && HasArmor(BE::SpecialB[BE::Target1], ar))
-                        {
-                            BE::DamageLevel -= ar;
-                            if (BE::DamageLevel < 1)
-                            {
-                                reportFile << " <attack blocked>";
-                                BE::TempCurShieldB[X] = BE::Shields;
-                                // [JLL] FIXME: I have no idea what this code is here for
-                                if (BE::Attacks[E].Weapon & BE::saBp != BE::saBp)
-                                {
-                                    // [JLL] Something about marines get through.  But this isn't a test for BP, this is for the absence of BP...
-                                    reportFile << "\n";
+                                    BE::DamageLevel = 0;
+                                    BE::TempCurShieldB[X] = 0;
+                                    reportFile << "  Statis field activated.  Extra damage deflected.\n";
                                     continue;
                                 }
                             }
-                            else
-                            {
-                                reportFile << " <" << to_string(ar) << " pts blocked>";
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (BE::TempCurShieldA[X] < BE::Damage1)
-                        {
-                            BE::Shields = 0;
-                            BE::DamageLevel = BE::Damage1 - BE::TempCurShieldA[X];
                         }
                         else
                         {
-                            BE::Shields = BE::TempCurShieldA[X] - BE::Damage1;
-                            BE::DamageLevel = 0;
-                        }
-
-                        BE::DamageLevel += BE::Damage2;
-                        long ar = 0;
-
-                        if (BE::DamageLevel > 0 && HasArmor(BE::SpecialA[BE::Target1], ar))
-                        {
-                            BE::DamageLevel -= ar;
-                            if (BE::DamageLevel < 1)
+                            if (IsStatis(BE::SpecialA[X]))
                             {
-                                reportFile << " <attack blocked>";
-                                BE::TempCurShieldA[X] = BE::Shields;
-                                if (BE::Attacks[E].Weapon & BE::saBp != BE::saBp)
+                                if (BE::Shields == 0 && BE::CurShieldA[X] > 0 && BE::DamageLevel > 0)
                                 {
-                                    reportFile << "\n";
+                                    BE::DamageLevel = 0;
+                                    BE::TempCurShieldA[X] = 0;
+                                    reportFile << "  Statis field activated.  Extra damage deflected.\n";
                                     continue;
                                 }
                             }
+                        }
+
+                        // [JLL] I think this applies damage to the hull
+                        // [JLL] This is remaining hull, hull percentage, hull damage, and shield percentage.
+                        if (ForceID == 0)
+                        {
+                            if (BE::TempCurHullB[X] <= 0)
+                            {
+                                tmp = 0;
+                            }
                             else
                             {
-                                reportFile << " <" << to_string(ar) << " pts blocked>";
+                                // This is the percentage of the max hull damage.  Used below for crit calculations
+                                tmp = 100 - (BE::TempCurHullB[X] * 100) / BE::MaxHullB[X];
                             }
-                        }
-                    }
 
-                    reportFile << "\n";
-
-                    // Stasis snap shield logic
-                    // Statis shield only activates when the shield fails
-                    // so pen-hits get through unless the shield falls at the same time.
-                    if (ForceID == 0)
-                    {
-                        if (IsStatis(BE::SpecialB[X]))
-                        {
-                            if (BE::Shields == 0 && BE::CurShieldB[X] > 0 && BE::DamageLevel > 0)
+                            BE::Hull = BE::TempCurHullB[X] - BE::DamageLevel;
+                            if (BE::Hull < 0)
                             {
-                                BE::DamageLevel = 0;
-                                BE::TempCurShieldB[X] = 0;
-                                reportFile << "  Statis field activated.  Extra damage deflected.\n";
-                                continue;
+                                BE::Hull = 0;
                             }
-                        }
-                    }
-                    else
-                    {
-                        if (IsStatis(BE::SpecialA[X]))
-                        {
-                            if (BE::Shields == 0 && BE::CurShieldA[X] > 0 && BE::DamageLevel > 0)
+
+                            if (BE::MaxShieldB[X] == 0 || BE::Shields == 0)
                             {
-                                BE::DamageLevel = 0;
-                                BE::TempCurShieldA[X] = 0;
-                                reportFile << "  Statis field activated.  Extra damage deflected.\n";
-                                continue;
+                                BE::ShieldsPercent = 0;
+                            }
+                            else
+                            {
+                                BE::ShieldsPercent = BE::Shields * 100 / BE::MaxShieldB[X];
+                            }
+
+                            if (BE::MaxHullB[X] == 0 || BE::Hull == 0)
+                            {
+                                BE::HullPercent = 0;
+                            }
+                            else
+                            {
+                                BE::HullPercent = 100 - (BE::Hull * 100) / BE::MaxHullB[X];
                             }
                         }
-                    }
-
-                    // [JLL] I think this applies damage to the hull
-                    // [JLL] This is remaining hull, hull percentage, hull damage, and shield percentage.
-                    if (ForceID == 0)
-                    {
-                        if (BE::TempCurHullB[X] <= 0)
-                        {
-                            tmp = 0;
-                        }
                         else
                         {
-                            // This is the percentage of the max hull damage.  Used below for crit calculations
-                            tmp = 100 - (BE::TempCurHullB[X] * 100) / BE::MaxHullB[X];
+                            if (BE::TempCurHullA[X] <= 0)
+                            {
+                                tmp = 0;
+                            }
+                            else
+                            {
+                                // This is the percentage of the max hull damage.  Used below for crit calculations
+                                tmp = 100 - (BE::TempCurHullA[X] * 100) / BE::MaxHullA[X];
+                            }
+
+                            BE::Hull = BE::TempCurHullA[X] - BE::DamageLevel;
+                            if (BE::Hull < 0)
+                            {
+                                BE::Hull = 0;
+                            }
+
+                            if (BE::MaxShieldA[X] == 0 || BE::Shields == 0)
+                            {
+                                BE::ShieldsPercent = 0;
+                            }
+                            else
+                            {
+                                BE::ShieldsPercent = BE::Shields * 100 / BE::MaxShieldA[X];
+                            }
+
+                            if (BE::MaxHullA[X] == 0 || BE::Hull == 0)
+                            {
+                                BE::HullPercent = 0;
+                            }
+                            else
+                            {
+                                BE::HullPercent = 100 - (BE::Hull * 100) / BE::MaxHullA[X];
+                            }
                         }
 
-                        BE::Hull = BE::TempCurHullB[X] - BE::DamageLevel;
-                        if (BE::Hull < 0)
+                        /*
+                         * OK, if we got this far we have inflicted some damage.  Possibly even ZERO damage
+                         * due to shield absorption.  But, it's enough to possibly trigger a special effect.
+                         *
+                         * Special attribute flags
+                         *      1   sa_dis
+                         *      2   sa_heat
+                         *      4   sa_meson
+                         *      8   sa_vibro
+                         *     16   sa_multi    scatter pack (user for targetting)
+                         *     32   sa_crack
+                         *     64   sa_bp       boarding party
+                         *    128   sa_pen
+                         */
+
+                        // TODO: Change all of these to local scope variables
+                        BE::Crits = 0;
+                        BE::CRIT_DIS = 0;
+                        BE::CRIT_HEAT = 0;
+                        BE::CRIT_MESON = 0;
+                        BE::CRIT_VIBRO = 0;
+                        BE::CRIT_BP = 0;
+                        BE::CRIT_SPECIAL = 0;
+
+                        // It's possible to have multiple special effect weapons, so each is rolled separately
+                        // Yes.  That means a heat/dis weapon has a 40% chance of causing a crit.  20% for each crit type.
+                        if (BE::Attacks[E].Weapon > 0)
                         {
-                            BE::Hull = 0;
+                            BE::dice = rand() % 10;
+                            if (BE::dice < 2 && (BE::Attacks[E].Weapon & BE::saDis) == BE::saDis)
+                            {
+                                BE::CRIT_DIS = 1;
+                            }
+
+                            BE::dice = rand() % 10;
+                            if (BE::dice < 2 && (BE::Attacks[E].Weapon & BE::saHeat) == BE::saHeat)
+                            {
+                                BE::CRIT_HEAT = 1;
+                            }
+
+                            BE::dice = rand() % 10;
+                            if (BE::dice < 2 && (BE::Attacks[E].Weapon & BE::saMeson) == BE::saMeson)
+                            {
+                                BE::CRIT_MESON = 1;
+                            }
+
+                            BE::dice = rand() % 10;
+                            if (BE::dice < 2 && (BE::Attacks[E].Weapon & BE::saVibro) == BE::saVibro)
+                            {
+                                BE::CRIT_VIBRO = 1;
+                            }
+
+                            BE::dice = rand() % 10;
+                            if (BE::dice < 2 && (BE::Attacks[E].Weapon & BE::saSpecial) == BE::saSpecial)
+                            {
+                                BE::CRIT_SPECIAL = 1;
+                            }
+
+                            // Boarding parties always crit if they hit
+                            if ((BE::Attacks[E].Weapon & BE::saBp) == BE::saBp)
+                            {
+                                BE::CRIT_BP = 1;
+                            }
                         }
 
-                        if (BE::MaxShieldB[X] == 0 || BE::Shields == 0)
+                        // Figure the damage threshold
+                        // [JLL] TODO: tmp is last references almost 100 lines above.  This needs a rename.
+                        if (tmp >= 0 && tmp <= 19)
                         {
-                            BE::ShieldsPercent = 0;
+                            if (BE::HullPercent >= 20)
+                            {
+                                BE::Crits = 1;
+                                if (BE::HullPercent >= 40)
+                                {
+                                    BE::Crits = 2;
+                                    if (BE::HullPercent >= 60)
+                                    {
+                                        BE::Crits = 3;
+                                        if (BE::HullPercent >= 80)
+                                        {
+                                            BE::Crits = 4;
+                                        }
+                                    }
+                                }
+                            }
                         }
-                        else
+                        else if (tmp >= 20 && tmp <= 39)
                         {
-                            BE::ShieldsPercent = BE::Shields * 100 / BE::MaxShieldB[X];
-                        }
-
-                        if (BE::MaxHullB[X] == 0 || BE::Hull == 0)
-                        {
-                            BE::HullPercent = 0;
-                        }
-                        else
-                        {
-                            BE::HullPercent = 100 - (BE::Hull * 100) / BE::MaxHullB[X];
-                        }
-                    }
-                    else
-                    {
-                        if (BE::TempCurHullA[X] <= 0)
-                        {
-                            tmp = 0;
-                        }
-                        else
-                        {
-                            // This is the percentage of the max hull damage.  Used below for crit calculations
-                            tmp = 100 - (BE::TempCurHullA[X] * 100) / BE::MaxHullA[X];
-                        }
-
-                        BE::Hull = BE::TempCurHullA[X] - BE::DamageLevel;
-                        if (BE::Hull < 0)
-                        {
-                            BE::Hull = 0;
-                        }
-
-                        if (BE::MaxShieldA[X] == 0 || BE::Shields == 0)
-                        {
-                            BE::ShieldsPercent = 0;
-                        }
-                        else
-                        {
-                            BE::ShieldsPercent = BE::Shields * 100 / BE::MaxShieldA[X];
-                        }
-
-                        if (BE::MaxHullA[X] == 0 || BE::Hull == 0)
-                        {
-                            BE::HullPercent = 0;
-                        }
-                        else
-                        {
-                            BE::HullPercent = 100 - (BE::Hull * 100) / BE::MaxHullA[X];
-                        }
-                    }
-
-                    /*
-                     * OK, if we got this far we have inflicted some damage.  Possibly even ZERO damage
-                     * due to shield absorption.  But, it's enough to possibly trigger a special effect.
-                     *
-                     * Special attribute flags
-                     *      1   sa_dis
-                     *      2   sa_heat
-                     *      4   sa_meson
-                     *      8   sa_vibro
-                     *     16   sa_multi    scatter pack (user for targetting)
-                     *     32   sa_crack
-                     *     64   sa_bp       boarding party
-                     *    128   sa_pen
-                     */
-
-                    // TODO: Change all of these to local scope variables
-                    BE::Crits = 0;
-                    BE::CRIT_DIS = 0;
-                    BE::CRIT_HEAT = 0;
-                    BE::CRIT_MESON = 0;
-                    BE::CRIT_VIBRO = 0;
-                    BE::CRIT_BP = 0;
-                    BE::CRIT_SPECIAL = 0;
-
-                    // It's possible to have multiple special effect weapons, so each is rolled separately
-                    // Yes.  That means a heat/dis weapon has a 40% chance of causing a crit.  20% for each crit type.
-                    if (BE::Attacks[E].Weapon > 0)
-                    {
-                        BE::dice = rand() % 10;
-                        if (BE::dice < 2 && (BE::Attacks[E].Weapon & BE::saDis) == BE::saDis)
-                        {
-                            BE::CRIT_DIS = 1;
-                        }
-
-                        BE::dice = rand() % 10;
-                        if (BE::dice < 2 && (BE::Attacks[E].Weapon & BE::saHeat) == BE::saHeat)
-                        {
-                            BE::CRIT_HEAT = 1;
-                        }
-
-                        BE::dice = rand() % 10;
-                        if (BE::dice < 2 && (BE::Attacks[E].Weapon & BE::saMeson) == BE::saMeson)
-                        {
-                            BE::CRIT_MESON = 1;
-                        }
-
-                        BE::dice = rand() % 10;
-                        if (BE::dice < 2 && (BE::Attacks[E].Weapon & BE::saVibro) == BE::saVibro)
-                        {
-                            BE::CRIT_VIBRO = 1;
-                        }
-
-                        BE::dice = rand() % 10;
-                        if (BE::dice < 2 && (BE::Attacks[E].Weapon & BE::saSpecial) == BE::saSpecial)
-                        {
-                            BE::CRIT_SPECIAL = 1;
-                        }
-
-                        // Boarding parties always crit if they hit
-                        if ((BE::Attacks[E].Weapon & BE::saBp) == BE::saBp)
-                        {
-                            BE::CRIT_BP = 1;
-                        }
-                    }
-
-                    // Figure the damage threshold
-                    // [JLL] TODO: tmp is last references almost 100 lines above.  This needs a rename.
-                    if (tmp >= 0 && tmp <= 19)
-                    {
-                        if (BE::HullPercent >= 20)
-                        {
-                            BE::Crits = 1;
                             if (BE::HullPercent >= 40)
                             {
-                                BE::Crits = 2;
+                                BE::Crits = 1;
                                 if (BE::HullPercent >= 60)
                                 {
-                                    BE::Crits = 3;
+                                    BE::Crits = 2;
                                     if (BE::HullPercent >= 80)
                                     {
-                                        BE::Crits = 4;
+                                        BE::Crits = 3;
                                     }
                                 }
                             }
                         }
-                    }
-                    else if (tmp >= 20 && tmp <= 39)
-                    {
-                        if (BE::HullPercent >= 40)
+                        else if (tmp >= 40 && tmp <= 59)
                         {
-                            BE::Crits = 1;
                             if (BE::HullPercent >= 60)
                             {
-                                BE::Crits = 2;
+                                BE::Crits = 1;
                                 if (BE::HullPercent >= 80)
                                 {
-                                    BE::Crits = 3;
+                                    BE::Crits = 2;
                                 }
                             }
                         }
-                    }
-                    else if (tmp >= 40 && tmp <= 59)
-                    {
-                        if (BE::HullPercent >= 60)
+                        else if (tmp >= 60 && tmp <= 79)
                         {
-                            BE::Crits = 1;
                             if (BE::HullPercent >= 80)
                             {
-                                BE::Crits = 2;
+                                BE::Crits = 1;
                             }
                         }
-                    }
-                    else if (tmp >= 60 && tmp <= 79)
-                    {
-                        if (BE::HullPercent >= 80)
-                        {
-                            BE::Crits = 1;
-                        }
-                    }
 
-                    BE::Crits = BE::Crits + BE::CRIT_DIS + BE::CRIT_HEAT + BE::CRIT_MESON + BE::CRIT_VIBRO + BE::CRIT_BP + BE::CRIT_SPECIAL; // Remeber, these are not flags just counters
+                        BE::Crits = BE::Crits + BE::CRIT_DIS + BE::CRIT_HEAT + BE::CRIT_MESON + BE::CRIT_VIBRO + BE::CRIT_BP + BE::CRIT_SPECIAL; // Remeber, these are not flags just counters
 
-                    temp_str = "";
-                    BE::CriticalStr = "";
+                        temp_str = "";
+                        BE::CriticalStr = "";
 
-                    if (ForceID == 0)
-                    {
-                        // Fighters and ground units ignore the crit hit chart
-                        if (IsFighter(BE::SpecialB[X]) || IsGround(BE::SpecialB[X]) || IsMine(BE::SpecialB[X]))
+                        if (ForceID == 0)
                         {
-                            // Fighters are fragile and any damage destroys them
-                            if (IsFighter(BE::SpecialB[X]) && BE::DamageLevel > 0)
+                            // Fighters and ground units ignore the crit hit chart
+                            if (IsFighter(BE::SpecialB[X]) || IsGround(BE::SpecialB[X]) || IsMine(BE::SpecialB[X]))
                             {
-                                BE::ShipCritStr = "Fighter Destroyed";
-                                temp_str = "";
-                                BE::Hull = 0;
-                            }
-                            if (IsGround(BE::SpecialB[X]) && BE::Hull == 0)
-                            {
-                                BE::ShipCritStr = "Unit Destroyed";
-                                temp_str = "";
-                            }
-                            if (IsMine(BE::SpecialB[X]) && BE::Hull == 0)
-                            {
-                                BE::ShipCritStr = "Mine Destroyed";
-                            }
-                        }
-                        else
-                        {
-                            if (BE::Crits > 0)
-                            {
-                                BE::ReactorBreachFlag = 0;
-                                for (int C = 0; C < BE::Crits; C++)
+                                // Fighters are fragile and any damage destroys them
+                                if (IsFighter(BE::SpecialB[X]) && BE::DamageLevel > 0)
                                 {
-                                    BE::CritDamageFlag = 0;
-                                    BE::CritSpecialFlag = 0;
-                                    std::pair<std::string, long> critInfo;
-
-                                    // Call the critical hit generator function
-                                    if (BE::ReactorBreachFlag != 1)
+                                    BE::ShipCritStr = "Fighter Destroyed";
+                                    temp_str = "";
+                                    BE::Hull = 0;
+                                }
+                                if (IsGround(BE::SpecialB[X]) && BE::Hull == 0)
+                                {
+                                    BE::ShipCritStr = "Unit Destroyed";
+                                    temp_str = "";
+                                }
+                                if (IsMine(BE::SpecialB[X]) && BE::Hull == 0)
+                                {
+                                    BE::ShipCritStr = "Mine Destroyed";
+                                }
+                            }
+                            else
+                            {
+                                if (BE::Crits > 0)
+                                {
+                                    BE::ReactorBreachFlag = 0;
+                                    for (int C = 0; C < BE::Crits; C++)
                                     {
-                                        if (BE::CRIT_DIS == 1)
+                                        BE::CritDamageFlag = 0;
+                                        BE::CritSpecialFlag = 0;
+                                        std::pair<std::string, long> critInfo;
+
+                                        // Call the critical hit generator function
+                                        if (BE::ReactorBreachFlag != 1)
                                         {
-                                            BE::CRIT_DIS = 0;
-                                            critInfo = critTables[1].getRandomOutput();
-                                        }
-                                        else if (BE::CRIT_HEAT == 1)
-                                        {
-                                            BE::CRIT_HEAT = 0;
-                                            critInfo = critTables[2].getRandomOutput();
-                                        }
-                                        else if (BE::CRIT_MESON == 1)
-                                        {
-                                            BE::CRIT_MESON = 0;
-                                            critInfo = critTables[3].getRandomOutput();
-                                        }
-                                        else if (BE::CRIT_VIBRO == 1)
-                                        {
-                                            BE::CRIT_VIBRO = 0;
-                                            critInfo = critTables[4].getRandomOutput();
-                                        }
-                                        else if (BE::CRIT_SPECIAL == 1)
-                                        {
-                                            // TODO: There can only be one special tag.  Expand this to any number of special tags
-                                            // FIXME: Throw an error if the specialIndex is not found.
-                                            BE::CRIT_SPECIAL = 0;
-                                            int specialIndex = HasSpecialWT(BE::Attacks[E].Special);
-                                            if (specialIndex > 0)
+                                            if (BE::CRIT_DIS == 1)
                                             {
-                                                critInfo = critTables[specialIndex].getRandomOutput();
+                                                BE::CRIT_DIS = 0;
+                                                critInfo = critTables[1].getRandomOutput();
+                                            }
+                                            else if (BE::CRIT_HEAT == 1)
+                                            {
+                                                BE::CRIT_HEAT = 0;
+                                                critInfo = critTables[2].getRandomOutput();
+                                            }
+                                            else if (BE::CRIT_MESON == 1)
+                                            {
+                                                BE::CRIT_MESON = 0;
+                                                critInfo = critTables[3].getRandomOutput();
+                                            }
+                                            else if (BE::CRIT_VIBRO == 1)
+                                            {
+                                                BE::CRIT_VIBRO = 0;
+                                                critInfo = critTables[4].getRandomOutput();
+                                            }
+                                            else if (BE::CRIT_SPECIAL == 1)
+                                            {
+                                                // TODO: There can only be one special tag.  Expand this to any number of special tags
+                                                // FIXME: Throw an error if the specialIndex is not found.
+                                                BE::CRIT_SPECIAL = 0;
+                                                int specialIndex = HasSpecialWT(BE::Attacks[E].Special);
+                                                if (specialIndex > 0)
+                                                {
+                                                    critInfo = critTables[specialIndex].getRandomOutput();
+                                                }
+                                            }
+                                            else if (IsVehicle(BE::SpecialB[X]))
+                                            {
+                                                critInfo = critTables[11].getRandomOutput();
+                                            }
+                                            else if (IsBio(BE::SpecialB[X]))
+                                            {
+                                                critInfo = critTables[10].getRandomOutput();
+                                            }
+                                            else if (IsVolatile(BE::SpecialB[X]))
+                                            {
+                                                critInfo = critTables[9].getRandomOutput();
+                                            }
+                                            else if (IsOrbital(BE::SpecialB[X]))
+                                            {
+                                                critInfo = critTables[8].getRandomOutput();
+                                            }
+                                            else if (IsCarrier(BE::SpecialB[X]))
+                                            {
+                                                critInfo = critTables[7].getRandomOutput();
+                                            }
+                                            else if (IsBuilding(BE::SpecialB[X]))
+                                            {
+                                                critInfo = critTables[6].getRandomOutput();
+                                            }
+                                            else
+                                            {
+                                                critInfo = critTables[5].getRandomOutput();
+                                            }
+                                            // TODO: Orbital crit table overrides carrier crit table.  This means bases with hangars aren't carriers...
+
+                                            BE::CriticalStr = critInfo.first;
+                                            damageFile << BE::DefRaceName << " " << BE::DefShipStr[X] << " " << BE::CriticalStr << "\n"; // TODO: Double check that #4 is damage file
+
+                                            if (BE::CRIT_BP == 1 && BE::CRIT_DIS == 0 && BE::CRIT_HEAT == 0 && BE::CRIT_MESON == 0 && BE::CRIT_VIBRO == 0)
+                                            {
+                                                BE::CRIT_BP = 0;
+                                                BE::CriticalStr = "BP: " + BE::CriticalStr;
                                             }
                                         }
-                                        else if (IsVehicle(BE::SpecialB[X]))
+
+                                        long critType = critInfo.second;
+                                        if ((critType > 0 && critType < 11) || critType == 100)
                                         {
-                                            critInfo = critTables[11].getRandomOutput();
+                                            BE::CritDamageFlag = critType;
                                         }
-                                        else if (IsBio(BE::SpecialB[X]))
+                                        else if (critType > 10 && critType < 100)
                                         {
-                                            critInfo = critTables[10].getRandomOutput();
-                                        }
-                                        else if (IsVolatile(BE::SpecialB[X]))
-                                        {
-                                            critInfo = critTables[9].getRandomOutput();
-                                        }
-                                        else if (IsOrbital(BE::SpecialB[X]))
-                                        {
-                                            critInfo = critTables[8].getRandomOutput();
-                                        }
-                                        else if (IsCarrier(BE::SpecialB[X]))
-                                        {
-                                            critInfo = critTables[7].getRandomOutput();
-                                        }
-                                        else if (IsBuilding(BE::SpecialB[X]))
-                                        {
-                                            critInfo = critTables[6].getRandomOutput();
+                                            BE::CritSpecialFlag = critType - 10;
                                         }
                                         else
                                         {
-                                            critInfo = critTables[5].getRandomOutput();
+                                            // TODO: Add some sort of error or debug code here
                                         }
-                                        // TODO: Orbital crit table overrides carrier crit table.  This means bases with hangars aren't carriers...
 
-                                        BE::CriticalStr = critInfo.first;
-                                        damageFile << BE::DefRaceName << " " << BE::DefShipStr[X] << " " << BE::CriticalStr << "\n"; // TODO: Double check that #4 is damage file
+                                        // constant CRIT_WEAPON_ONE   1   Weapons Offline for 1 turn
+                                        // constant CRIT_WEAPON_HALF  2   Half Weapons Offline until repaired
+                                        // constant CRIT_WEAPON_NONE  3   All Weapons Offline until repaired
+                                        // constant CRIT_DRIFTING     4   No movement for 1 turn
+                                        // constant CRIT_NOMOVE       5   No movement until repaired
+                                        // constant CRIT_CRIPPLE      6   Crippled
+                                        // constant CRIT_SHIELDS      7   Shields Offline
+                                        // constant CRIT_AMMO         8   Ammo explosion
+                                        // constant CRIT_CREW1        9   5% crew casualties
+                                        // constant CRIT_CREW2       10   10% crew casualties
+                                        // constant CRIT_CREW3       11   25% crew casualties + cripple
 
-                                        if (BE::CRIT_BP == 1 && BE::CRIT_DIS == 0 && BE::CRIT_HEAT == 0 && BE::CRIT_MESON == 0 && BE::CRIT_VIBRO == 0)
+                                        switch (BE::CritSpecialFlag)
                                         {
-                                            BE::CRIT_BP = 0;
-                                            BE::CriticalStr = "BP: " + BE::CriticalStr;
+                                        case 1:
+                                            BE::TempSpecialB[X] = InsertOffline(BE::TempSpecialB[X]);
+                                            break;
+                                        case 2:
+                                            BE::TempSpecialB[X] = InsertRandomOffline(BE::TempSpecialB[X]);
+                                            break;
+                                        case 3:
+                                            BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "CRIPPLE");
+                                            break;
+                                        case 4:
+                                            BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "DRIFTING");
+                                            break;
+                                        case 5:
+                                            BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "NOMOVE");
+                                            break;
+                                        case 6:
+                                            BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "CRIPPLE");
+                                            BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "NOMOVE");
+                                            break;
+                                        case 7:
+                                            BE::TempCurShieldB[X] = 0;
+                                            BE::Shields = 0;
+                                            BE::ShieldsPercent = 0;
+                                            break;
+                                        case 8:
+                                            // TODO: Need to change this as the torp field is going away
+                                            BE::CritDamageFlag = BE::TempCurTorpB[X];
+                                            break;
+                                        case 9:
+                                            // 5% Crew Casualties
+                                            BE::TempSpecialB[X] = DoCrewDamage(BE::TempSpecialB[X], 5);
+                                            break;
+                                        case 10:
+                                            BE::TempSpecialB[X] = DoCrewDamage(BE::TempSpecialB[X], 10);
+                                            break;
+                                        case 11:
+                                            BE::TempSpecialB[X] = DoCrewDamage(BE::TempSpecialB[X], 25);
+                                            BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "CRIPPLE");
+                                        default:
+                                            // TODO: Add some error/debug handling here
+                                            break;
                                         }
-                                    }
 
-                                    long critType = critInfo.second;
-                                    if ((critType > 0 && critType < 11) || critType == 100)
-                                    {
-                                        BE::CritDamageFlag = critType;
-                                    }
-                                    else if (critType > 10 && critType < 100)
-                                    {
-                                        BE::CritSpecialFlag = critType - 10;
-                                    }
-                                    else
-                                    {
-                                        // TODO: Add some sort of error or debug code here
-                                    }
-
-                                    // constant CRIT_WEAPON_ONE   1   Weapons Offline for 1 turn
-                                    // constant CRIT_WEAPON_HALF  2   Half Weapons Offline until repaired
-                                    // constant CRIT_WEAPON_NONE  3   All Weapons Offline until repaired
-                                    // constant CRIT_DRIFTING     4   No movement for 1 turn
-                                    // constant CRIT_NOMOVE       5   No movement until repaired
-                                    // constant CRIT_CRIPPLE      6   Crippled
-                                    // constant CRIT_SHIELDS      7   Shields Offline
-                                    // constant CRIT_AMMO         8   Ammo explosion
-                                    // constant CRIT_CREW1        9   5% crew casualties
-                                    // constant CRIT_CREW2       10   10% crew casualties
-                                    // constant CRIT_CREW3       11   25% crew casualties + cripple
-
-                                    switch (BE::CritSpecialFlag)
-                                    {
-                                    case 1:
-                                        BE::TempSpecialB[X] = InsertOffline(BE::TempSpecialB[X]);
-                                        break;
-                                    case 2:
-                                        BE::TempSpecialB[X] = InsertRandomOffline(BE::TempSpecialB[X]);
-                                        break;
-                                    case 3:
-                                        BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "CRIPPLE");
-                                        break;
-                                    case 4:
-                                        BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "DRIFTING");
-                                        break;
-                                    case 5:
-                                        BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "NOMOVE");
-                                        break;
-                                    case 6:
-                                        BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "CRIPPLE");
-                                        BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "NOMOVE");
-                                        break;
-                                    case 7:
-                                        BE::TempCurShieldB[X] = 0;
-                                        BE::Shields = 0;
-                                        BE::ShieldsPercent = 0;
-                                        break;
-                                    case 8:
-                                        // TODO: Need to change this as the torp field is going away
-                                        BE::CritDamageFlag = BE::TempCurTorpB[X];
-                                        break;
-                                    case 9:
-                                        // 5% Crew Casualties
-                                        BE::TempSpecialB[X] = DoCrewDamage(BE::TempSpecialB[X], 5);
-                                        break;
-                                    case 10:
-                                        BE::TempSpecialB[X] = DoCrewDamage(BE::TempSpecialB[X], 10);
-                                        break;
-                                    case 11:
-                                        BE::TempSpecialB[X] = DoCrewDamage(BE::TempSpecialB[X], 25);
-                                        BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "CRIPPLE");
-                                    default:
-                                        // TODO: Add some error/debug handling here
-                                        break;
-                                    }
-
-                                    BE::Hull -= BE::CritDamageFlag;
-                                    if (BE::Hull < 1)
-                                    {
-                                        BE::HullPercent = 100;
-                                        BE::Hull = 0;
-                                    }
-                                    else
-                                    {
-                                        BE::HullPercent = 100 - ((BE::Hull * 100) / BE::TempCurHullB[X]);
-                                    }
-                                    if (BE::CritDamageFlag == 100)
-                                    {
-                                        BE::Crits = 1;
-                                        break;
-                                    }
-                                }
-                            } // End crits code
-                            if (BE::Hull == 0)
-                            {
-                                if (IsMissile(BE::SpecialB[X]))
-                                {
-                                    BE::ShipCritStr = "Missile Destroyed.";
-                                }
-                                else if (IsBuilding(BE::SpecialB[X]) || IsOrbital(BE::SpecialB[X]))
-                                {
-                                    BE::ShipCritStr = "Building Destroyed";
-                                }
-                                else
-                                {
-                                    BE::ShipCritStr = "Unit Destroyed.";
-                                }
-                            }
-                        } // End of IsFighter code
-
-                        if (BE::Hull == 0)
-                        {
-                            BE::Shields = 0;
-                            BE::TempCurBeamB[X] = 0; // TODO: Can be removed
-                            BE::TempCurTorpB[X] = 0; // TODO: Can be removed
-                        }
-                        if (BE::Hull > 0 && BE::BPAttackCritB[X] > 99)
-                        {
-                            if (IsBuilding(BE::SpecialB[X]) || IsOrbital(BE::SpecialB[X]))
-                            {
-                                BE::ShipCritStr = "Base Captured.";
-                            }
-                            else
-                            {
-                                BE::ShipCritStr = "Ship Captured."; // TODO: Can this be Unit instead of Ship
-                            }
-                            BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "CAPTURED");
-                        }
-                        BE::DefCritStr[X] = BE::CriticalStr;
-                        if (BE::DefCritStr[X] != "")
-                        {
-                            reportFile << "    " + BE::DefCritStr[X] + "\n";
-                        }
-                        BE::TempStr = "  Bm=" + to_string(BE::TempCurBeamB[X]) + " Sh=" + to_string(BE::TempCurShieldB[X]) + " Tp=" + to_string(BE::TempCurShieldB[X]) + " Hl=" + to_string(BE::Hull) + " " + BE::ShipCritStr;
-                        BE::TempCurDamB[X] = BE::HullPercent;
-                        if (BE::ShipCritStr != "")
-                        {
-#ifdef CBE_DEBUG
-                            CBE::debugFile << "[INFO] X=" << X << ";ForceId=" << ForceID << endl;
-                            CBE::debugFile << "[INFO] " << BE::DefRaceName << " " << BE::DefShipStr[X] << " " << BE::ShipCritStr << endl;
-#endif
-                            damageFile << BE::DefRaceName + " " + BE::DefShipStr[X] + " " + BE::ShipCritStr << "\n";
-                        }
-                        BE::TempCurShieldB[X] = BE::Shields;
-                        BE::TempCurHullB[X] = BE::Hull;
-                    }
-                    else // Defenders
-                    {
-                        // Fighters and ground units ignore the crit hit chart
-                        if (IsFighter(BE::SpecialA[X]) || IsGround(BE::SpecialA[X]) || IsMine(BE::SpecialA[X]))
-                        {
-                            // Fighters are fragile and any damage destroys them
-                            if (IsFighter(BE::SpecialA[X]) && BE::DamageLevel > 0)
-                            {
-                                BE::ShipCritStr = "Fighter Destroyed";
-                                temp_str = "";
-                                BE::Hull = 0;
-                            }
-                            if (IsGround(BE::SpecialA[X]) && BE::Hull == 0)
-                            {
-                                BE::ShipCritStr = "Unit Destroyed";
-                                temp_str = "";
-                            }
-                            if (IsMine(BE::SpecialA[X]) && BE::Hull == 0)
-                            {
-                                BE::ShipCritStr = "Mine Destroyed";
-                            }
-                        }
-                        else
-                        {
-                            if (BE::Crits > 0)
-                            {
-                                BE::ReactorBreachFlag = 0;
-                                for (int C = 0; C < BE::Crits; C++)
-                                {
-                                    BE::CritDamageFlag = 0;
-                                    BE::CritSpecialFlag = 0;
-                                    std::pair<std::string, long> critInfo;
-
-                                    // Call the critical hit generator function
-                                    if (BE::ReactorBreachFlag != 1)
-                                    {
-                                        if (BE::CRIT_DIS == 1)
+                                        BE::Hull -= BE::CritDamageFlag;
+                                        if (BE::Hull < 1)
                                         {
-                                            BE::CRIT_DIS = 0;
-                                            critInfo = critTables[1].getRandomOutput();
-                                        }
-                                        else if (BE::CRIT_HEAT == 1)
-                                        {
-                                            BE::CRIT_HEAT = 0;
-                                            critInfo = critTables[2].getRandomOutput();
-                                        }
-                                        else if (BE::CRIT_MESON == 1)
-                                        {
-                                            BE::CRIT_MESON = 0;
-                                            critInfo = critTables[3].getRandomOutput();
-                                        }
-                                        else if (BE::CRIT_VIBRO == 1)
-                                        {
-                                            BE::CRIT_VIBRO = 0;
-                                            critInfo = critTables[4].getRandomOutput();
-                                        }
-                                        else if (BE::CRIT_SPECIAL == 1)
-                                        {
-                                            // TODO: There can only be one special tag.  Expand this to any number of special tags
-                                            // FIXME: Throw an error if the specialIndex is not found.
-                                            BE::CRIT_SPECIAL = 0;
-                                            int specialIndex = HasSpecialWT(BE::Attacks[E].Special);
-                                            if (specialIndex > 0)
-                                            {
-                                                critInfo = critTables[specialIndex].getRandomOutput();
-                                            }
-                                        }
-                                        else if (IsVehicle(BE::SpecialB[X]))
-                                        {
-                                            critInfo = critTables[11].getRandomOutput();
-                                        }
-                                        else if (IsBio(BE::SpecialB[X]))
-                                        {
-                                            critInfo = critTables[10].getRandomOutput();
-                                        }
-                                        else if (IsVolatile(BE::SpecialB[X]))
-                                        {
-                                            critInfo = critTables[9].getRandomOutput();
-                                        }
-                                        else if (IsOrbital(BE::SpecialB[X]))
-                                        {
-                                            critInfo = critTables[8].getRandomOutput();
-                                        }
-                                        else if (IsCarrier(BE::SpecialB[X]))
-                                        {
-                                            critInfo = critTables[7].getRandomOutput();
-                                        }
-                                        else if (IsBuilding(BE::SpecialB[X]))
-                                        {
-                                            critInfo = critTables[6].getRandomOutput();
+                                            BE::HullPercent = 100;
+                                            BE::Hull = 0;
                                         }
                                         else
                                         {
-                                            critInfo = critTables[5].getRandomOutput();
+                                            BE::HullPercent = 100 - ((BE::Hull * 100) / BE::TempCurHullB[X]);
                                         }
-                                        // TODO: Orbital crit table overrides carrier crit table.  This means bases with hangars aren't carriers...
-
-                                        BE::CriticalStr = critInfo.first;
-                                        damageFile << BE::AttRaceName << " " << BE::AttShipStr[X] << " " << BE::CriticalStr << "\n"; // TODO: Double check that #4 is damage file
-
-                                        if (BE::CRIT_BP == 1 && BE::CRIT_DIS == 0 && BE::CRIT_HEAT == 0 && BE::CRIT_MESON == 0 && BE::CRIT_VIBRO == 0)
+                                        if (BE::CritDamageFlag == 100)
                                         {
-                                            BE::CRIT_BP = 0;
-                                            BE::CriticalStr = "BP: " + BE::CriticalStr;
+                                            BE::Crits = 1;
+                                            break;
                                         }
                                     }
-
-                                    long critType = critInfo.second;
-                                    if ((critType > 1 && critType < 11) || critType == 100)
+                                } // End crits code
+                                if (BE::Hull == 0)
+                                {
+                                    if (IsMissile(BE::SpecialB[X]))
                                     {
-                                        BE::CritDamageFlag = critType;
+                                        BE::ShipCritStr = "Missile Destroyed.";
                                     }
-                                    else if (critType > 10 && critType < 100)
+                                    else if (IsBuilding(BE::SpecialB[X]) || IsOrbital(BE::SpecialB[X]))
                                     {
-                                        BE::CritSpecialFlag = critType - 10;
-                                    }
-                                    else
-                                    {
-                                        // TODO: Add some sort of error or debug code here
-                                    }
-
-                                    // constant CRIT_WEAPON_ONE   1   Weapons Offline for 1 turn
-                                    // constant CRIT_WEAPON_HALF  2   Half Weapons Offline until repaired
-                                    // constant CRIT_WEAPON_NONE  3   All Weapons Offline until repaired
-                                    // constant CRIT_DRIFTING     4   No movement for 1 turn
-                                    // constant CRIT_NOMOVE       5   No movement until repaired
-                                    // constant CRIT_CRIPPLE      6   Crippled
-                                    // constant CRIT_SHIELDS      7   Shields Offline
-                                    // constant CRIT_AMMO         8   Ammo explosion
-                                    // constant CRIT_CREW1        9   5% crew casualties
-                                    // constant CRIT_CREW2       10   10% crew casualties
-                                    // constant CRIT_CREW3       11   25% crew casualties + cripple
-
-                                    switch (BE::CritSpecialFlag)
-                                    {
-                                    case 1:
-                                        BE::TempSpecialA[X] = InsertOffline(BE::TempSpecialA[X]);
-                                        break;
-                                    case 2:
-                                        BE::TempSpecialA[X] = InsertRandomOffline(BE::TempSpecialA[X]);
-                                        break;
-                                    case 3:
-                                        BE::TempSpecialA[X] = AddTag(BE::TempSpecialA[X], "CRIPPLE");
-                                        break;
-                                    case 4:
-                                        BE::TempSpecialA[X] = AddTag(BE::TempSpecialA[X], "DRIFTING");
-                                        break;
-                                    case 5:
-                                        BE::TempSpecialA[X] = AddTag(BE::TempSpecialA[X], "NOMOVE");
-                                        break;
-                                    case 6:
-                                        BE::TempSpecialA[X] = AddTag(BE::TempSpecialA[X], "CRIPPLE");
-                                        BE::TempSpecialA[X] = AddTag(BE::TempSpecialA[X], "NOMOVE");
-                                        break;
-                                    case 7:
-                                        BE::TempCurShieldA[X] = 0;
-                                        BE::Shields = 0;
-                                        BE::ShieldsPercent = 0;
-                                        break;
-                                    case 8:
-                                        // TODO: Need to change this as the torp field is going away
-                                        BE::CritDamageFlag = BE::TempCurTorpB[X];
-                                        break;
-                                    case 9:
-                                        // 5% Crew Casualties
-                                        BE::TempSpecialA[X] = DoCrewDamage(BE::TempSpecialA[X], 5);
-                                        break;
-                                    case 10:
-                                        BE::TempSpecialA[X] = DoCrewDamage(BE::TempSpecialA[X], 10);
-                                        break;
-                                    case 11:
-                                        BE::TempSpecialA[X] = DoCrewDamage(BE::TempSpecialA[X], 25);
-                                        BE::TempSpecialA[X] = AddTag(BE::TempSpecialA[X], "CRIPPLE");
-                                    default:
-                                        // TODO: Add some error/debug handling here
-                                        break;
-                                    }
-
-                                    BE::Hull -= BE::CritDamageFlag;
-                                    if (BE::Hull < 1)
-                                    {
-                                        BE::HullPercent = 100;
-                                        BE::Hull = 0;
+                                        BE::ShipCritStr = "Building Destroyed";
                                     }
                                     else
                                     {
-                                        BE::HullPercent = 100 - ((BE::Hull * 100) / BE::TempCurHullA[X]);
-                                    }
-                                    if (BE::CritDamageFlag == 100)
-                                    {
-                                        BE::Crits = 1;
-                                        break;
+                                        BE::ShipCritStr = "Unit Destroyed.";
                                     }
                                 }
-                            } // End crits code
+                            } // End of IsFighter code
+
                             if (BE::Hull == 0)
                             {
-                                if (IsMissile(BE::SpecialA[X]))
+                                BE::Shields = 0;
+                                BE::TempCurBeamB[X] = 0; // TODO: Can be removed
+                                BE::TempCurTorpB[X] = 0; // TODO: Can be removed
+                            }
+                            if (BE::Hull > 0 && BE::BPAttackCritB[X] > 99)
+                            {
+                                if (IsBuilding(BE::SpecialB[X]) || IsOrbital(BE::SpecialB[X]))
                                 {
-                                    BE::ShipCritStr = "Missile Destroyed.";
-                                }
-                                else if (IsBuilding(BE::SpecialA[X]) || IsOrbital(BE::SpecialA[X]))
-                                {
-                                    BE::ShipCritStr = "Building Destroyed";
-                                }
-                                else
-                                {
-                                    BE::ShipCritStr = "Unit Destroyed.";
-                                }
-                            }
-                        } // End of IsFighter code
-
-                        if (BE::Hull == 0)
-                        {
-                            BE::Shields = 0;
-                            BE::TempCurBeamA[X] = 0; // TODO: Can be removed
-                            BE::TempCurTorpA[X] = 0; // TODO: Can be removed
-                        }
-                        if (BE::Hull > 0 && BE::BPAttackCritA[X] > 99)
-                        {
-                            if (IsBuilding(BE::SpecialA[X]) || IsOrbital(BE::SpecialA[X]))
-                            {
-                                BE::ShipCritStr = "Base Captured.";
-                            }
-                            else
-                            {
-                                BE::ShipCritStr = "Ship Captured."; // TODO: Can this be Unit instead of Ship
-                            }
-                            BE::TempSpecialA[X] = AddTag(BE::TempSpecialA[X], "CAPTURED");
-                        }
-                        BE::AttCritStr[X] = BE::CriticalStr;
-                        if (BE::AttCritStr[X] != "")
-                        {
-                            reportFile << "    " + BE::AttCritStr[X] + "\n";
-                        }
-                        BE::TempStr = "  Bm=" + to_string(BE::TempCurBeamA[X]) + " Sh=" + to_string(BE::TempCurShieldA[X]) + " Tp=" + to_string(BE::TempCurShieldA[X]) + " Hl=" + to_string(BE::Hull) + " " + BE::ShipCritStr;
-                        BE::TempCurDamA[X] = BE::HullPercent;
-                        if (BE::ShipCritStr != "")
-                        {
-#ifdef CBE_DEBUG
-                            CBE::debugFile << "[INFO] X=" << X << ";ForceId=" << ForceID << endl;
-                            CBE::debugFile << "[INFO] " << BE::AttRaceName << " " << BE::AttShipStr[X] << " " << BE::ShipCritStr << endl;
-#endif
-                            damageFile << BE::AttRaceName + " " + BE::AttShipStr[X] + " " + BE::ShipCritStr << "\n";
-                        }
-                        BE::TempCurShieldA[X] = BE::Shields;
-                        BE::TempCurHullA[X] = BE::Hull;
-                    }
-                }
-                // End if ship was shot.
-            }
-            // Next E
-            if (ShipHit == 1)
-            {
-                reportFile << BE::TempStr << "\n"; // TODO: Make consistant
-            }
-        } // Next A
-        reportFile << "\n";
-
-        // Copy real values from temp fields so that combat will be applied
-        BE::BO_AttackTotal = 0;
-        for (int A = 0; A < BE::AttShipsLeft; A++)
-        {
-            BE::AttCritStr[A] = BE::TempAttCritStr[A];
-            BE::CurBeamA[A] = BE::TempCurBeamA[A];
-            BE::CurShieldA[A] = BE::TempCurShieldA[A];
-            BE::CurTorpA[A] = BE::TempCurTorpA[A];
-            BE::CurHullA[A] = BE::TempCurHullA[A];
-            BE::HitsA[A] = BE::TempHitsA[A];
-            BE::PenHitsA[A] = BE::TempPenHitsA[A];
-            BE::CurDamA[A] = BE::TempCurDamA[A];
-            BE::SpecialA[A] = BE::TempSpecialA[A];
-            if (!IsCaptured(BE::SpecialA[A]) && !IsFled(BE::SpecialA[A]) && !IsMissile(BE::SpecialA[A]))
-            {
-                BE::BO_AttackTotal += BE::CurHullA[A];
-            }
-        }
-
-        BE::BO_DefenseTotal = 0;
-        for (int A = 0; A < BE::DefShipsLeft; A++)
-        {
-            BE::DefCritStr[A] = BE::TempDefCritStr[A];
-            BE::CurBeamB[A] = BE::TempCurBeamB[A];
-            BE::CurShieldB[A] = BE::TempCurShieldB[A];
-            BE::CurTorpB[A] = BE::TempCurTorpB[A];
-            BE::CurHullB[A] = BE::TempCurHullB[A];
-            BE::HitsB[A] = BE::TempHitsB[A];
-            BE::PenHitsB[A] = BE::TempPenHitsB[A];
-            BE::CurDamB[A] = BE::TempCurDamB[A];
-            BE::SpecialB[A] = BE::TempSpecialB[A];
-            if (!IsCaptured(BE::SpecialB[A]) && !IsFled(BE::SpecialB[A]) && !IsMissile(BE::SpecialB[A]))
-            {
-                BE::BO_DefenseTotal += BE::CurHullB[A];
-            }
-        }
-
-        // Remove cloaking
-        if (BE::CombatRound == 1)
-        {
-            for (int i = 0; i < BE::AttShipsLeft; i++)
-            {
-                BE::SpecialA[i] = RemoveTag(BE::SpecialA[i], "CLOAK", 0);
-            }
-            for (int i = 0; i < BE::AttShipsLeft; i++)
-            {
-                BE::SpecialB[i] = RemoveTag(BE::SpecialB[i], "CLOAK", 0);
-            }
-        }
-
-        // Printing
-        reportFile << "Damage Results:\n\n";
-        reportFile << BE::AttRaceName + " " + BE::GroupName + " Damage:\n";
-        reportFile << BE::AttDamageStr;
-        if (BE::AttFleetStrength == 0)
-        {
-            BE::BO_AttackPercent = 0;
-        }
-        else
-        {
-            BE::BO_AttackPercent = (BE::BO_AttackTotal * 100) / BE::AttFleetStrength;
-        }
-        BE::BO_Att = 100 - BE::BO_AttackPercent;
-        BE::TempStr = "Current Damage Level: " + to_string(BE::BO_Att) + "% (" + to_string(BE::BO_AttackTotal) + "/" + to_string(BE::AttFleetStrength) + ")\n";
-        BE::BO_AttackTotal = 0;
-        reportFile << BE::TempStr;
-
-        for (int A = 0; A < BE::AttShipsLeft; A++)
-        {
-            // Only do things to ships that are not dead
-            if (BE::CurHullA[A] > 0)
-            {
-                // Do shield regen
-                std::pair<long, long> regen = GetRegenValues(BE::SpecialA[A]); // Get the regen values as a pair.  first is shield, second is hull
-                if (BE::CurShieldA[A] < BE::MaxShieldA[A] && BE::CurShieldA[A] > 0 && regen.first > 0)
-                {
-                    BE::CurShieldA[A] += regen.first;
-                    reportFile << BE::AttShipStr[A] + " - Shield regeneration detected.\n";
-                    if (BE::CurShieldA[A] > BE::MaxShieldA[A])
-                    {
-                        BE::CurShieldA[A] = BE::MaxShieldA[A];
-                    }
-                }
-                // Do hull regen
-                if (BE::CurHullA[A] < BE::MaxHullA[A] && regen.second > 0)
-                {
-                    BE::CurHullA[A] += regen.second;
-                    reportFile << BE::AttShipStr[A] + " - Hull regeneration detected.\n";
-                    if (BE::CurHullA[A] > BE::MaxHullA[A])
-                    {
-                        BE::CurHullA[A] = BE::MaxHullA[A];
-                    }
-                }
-
-                if (!IsNoMove(BE::SpecialA[A]) && !IsCaptured(BE::SpecialA[A]) && !IsCrippled(BE::SpecialA[A]) && !IsMissile(BE::SpecialA[A]))
-                {
-                    // Do flee/fled
-                    if (IsFlee(BE::SpecialA[A]) || BE::AttBreakOff == 0)
-                    {
-                        BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLED");
-                        reportFile << "  " << BE::AttShipStr[A] << " disengages.\n";
-                        BE::AttFledFlag = 1;
-                    }
-                    else
-                    {
-                        long brk = 0;
-                        if (HasBreak(BE::SpecialA[A], brk))
-                        {
-                            if (brk == 0)
-                            {
-                                // TODO: Why is the unit in fled if break is 0?  This does result in the unit leaving combat after 1 round.  Hit and run?
-                                BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLED");
-                                reportFile << "  " << BE::AttShipStr[A] << " disengages.\n";
-                                BE::AttFledFlag = 1;
-                            }
-                            else if (BE::BO_Att >= brk)
-                            {
-                                BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLEE");
-                                reportFile << "  " << BE::AttShipStr[A] << " is breaking off.\n";
-                            }
-                        }
-                        long damage = 0;
-                        if (HasDamage(BE::SpecialA[A], damage))
-                        {
-                            // TODO: Can this be simplified?
-                            if (damage < 100 && (BE::CurHullA[A] * 100 / BE::MaxHullA[A]) <= damage)
-                            {
-                                BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLEE");
-                                reportFile << "  " << BE::AttShipStr[A] << " is breaking off.\n";
-                            }
-                            else if (damage == 100 && BE::CurShieldA[A] == 0)
-                            {
-                                BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLEE");
-                                reportFile << "  " << BE::AttShipStr[A] << " is breaking off.\n";
-                            }
-                            else if (damage > 100 && (BE::CurShieldA[A] * 100 / BE::MaxShieldA[A]) <= (damage - 100))
-                            {
-                                BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLEE");
-                                reportFile << "  " << BE::AttShipStr[A] << " is breaking off.\n";
-                            }
-                        }
-                        else
-                        {
-                            if (BE::BO_Att >= BE::AttBreakOff)
-                            {
-                                BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLEE");
-                                reportFile << "  " << BE::AttShipStr[A] << " is breaking off.\n";
-                            }
-                            else
-                            {
-                                long time = 0;
-                                if (HasTime(BE::SpecialA[A], time))
-                                {
-                                    if (BE::CombatRound >= time)
-                                    {
-                                        BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLEE");
-                                        reportFile << "  " << BE::AttShipStr[A] << " is breaking off.\n";
-                                    }
+                                    BE::ShipCritStr = "Base Captured.";
                                 }
                                 else
                                 {
-                                    if (IsToothless(0, A))
-                                    {
-                                        BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLEE");
-                                        reportFile << "  " << BE::AttShipStr[A] << " is breaking off.\n";
-                                    }
+                                    BE::ShipCritStr = "Ship Captured."; // TODO: Can this be Unit instead of Ship
                                 }
+                                BE::TempSpecialB[X] = AddTag(BE::TempSpecialB[X], "CAPTURED");
                             }
-                        }
-                    }
-                }
-            }
-        }
-
-        reportFile << "\n";
-        BE::DefDamageStr = BE::DefRaceName + " " + BE::GroupName + " Damage:\n";
-        reportFile << BE::DefDamageStr;
-        if (BE::DefFleetStrength == 0)
-        {
-            BE::BO_DefensePercent = 0;
-        }
-        else
-        {
-            BE::BO_DefensePercent = (BE::BO_DefenseTotal * 100) / BE::DefFleetStrength;
-        }
-        BE::BO_Def = 100 - BE::BO_DefensePercent;
-        BE::TempStr = "Current Damage Level: " + to_string(BE::BO_Def) + "% (" + to_string(BE::BO_DefenseTotal) + "/" + to_string(BE::DefFleetStrength) + ")\n";
-        BE::BO_DefenseTotal = 0;
-        reportFile << BE::TempStr;
-
-        for (int B = 0; B < BE::DefShipsLeft; B++)
-        {
-            // Only do things to ships that are not dead
-            if (BE::CurHullB[B] > 0)
-            {
-                // Do shield regen
-                std::pair<long, long> regen = GetRegenValues(BE::SpecialB[B]); // Get the regen values as a pair.  first is shield, second is hull
-                if (BE::CurShieldB[B] < BE::MaxShieldB[B] && BE::CurShieldB[B] > 0 && regen.first > 0)
-                {
-                    BE::CurShieldB[B] += regen.first;
-                    reportFile << BE::DefShipStr[B] + " - Shield regeneration detected.\n";
-                    if (BE::CurShieldB[B] > BE::MaxShieldB[B])
-                    {
-                        BE::CurShieldB[B] = BE::MaxShieldB[B];
-                    }
-                }
-                // Do hull regen
-                if (BE::CurHullB[B] < BE::MaxHullB[B] && regen.second > 0)
-                {
-                    BE::CurHullB[B] += regen.second;
-                    reportFile << BE::DefShipStr[B] + " - Hull regeneration detected.\n";
-                    if (BE::CurHullB[B] > BE::MaxHullB[B])
-                    {
-                        BE::CurHullB[B] = BE::MaxHullB[B];
-                    }
-                }
-
+                            BE::DefCritStr[X] = BE::CriticalStr;
+                            if (BE::DefCritStr[X] != "")
+                            {
+                                reportFile << "    " + BE::DefCritStr[X] + "\n";
+                            }
+                            BE::TempStr = "  Bm=" + to_string(BE::TempCurBeamB[X]) + " Sh=" + to_string(BE::TempCurShieldB[X]) + " Tp=" + to_string(BE::TempCurShieldB[X]) + " Hl=" + to_string(BE::Hull) + " " + BE::ShipCritStr;
+                            BE::TempCurDamB[X] = BE::HullPercent;
+                            if (BE::ShipCritStr != "")
+                            {
 #ifdef CBE_DEBUG
-                CBE::debugFile << "[INFO][Combat Round] Begin Break Off Checks for [" << B << "]: " << BE::DefShipStr[B] << endl;
+                                CBE::debugFile << "[INFO] X=" << X << ";ForceId=" << ForceID << endl;
+                                CBE::debugFile << "[INFO] " << BE::DefRaceName << " " << BE::DefShipStr[X] << " " << BE::ShipCritStr << endl;
 #endif
-
-                if (!IsNoMove(BE::SpecialB[B]) && !IsCaptured(BE::SpecialB[B]) && !IsCrippled(BE::SpecialB[B]) && !IsMissile(BE::SpecialB[B]))
-                {
-                    // Do flee/fled
-                    if (IsFlee(BE::SpecialB[B]) || BE::DefBreakOff == 0)
-                    {
-                        BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLED");
-                        reportFile << "  " << BE::DefShipStr[B] << " disengages.\n";
-                        BE::DefFledFlag = 1;
-                    }
-                    else
-                    {
-                        long brk = 0;
-                        if (HasBreak(BE::SpecialB[B], brk))
-                        {
-                            if (brk == 0)
-                            {
-                                // TODO: Why is the unit in fled if break is 0?  This does result in the unit leaving combat after 1 round.  Hit and run?
-                                BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLED");
-                                reportFile << "  " << BE::DefShipStr[B] << " disengages.\n";
-                                BE::DefFledFlag = 1;
+                                damageFile << BE::DefRaceName + " " + BE::DefShipStr[X] + " " + BE::ShipCritStr << "\n";
                             }
-                            else if (BE::BO_Att >= brk)
-                            {
-                                BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLEE");
-                                reportFile << "  " << BE::DefShipStr[B] << " is breaking off.\n";
-                            }
+                            BE::TempCurShieldB[X] = BE::Shields;
+                            BE::TempCurHullB[X] = BE::Hull;
                         }
-                        long damage = 0;
-                        if (HasDamage(BE::SpecialB[B], damage))
+                        else // Defenders
                         {
-                            // TODO: Can this be simplified?
-                            if (damage < 100 && (BE::CurHullB[B] * 100 / BE::MaxHullB[B]) <= damage)
+                            // Fighters and ground units ignore the crit hit chart
+                            if (IsFighter(BE::SpecialA[X]) || IsGround(BE::SpecialA[X]) || IsMine(BE::SpecialA[X]))
                             {
-                                BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLEE");
-                                reportFile << "  " << BE::DefShipStr[B] << " is breaking off.\n";
-                            }
-                            else if (damage == 100 && BE::CurShieldB[B] == 0)
-                            {
-                                BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLEE");
-                                reportFile << "  " << BE::DefShipStr[B] << " is breaking off.\n";
-                            }
-                            else if (damage > 100 && (BE::CurShieldB[B] * 100 / BE::MaxShieldB[B]) <= (damage - 100))
-                            {
-                                BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLEE");
-                                reportFile << "  " << BE::DefShipStr[B] << " is breaking off.\n";
-                            }
-                        }
-                        else
-                        {
-                            if (BE::BO_Att >= BE::DefBreakOff)
-                            {
-                                BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLEE");
-                                reportFile << "  " << BE::DefShipStr[B] << " is breaking off.\n";
+                                // Fighters are fragile and any damage destroys them
+                                if (IsFighter(BE::SpecialA[X]) && BE::DamageLevel > 0)
+                                {
+                                    BE::ShipCritStr = "Fighter Destroyed";
+                                    temp_str = "";
+                                    BE::Hull = 0;
+                                }
+                                if (IsGround(BE::SpecialA[X]) && BE::Hull == 0)
+                                {
+                                    BE::ShipCritStr = "Unit Destroyed";
+                                    temp_str = "";
+                                }
+                                if (IsMine(BE::SpecialA[X]) && BE::Hull == 0)
+                                {
+                                    BE::ShipCritStr = "Mine Destroyed";
+                                }
                             }
                             else
                             {
-                                long time = 0;
-                                if (HasTime(BE::SpecialB[B], time))
+                                if (BE::Crits > 0)
                                 {
-                                    if (BE::CombatRound >= time)
+                                    BE::ReactorBreachFlag = 0;
+                                    for (int C = 0; C < BE::Crits; C++)
                                     {
-                                        BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLEE");
-                                        reportFile << "  " << BE::DefShipStr[B] << " is breaking off.\n";
+                                        BE::CritDamageFlag = 0;
+                                        BE::CritSpecialFlag = 0;
+                                        std::pair<std::string, long> critInfo;
+
+                                        // Call the critical hit generator function
+                                        if (BE::ReactorBreachFlag != 1)
+                                        {
+                                            if (BE::CRIT_DIS == 1)
+                                            {
+                                                BE::CRIT_DIS = 0;
+                                                critInfo = critTables[1].getRandomOutput();
+                                            }
+                                            else if (BE::CRIT_HEAT == 1)
+                                            {
+                                                BE::CRIT_HEAT = 0;
+                                                critInfo = critTables[2].getRandomOutput();
+                                            }
+                                            else if (BE::CRIT_MESON == 1)
+                                            {
+                                                BE::CRIT_MESON = 0;
+                                                critInfo = critTables[3].getRandomOutput();
+                                            }
+                                            else if (BE::CRIT_VIBRO == 1)
+                                            {
+                                                BE::CRIT_VIBRO = 0;
+                                                critInfo = critTables[4].getRandomOutput();
+                                            }
+                                            else if (BE::CRIT_SPECIAL == 1)
+                                            {
+                                                // TODO: There can only be one special tag.  Expand this to any number of special tags
+                                                // FIXME: Throw an error if the specialIndex is not found.
+                                                BE::CRIT_SPECIAL = 0;
+                                                int specialIndex = HasSpecialWT(BE::Attacks[E].Special);
+                                                if (specialIndex > 0)
+                                                {
+                                                    critInfo = critTables[specialIndex].getRandomOutput();
+                                                }
+                                            }
+                                            else if (IsVehicle(BE::SpecialB[X]))
+                                            {
+                                                critInfo = critTables[11].getRandomOutput();
+                                            }
+                                            else if (IsBio(BE::SpecialB[X]))
+                                            {
+                                                critInfo = critTables[10].getRandomOutput();
+                                            }
+                                            else if (IsVolatile(BE::SpecialB[X]))
+                                            {
+                                                critInfo = critTables[9].getRandomOutput();
+                                            }
+                                            else if (IsOrbital(BE::SpecialB[X]))
+                                            {
+                                                critInfo = critTables[8].getRandomOutput();
+                                            }
+                                            else if (IsCarrier(BE::SpecialB[X]))
+                                            {
+                                                critInfo = critTables[7].getRandomOutput();
+                                            }
+                                            else if (IsBuilding(BE::SpecialB[X]))
+                                            {
+                                                critInfo = critTables[6].getRandomOutput();
+                                            }
+                                            else
+                                            {
+                                                critInfo = critTables[5].getRandomOutput();
+                                            }
+                                            // TODO: Orbital crit table overrides carrier crit table.  This means bases with hangars aren't carriers...
+
+                                            BE::CriticalStr = critInfo.first;
+                                            damageFile << BE::AttRaceName << " " << BE::AttShipStr[X] << " " << BE::CriticalStr << "\n"; // TODO: Double check that #4 is damage file
+
+                                            if (BE::CRIT_BP == 1 && BE::CRIT_DIS == 0 && BE::CRIT_HEAT == 0 && BE::CRIT_MESON == 0 && BE::CRIT_VIBRO == 0)
+                                            {
+                                                BE::CRIT_BP = 0;
+                                                BE::CriticalStr = "BP: " + BE::CriticalStr;
+                                            }
+                                        }
+
+                                        long critType = critInfo.second;
+                                        if ((critType > 1 && critType < 11) || critType == 100)
+                                        {
+                                            BE::CritDamageFlag = critType;
+                                        }
+                                        else if (critType > 10 && critType < 100)
+                                        {
+                                            BE::CritSpecialFlag = critType - 10;
+                                        }
+                                        else
+                                        {
+                                            // TODO: Add some sort of error or debug code here
+                                        }
+
+                                        // constant CRIT_WEAPON_ONE   1   Weapons Offline for 1 turn
+                                        // constant CRIT_WEAPON_HALF  2   Half Weapons Offline until repaired
+                                        // constant CRIT_WEAPON_NONE  3   All Weapons Offline until repaired
+                                        // constant CRIT_DRIFTING     4   No movement for 1 turn
+                                        // constant CRIT_NOMOVE       5   No movement until repaired
+                                        // constant CRIT_CRIPPLE      6   Crippled
+                                        // constant CRIT_SHIELDS      7   Shields Offline
+                                        // constant CRIT_AMMO         8   Ammo explosion
+                                        // constant CRIT_CREW1        9   5% crew casualties
+                                        // constant CRIT_CREW2       10   10% crew casualties
+                                        // constant CRIT_CREW3       11   25% crew casualties + cripple
+
+                                        switch (BE::CritSpecialFlag)
+                                        {
+                                        case 1:
+                                            BE::TempSpecialA[X] = InsertOffline(BE::TempSpecialA[X]);
+                                            break;
+                                        case 2:
+                                            BE::TempSpecialA[X] = InsertRandomOffline(BE::TempSpecialA[X]);
+                                            break;
+                                        case 3:
+                                            BE::TempSpecialA[X] = AddTag(BE::TempSpecialA[X], "CRIPPLE");
+                                            break;
+                                        case 4:
+                                            BE::TempSpecialA[X] = AddTag(BE::TempSpecialA[X], "DRIFTING");
+                                            break;
+                                        case 5:
+                                            BE::TempSpecialA[X] = AddTag(BE::TempSpecialA[X], "NOMOVE");
+                                            break;
+                                        case 6:
+                                            BE::TempSpecialA[X] = AddTag(BE::TempSpecialA[X], "CRIPPLE");
+                                            BE::TempSpecialA[X] = AddTag(BE::TempSpecialA[X], "NOMOVE");
+                                            break;
+                                        case 7:
+                                            BE::TempCurShieldA[X] = 0;
+                                            BE::Shields = 0;
+                                            BE::ShieldsPercent = 0;
+                                            break;
+                                        case 8:
+                                            // TODO: Need to change this as the torp field is going away
+                                            BE::CritDamageFlag = BE::TempCurTorpB[X];
+                                            break;
+                                        case 9:
+                                            // 5% Crew Casualties
+                                            BE::TempSpecialA[X] = DoCrewDamage(BE::TempSpecialA[X], 5);
+                                            break;
+                                        case 10:
+                                            BE::TempSpecialA[X] = DoCrewDamage(BE::TempSpecialA[X], 10);
+                                            break;
+                                        case 11:
+                                            BE::TempSpecialA[X] = DoCrewDamage(BE::TempSpecialA[X], 25);
+                                            BE::TempSpecialA[X] = AddTag(BE::TempSpecialA[X], "CRIPPLE");
+                                        default:
+                                            // TODO: Add some error/debug handling here
+                                            break;
+                                        }
+
+                                        BE::Hull -= BE::CritDamageFlag;
+                                        if (BE::Hull < 1)
+                                        {
+                                            BE::HullPercent = 100;
+                                            BE::Hull = 0;
+                                        }
+                                        else
+                                        {
+                                            BE::HullPercent = 100 - ((BE::Hull * 100) / BE::TempCurHullA[X]);
+                                        }
+                                        if (BE::CritDamageFlag == 100)
+                                        {
+                                            BE::Crits = 1;
+                                            break;
+                                        }
                                     }
+                                } // End crits code
+                                if (BE::Hull == 0)
+                                {
+                                    if (IsMissile(BE::SpecialA[X]))
+                                    {
+                                        BE::ShipCritStr = "Missile Destroyed.";
+                                    }
+                                    else if (IsBuilding(BE::SpecialA[X]) || IsOrbital(BE::SpecialA[X]))
+                                    {
+                                        BE::ShipCritStr = "Building Destroyed";
+                                    }
+                                    else
+                                    {
+                                        BE::ShipCritStr = "Unit Destroyed.";
+                                    }
+                                }
+                            } // End of IsFighter code
+
+                            if (BE::Hull == 0)
+                            {
+                                BE::Shields = 0;
+                                BE::TempCurBeamA[X] = 0; // TODO: Can be removed
+                                BE::TempCurTorpA[X] = 0; // TODO: Can be removed
+                            }
+                            if (BE::Hull > 0 && BE::BPAttackCritA[X] > 99)
+                            {
+                                if (IsBuilding(BE::SpecialA[X]) || IsOrbital(BE::SpecialA[X]))
+                                {
+                                    BE::ShipCritStr = "Base Captured.";
                                 }
                                 else
                                 {
-                                    if (IsToothless(1, B))
-                                    {
-                                        BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLEE");
-                                        reportFile << "  " << BE::DefShipStr[B] << " is breaking off.\n";
-                                    }
+                                    BE::ShipCritStr = "Ship Captured."; // TODO: Can this be Unit instead of Ship
                                 }
+                                BE::TempSpecialA[X] = AddTag(BE::TempSpecialA[X], "CAPTURED");
                             }
+                            BE::AttCritStr[X] = BE::CriticalStr;
+                            if (BE::AttCritStr[X] != "")
+                            {
+                                reportFile << "    " + BE::AttCritStr[X] + "\n";
+                            }
+                            BE::TempStr = "  Bm=" + to_string(BE::TempCurBeamA[X]) + " Sh=" + to_string(BE::TempCurShieldA[X]) + " Tp=" + to_string(BE::TempCurShieldA[X]) + " Hl=" + to_string(BE::Hull) + " " + BE::ShipCritStr;
+                            BE::TempCurDamA[X] = BE::HullPercent;
+                            if (BE::ShipCritStr != "")
+                            {
+#ifdef CBE_DEBUG
+                                CBE::debugFile << "[INFO] X=" << X << ";ForceId=" << ForceID << endl;
+                                CBE::debugFile << "[INFO] " << BE::AttRaceName << " " << BE::AttShipStr[X] << " " << BE::ShipCritStr << endl;
+#endif
+                                damageFile << BE::AttRaceName + " " + BE::AttShipStr[X] + " " + BE::ShipCritStr << "\n";
+                            }
+                            BE::TempCurShieldA[X] = BE::Shields;
+                            BE::TempCurHullA[X] = BE::Hull;
                         }
                     }
+                    // End if ship was shot.
                 }
-#ifdef CBE_DEBUG
-                CBE::debugFile << "[INFO][Combat Round] End Break Off Checks for [" << B << "]" << endl;
-#endif
-            }
-        }
-
-        // Start of combat done check
-        AttGone = 1;
-        DefGone = 1;
-
-#ifdef CBE_DEBUG
-        CBE::debugFile << "[INFO][Combat Round] Checking for end of combat" << endl;
-#endif
-
-        for (int A = 0; A < BE::AttShipsLeft; A++)
-        {
-            if (!IsFled(BE::SpecialA[A]) && !IsCaptured(BE::SpecialA[A]) && !IsCrippled(BE::SpecialA[A]) && !IsMissile(BE::SpecialA[A]))
-            {
-                if (!IsToothless(0, A))
+                // Next E
+                if (ShipHit == 1)
                 {
-                    AttGone = 0;
-                    break;
+                    reportFile << BE::TempStr << "\n"; // TODO: Make consistant
                 }
-            }
-        }
-        for (int B = 0; B < BE::DefShipsLeft; B++)
-        {
-            if (!IsFled(BE::SpecialB[B]) && !IsCaptured(BE::SpecialB[B]) && !IsCrippled(BE::SpecialB[B]) && !IsMissile(BE::SpecialB[B]))
-            {
-                if (!IsToothless(1, B))
-                {
-                    DefGone = 0;
-                    break;
-                }
-            }
-        }
+            } // Next A
+            reportFile << "\n";
 
 #ifdef CBE_DEBUG
-        CBE::debugFile << "[INFO][Combat Round] AttGone=" << AttGone << ",DefGone=" << DefGone << endl;
+            CBE::debugFile << "[INFO][End of Round] Applying combat - Copying temp values to real values" << endl;
 #endif
 
-        // TODO: Combine this with the iterations above for speed?
-        if (BE::CombatRound == 1)
-        {
-            if (AttGone == 0)
+            // Copy real values from temp fields so that combat will be applied
+            BE::BO_AttackTotal = 0;
+            for (int A = 0; A < BE::AttShipsLeft; A++)
             {
-                for (int A = 0; A < BE::AttShipsLeft; A++)
+                BE::AttCritStr[A] = BE::TempAttCritStr[A];
+                BE::CurBeamA[A] = BE::TempCurBeamA[A];
+                BE::CurShieldA[A] = BE::TempCurShieldA[A];
+                BE::CurTorpA[A] = BE::TempCurTorpA[A];
+                BE::CurHullA[A] = BE::TempCurHullA[A];
+                BE::HitsA[A] = BE::TempHitsA[A];
+                BE::PenHitsA[A] = BE::TempPenHitsA[A];
+                BE::CurDamA[A] = BE::TempCurDamA[A];
+                BE::SpecialA[A] = BE::TempSpecialA[A];
+                if (!IsCaptured(BE::SpecialA[A]) && !IsFled(BE::SpecialA[A]) && !IsMissile(BE::SpecialA[A]))
                 {
-                    if (IsSurprise(BE::SpecialA[A]))
-                    {
-                        BE::SpecialA[A] = RemoveTag(BE::SpecialA[A], "SURPRISE", 0);
-                    }
+                    BE::BO_AttackTotal += BE::CurHullA[A];
                 }
             }
-            if (DefGone == 0)
+
+#ifdef CBE_DEBUG
+            CBE::debugFile << "[INFO][End of Round] Remaining Attack Fleet Strength: " << BE::BO_AttackTotal << endl;
+#endif
+
+            BE::BO_DefenseTotal = 0;
+            for (int A = 0; A < BE::DefShipsLeft; A++)
             {
-                for (int B = 0; B < BE::DefShipsLeft; B++)
+                BE::DefCritStr[A] = BE::TempDefCritStr[A];
+                BE::CurBeamB[A] = BE::TempCurBeamB[A];
+                BE::CurShieldB[A] = BE::TempCurShieldB[A];
+                BE::CurTorpB[A] = BE::TempCurTorpB[A];
+                BE::CurHullB[A] = BE::TempCurHullB[A];
+                BE::HitsB[A] = BE::TempHitsB[A];
+                BE::PenHitsB[A] = BE::TempPenHitsB[A];
+                BE::CurDamB[A] = BE::TempCurDamB[A];
+                BE::SpecialB[A] = BE::TempSpecialB[A];
+                if (!IsCaptured(BE::SpecialB[A]) && !IsFled(BE::SpecialB[A]) && !IsMissile(BE::SpecialB[A]))
                 {
-                    if (IsSurprise(BE::SpecialB[B]))
-                    {
-                        BE::SpecialB[B] = RemoveTag(BE::SpecialB[B], "SURPRISE", 0);
-                    }
+                    BE::BO_DefenseTotal += BE::CurHullB[A];
                 }
             }
-        }
 
-        // END OF ROUND!!!!
-        writeTempFiles();
+#ifdef CBE_DEBUG
+            CBE::debugFile << "[INFO][End of Round] Remaining Defense Fleet Strength: " << BE::BO_DefenseTotal << endl;
+#endif
 
-        // Do end of combat checks
-        if (AttGone == 1 || BE::CombatRound >= 100)
-        {
-            if (BE::AttShipsLeft == 0)
+            // Remove cloaking
+            if (BE::CombatRound == 1)
             {
-                BE::TempStr = "Attacking " + BE::GroupName + " gone.\n";
+                for (int i = 0; i < BE::AttShipsLeft; i++)
+                {
+                    BE::SpecialA[i] = RemoveTag(BE::SpecialA[i], "CLOAK", 0);
+                }
+                for (int i = 0; i < BE::AttShipsLeft; i++)
+                {
+                    BE::SpecialB[i] = RemoveTag(BE::SpecialB[i], "CLOAK", 0);
+                }
+            }
+
+            // Printing
+            reportFile << "Damage Results:\n\n";
+            reportFile << BE::AttRaceName + " " + BE::GroupName + " Damage:\n";
+            reportFile << BE::AttDamageStr;
+            if (BE::AttFleetStrength == 0)
+            {
+                BE::BO_AttackPercent = 0;
             }
             else
             {
-                BE::TempStr = "Attacking " + BE::GroupName + " breaks off or surrenders.\n";
+                BE::BO_AttackPercent = (BE::BO_AttackTotal * 100) / BE::AttFleetStrength;
             }
-            BE::RetreatFlag = 1;
-            reportFile << "\n";
+            BE::BO_Att = 100 - BE::BO_AttackPercent;
+            BE::TempStr = "Current Damage Level: " + to_string(BE::BO_Att) + "% (" + to_string(BE::BO_AttackTotal) + "/" + to_string(BE::AttFleetStrength) + ")\n";
+            BE::BO_AttackTotal = 0;
             reportFile << BE::TempStr;
-            AttackLoop = 0;
-        }
-        else
-        {
-            if (DefGone == 1)
+
+            for (int A = 0; A < BE::AttShipsLeft; A++)
             {
-                if (BE::DefShipsLeft == 0)
+                // Only do things to ships that are not dead
+                if (BE::CurHullA[A] > 0)
                 {
-                    BE::TempStr = "Defending " + BE::GroupName + " gone.\n";
+                    // Do shield regen
+                    std::pair<long, long> regen = GetRegenValues(BE::SpecialA[A]); // Get the regen values as a pair.  first is shield, second is hull
+                    if (BE::CurShieldA[A] < BE::MaxShieldA[A] && BE::CurShieldA[A] > 0 && regen.first > 0)
+                    {
+                        BE::CurShieldA[A] += regen.first;
+                        reportFile << BE::AttShipStr[A] + " - Shield regeneration detected.\n";
+                        if (BE::CurShieldA[A] > BE::MaxShieldA[A])
+                        {
+                            BE::CurShieldA[A] = BE::MaxShieldA[A];
+                        }
+                    }
+                    // Do hull regen
+                    if (BE::CurHullA[A] < BE::MaxHullA[A] && regen.second > 0)
+                    {
+                        BE::CurHullA[A] += regen.second;
+                        reportFile << BE::AttShipStr[A] + " - Hull regeneration detected.\n";
+                        if (BE::CurHullA[A] > BE::MaxHullA[A])
+                        {
+                            BE::CurHullA[A] = BE::MaxHullA[A];
+                        }
+                    }
+
+                    if (!IsNoMove(BE::SpecialA[A]) && !IsCaptured(BE::SpecialA[A]) && !IsCrippled(BE::SpecialA[A]) && !IsMissile(BE::SpecialA[A]))
+                    {
+                        // Do flee/fled
+                        if (IsFlee(BE::SpecialA[A]) || BE::AttBreakOff == 0)
+                        {
+                            BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLED");
+                            reportFile << "  " << BE::AttShipStr[A] << " disengages.\n";
+                            BE::AttFledFlag = 1;
+                        }
+                        else
+                        {
+                            long brk = 0;
+                            if (HasBreak(BE::SpecialA[A], brk))
+                            {
+                                if (brk == 0)
+                                {
+                                    // TODO: Why is the unit in fled if break is 0?  This does result in the unit leaving combat after 1 round.  Hit and run?
+                                    BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLED");
+                                    reportFile << "  " << BE::AttShipStr[A] << " disengages.\n";
+                                    BE::AttFledFlag = 1;
+                                }
+                                else if (BE::BO_Att >= brk)
+                                {
+                                    BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLEE");
+                                    reportFile << "  " << BE::AttShipStr[A] << " is breaking off.\n";
+                                }
+                            }
+                            long damage = 0;
+                            if (HasDamage(BE::SpecialA[A], damage))
+                            {
+                                // TODO: Can this be simplified?
+                                if (damage < 100 && (BE::CurHullA[A] * 100 / BE::MaxHullA[A]) <= damage)
+                                {
+                                    BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLEE");
+                                    reportFile << "  " << BE::AttShipStr[A] << " is breaking off.\n";
+                                }
+                                else if (damage == 100 && BE::CurShieldA[A] == 0)
+                                {
+                                    BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLEE");
+                                    reportFile << "  " << BE::AttShipStr[A] << " is breaking off.\n";
+                                }
+                                else if (damage > 100 && (BE::CurShieldA[A] * 100 / BE::MaxShieldA[A]) <= (damage - 100))
+                                {
+                                    BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLEE");
+                                    reportFile << "  " << BE::AttShipStr[A] << " is breaking off.\n";
+                                }
+                            }
+                            else
+                            {
+                                if (BE::BO_Att >= BE::AttBreakOff)
+                                {
+                                    BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLEE");
+                                    reportFile << "  " << BE::AttShipStr[A] << " is breaking off.\n";
+                                }
+                                else
+                                {
+                                    long time = 0;
+                                    if (HasTime(BE::SpecialA[A], time))
+                                    {
+                                        if (BE::CombatRound >= time)
+                                        {
+                                            BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLEE");
+                                            reportFile << "  " << BE::AttShipStr[A] << " is breaking off.\n";
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (IsToothless(0, A))
+                                        {
+                                            BE::SpecialA[A] = AddTag(BE::SpecialA[A], "FLEE");
+                                            reportFile << "  " << BE::AttShipStr[A] << " is breaking off.\n";
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            reportFile << "\n";
+            BE::DefDamageStr = BE::DefRaceName + " " + BE::GroupName + " Damage:\n";
+            reportFile << BE::DefDamageStr;
+            if (BE::DefFleetStrength == 0)
+            {
+                BE::BO_DefensePercent = 0;
+            }
+            else
+            {
+                BE::BO_DefensePercent = (BE::BO_DefenseTotal * 100) / BE::DefFleetStrength;
+            }
+            BE::BO_Def = 100 - BE::BO_DefensePercent;
+            BE::TempStr = "Current Damage Level: " + to_string(BE::BO_Def) + "% (" + to_string(BE::BO_DefenseTotal) + "/" + to_string(BE::DefFleetStrength) + ")\n";
+            BE::BO_DefenseTotal = 0;
+            reportFile << BE::TempStr;
+
+            for (int B = 0; B < BE::DefShipsLeft; B++)
+            {
+                // Only do things to ships that are not dead
+                if (BE::CurHullB[B] > 0)
+                {
+                    // Do shield regen
+                    std::pair<long, long> regen = GetRegenValues(BE::SpecialB[B]); // Get the regen values as a pair.  first is shield, second is hull
+                    if (BE::CurShieldB[B] < BE::MaxShieldB[B] && BE::CurShieldB[B] > 0 && regen.first > 0)
+                    {
+                        BE::CurShieldB[B] += regen.first;
+                        reportFile << BE::DefShipStr[B] + " - Shield regeneration detected.\n";
+                        if (BE::CurShieldB[B] > BE::MaxShieldB[B])
+                        {
+                            BE::CurShieldB[B] = BE::MaxShieldB[B];
+                        }
+                    }
+                    // Do hull regen
+                    if (BE::CurHullB[B] < BE::MaxHullB[B] && regen.second > 0)
+                    {
+                        BE::CurHullB[B] += regen.second;
+                        reportFile << BE::DefShipStr[B] + " - Hull regeneration detected.\n";
+                        if (BE::CurHullB[B] > BE::MaxHullB[B])
+                        {
+                            BE::CurHullB[B] = BE::MaxHullB[B];
+                        }
+                    }
+
+#ifdef CBE_DEBUG
+                    CBE::debugFile << "[INFO][End of Round] Begin Break Off Checks for [" << B << "]: " << BE::DefShipStr[B] << endl;
+#endif
+
+                    if (!IsNoMove(BE::SpecialB[B]) && !IsCaptured(BE::SpecialB[B]) && !IsCrippled(BE::SpecialB[B]) && !IsMissile(BE::SpecialB[B]))
+                    {
+                        // Do flee/fled
+                        if (IsFlee(BE::SpecialB[B]) || BE::DefBreakOff == 0)
+                        {
+                            BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLED");
+                            reportFile << "  " << BE::DefShipStr[B] << " disengages.\n";
+                            BE::DefFledFlag = 1;
+                        }
+                        else
+                        {
+                            long brk = 0;
+                            if (HasBreak(BE::SpecialB[B], brk))
+                            {
+                                if (brk == 0)
+                                {
+                                    // TODO: Why is the unit in fled if break is 0?  This does result in the unit leaving combat after 1 round.  Hit and run?
+                                    BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLED");
+                                    reportFile << "  " << BE::DefShipStr[B] << " disengages.\n";
+                                    BE::DefFledFlag = 1;
+                                }
+                                else if (BE::BO_Att >= brk)
+                                {
+                                    BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLEE");
+                                    reportFile << "  " << BE::DefShipStr[B] << " is breaking off.\n";
+                                }
+                            }
+                            long damage = 0;
+                            if (HasDamage(BE::SpecialB[B], damage))
+                            {
+                                // TODO: Can this be simplified?
+                                if (damage < 100 && (BE::CurHullB[B] * 100 / BE::MaxHullB[B]) <= damage)
+                                {
+                                    BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLEE");
+                                    reportFile << "  " << BE::DefShipStr[B] << " is breaking off.\n";
+                                }
+                                else if (damage == 100 && BE::CurShieldB[B] == 0)
+                                {
+                                    BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLEE");
+                                    reportFile << "  " << BE::DefShipStr[B] << " is breaking off.\n";
+                                }
+                                else if (damage > 100 && (BE::CurShieldB[B] * 100 / BE::MaxShieldB[B]) <= (damage - 100))
+                                {
+                                    BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLEE");
+                                    reportFile << "  " << BE::DefShipStr[B] << " is breaking off.\n";
+                                }
+                            }
+                            else
+                            {
+                                if (BE::BO_Att >= BE::DefBreakOff)
+                                {
+                                    BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLEE");
+                                    reportFile << "  " << BE::DefShipStr[B] << " is breaking off.\n";
+                                }
+                                else
+                                {
+                                    long time = 0;
+                                    if (HasTime(BE::SpecialB[B], time))
+                                    {
+                                        if (BE::CombatRound >= time)
+                                        {
+                                            BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLEE");
+                                            reportFile << "  " << BE::DefShipStr[B] << " is breaking off.\n";
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (IsToothless(1, B))
+                                        {
+                                            BE::SpecialB[B] = AddTag(BE::SpecialB[B], "FLEE");
+                                            reportFile << "  " << BE::DefShipStr[B] << " is breaking off.\n";
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+#ifdef CBE_DEBUG
+                    CBE::debugFile << "[INFO][End of Round] End Break Off Checks for [" << B << "]" << endl;
+#endif
+                }
+            }
+
+            // Start of combat done check
+            AttGone = 1;
+            DefGone = 1;
+
+#ifdef CBE_DEBUG
+            CBE::debugFile << "[INFO][End of Round] Checking for end of combat" << endl;
+#endif
+
+            for (int A = 0; A < BE::AttShipsLeft; A++)
+            {
+                if (!IsFled(BE::SpecialA[A]) && !IsCaptured(BE::SpecialA[A]) && !IsCrippled(BE::SpecialA[A]) && !IsMissile(BE::SpecialA[A]))
+                {
+                    if (!IsToothless(0, A))
+                    {
+                        AttGone = 0;
+                        break;
+                    }
+                }
+            }
+            for (int B = 0; B < BE::DefShipsLeft; B++)
+            {
+                if (!IsFled(BE::SpecialB[B]) && !IsCaptured(BE::SpecialB[B]) && !IsCrippled(BE::SpecialB[B]) && !IsMissile(BE::SpecialB[B]))
+                {
+                    if (!IsToothless(1, B))
+                    {
+                        DefGone = 0;
+                        break;
+                    }
+                }
+            }
+
+#ifdef CBE_DEBUG
+            CBE::debugFile << "[INFO][End of Round] AttGone=" << AttGone << ",DefGone=" << DefGone << endl;
+#endif
+
+            // TODO: Combine this with the iterations above for speed?
+            if (BE::CombatRound == 1)
+            {
+                if (AttGone == 0)
+                {
+                    for (int A = 0; A < BE::AttShipsLeft; A++)
+                    {
+                        if (IsSurprise(BE::SpecialA[A]))
+                        {
+                            BE::SpecialA[A] = RemoveTag(BE::SpecialA[A], "SURPRISE", 0);
+                        }
+                    }
+                }
+                if (DefGone == 0)
+                {
+                    for (int B = 0; B < BE::DefShipsLeft; B++)
+                    {
+                        if (IsSurprise(BE::SpecialB[B]))
+                        {
+                            BE::SpecialB[B] = RemoveTag(BE::SpecialB[B], "SURPRISE", 0);
+                        }
+                    }
+                }
+            }
+
+            // END OF ROUND!!!!
+            writeTempFiles();
+
+            // Do end of combat checks
+            if (AttGone == 1 || BE::CombatRound >= 100) // FIXME: Change the 100 to a constant that can be set
+            {
+                if (BE::AttShipsLeft == 0)
+                {
+                    BE::TempStr = "Attacking " + BE::GroupName + " gone.\n";
                 }
                 else
                 {
-                    BE::TempStr = "Defending " + BE::GroupName + " breaks off or surrenders.\n";
+                    BE::TempStr = "Attacking " + BE::GroupName + " breaks off or surrenders.\n";
                 }
-                BE::RetreatFlag = 2;
+                BE::RetreatFlag = 1;
                 reportFile << "\n";
                 reportFile << BE::TempStr;
                 AttackLoop = 0;
             }
-        }
-
-        // FIXME: Memory cleanup?
-
-        reportFile << "\n";
-        reportFile.flush();
-        damageFile.flush();
-
-        if (oneStep && AttackLoop == 1)
-        {
-            string tempIn;
-            cout << "Run another turn? (Y\\N): ";
-            cin >> tempIn;
-            if (tempIn == "N" || tempIn == "n")
+            else
             {
+                if (DefGone == 1)
+                {
+                    if (BE::DefShipsLeft == 0)
+                    {
+                        BE::TempStr = "Defending " + BE::GroupName + " gone.\n";
+                    }
+                    else
+                    {
+                        BE::TempStr = "Defending " + BE::GroupName + " breaks off or surrenders.\n";
+                    }
+                    BE::RetreatFlag = 2;
+                    reportFile << "\n";
+                    reportFile << BE::TempStr;
+                    AttackLoop = 0;
+                }
+            }
+
+            // FIXME: Memory cleanup?
+
+            reportFile << "\n";
+            reportFile.flush();
+            damageFile.flush();
+
+            if (oneStep && AttackLoop == 1)
+            {
+                string tempIn;
+                cout << "Run another turn? (Y\\N): ";
+                cin >> tempIn;
+                if (tempIn == "N" || tempIn == "n")
+                {
+                    AttackLoop = 0;
+                }
+            }
+        }
+        else
+        {
+            // Handle empty fleets here
+            if (BE::AttShipsLeft == 0) // FIXME: Change the 100 to a constant that can be set
+            {
+                reportFile << "\n";
+                reportFile << "Attacking " + BE::GroupName + " gone.\n";
+                AttackLoop = 0;
+            }
+            if (BE::DefShipsLeft == 0)
+            {
+                reportFile << "\n";
+                reportFile << "Defending " + BE::GroupName + " gone.\n";
                 AttackLoop = 0;
             }
         }
