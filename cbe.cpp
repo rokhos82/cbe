@@ -6783,9 +6783,50 @@ void be_main()
         }
     } while (AttackLoop == 1);
 
+    // Write Out Combat Stats
+    reportFile << "\n";
+    reportFile << "Surviving Ships:" << "\n";
+    reportFile << "\n";
+
+    // Deal with attacking fleet first
+    if(BE::AttShipsLeft > 0) {
+        // There are attacking ships left, list them
+        // Uses same code as participating ships
+        // Print name of fleet first
+        reportFile << BE::AttRaceName << ", " << BE::AttFleetName << BE::GroupName << "." << "\n";
+    }
+    else {
+        // There are no attacking ships left.
+        reportFile << BE::AttRaceName << ", " << BE::AttFleetName << BE::GroupName << "is gone." << "\n";
+    }
+
+    reportFile << "\n";
+
+    // Deel with defend fleet next
+    if(BE::DefShipsLeft > 0) {
+        // There are defending ships left, list them
+        // Uses same code as participating ships
+        // Print name of fleet first
+        reportFile << BE::DefRaceName << ", " << BE::DefRaceName << BE::GroupName << "." << "\n";
+    }
+    else {
+        // There are no defending ships left.
+        reportFile << BE::DefRaceName << ", " << BE::DefRaceName << BE::GroupName << " is gone." << "\n";
+    }
+
+    reportFile << "\n";
+
+    // List ships that are captured or unable to retreat
+    if(BE::AttShipsLeft == 0) {}
+    if(BE::DefShipsLeft == 0) {}
+
     cout << "Done with combat!" << endl;
 
     // FIXME: Memory cleanup?
+
+    // Flush the files and close them.
+    reportFile.flush();
+    damageFile.flush();
 
     reportFile.close();
     damageFile.close();
