@@ -2374,6 +2374,21 @@ void writeBattleString(ofstream &iostr, const string &str)
     }
 }
 
+void writeRemainingUnits(ofstream &iostr,const int unitCount,const std::string *unitNames,const long *unitCurBeam,const long *unitCurShield,const long *unitCurTorp,const long *unitCurHull,const long *unitMaxHull) {
+    // This function outputs all remaining ships in a fleet
+    // This is the pattern: <ship name> Bm=# Sh=# Tp=# Hl=# Hull Damage Level: #%
+
+    for(int i = 0;i < unitCount;i++) {
+        iostr << (i+1) << ": " << unitNames[i];
+        iostr << " Bm=" << unitCurBeam[i];
+        iostr << " Sh=" << unitCurShield[i];
+        iostr << " Tp=" << unitCurTorp[i];
+        iostr << " Hl=" << unitCurHull[i];
+        int damage = unitCurHull[i] * 100 / unitMaxHull[i];
+        iostr << " Hull Damage Level: " << damage << "%\n";
+    }
+}
+
 void writeTempFiles()
 {
     long old_AttShipsLeft = 0;
@@ -6794,6 +6809,8 @@ void be_main()
         // Uses same code as participating ships
         // Print name of fleet first
         reportFile << BE::AttRaceName << ", " << BE::AttFleetName << BE::GroupName << "." << "\n";
+        reportFile << "\n";
+        writeRemainingUnits(reportFile,BE::AttShipsLeft,BE::AttShipStr,BE::CurBeamA,BE::CurShieldA,BE::CurTorpA,BE::CurHullA,BE::MaxHullA);
     }
     else {
         // There are no attacking ships left.
