@@ -6814,7 +6814,7 @@ void be_main()
     }
     else {
         // There are no attacking ships left.
-        reportFile << BE::AttRaceName << ", " << BE::AttFleetName << BE::GroupName << "is gone." << "\n";
+        reportFile << BE::AttRaceName << ", " << BE::AttFleetName << BE::GroupName << " is gone." << "\n";
     }
 
     reportFile << "\n";
@@ -6825,6 +6825,8 @@ void be_main()
         // Uses same code as participating ships
         // Print name of fleet first
         reportFile << BE::DefRaceName << ", " << BE::DefRaceName << BE::GroupName << "." << "\n";
+        reportFile << "\n";
+        writeRemainingUnits(reportFile,BE::DefShipsLeft,BE::DefShipStr,BE::CurBeamB,BE::CurShieldB,BE::CurTorpB,BE::CurHullB,BE::MaxHullB);
     }
     else {
         // There are no defending ships left.
@@ -6834,6 +6836,7 @@ void be_main()
     reportFile << "\n";
 
     // List ships that are captured or unable to retreat
+    // Only the retreating fleet needs to list captured/disabled ships
     if(BE::AttShipsLeft == 0) {}
     if(BE::DefShipsLeft == 0) {}
 
@@ -6911,9 +6914,22 @@ int main(int argc, char *argv[])
     // Are we running headless?
     if (headless)
     {
-        // Just run the simulation.
-        // TODO: Add some checks here
-        be_main();
+        // Just run the simulation without using the GUI.
+        if(CBE::defenderLoaded && CBE::attackerLoaded) {
+            // Commence the headless execution.
+            be_main();
+        }
+        else {
+            // Something is missing, let's see what it is
+            std::cout << "Unable to continue with headless execution." << endl;
+            if(!CBE::attackerLoaded) {
+                std::cout << "No attacking fleet loaded." << endl;
+            }
+            if(!CBE::defenderLoaded) {
+                std::cout << "No defending fleet loaded." << endl;
+            }
+        }
+        //be_main();
     }
     else
     { // Present the menu to the user
