@@ -6869,6 +6869,7 @@ int main(int argc, char *argv[])
     int i = 1;
     string fname = "";
     bool headless = false;
+    string simulationName = "";
     while (i < argc)
     {
         string cmd = argv[i];
@@ -6904,6 +6905,12 @@ int main(int argc, char *argv[])
         {
             oneStep = true;
         }
+        else if (cmd == "-n" || cmd == "--name") {
+            // The name for this simulation
+            // Will be used for workflowing simulations
+            i++;
+            simulationName = argv[i];
+        }
         else
         {
             std::cout << "Unknown command: " << cmd << endl;
@@ -6917,6 +6924,7 @@ int main(int argc, char *argv[])
         // Just run the simulation without using the GUI.
         if(CBE::defenderLoaded && CBE::attackerLoaded) {
             // Commence the headless execution.
+            std::cout << "Running headless simulation \"" << simulationName << "\"" << endl;
             be_main();
         }
         else {
@@ -6929,7 +6937,6 @@ int main(int argc, char *argv[])
                 std::cout << "No defending fleet loaded." << endl;
             }
         }
-        //be_main();
     }
     else
     { // Present the menu to the user

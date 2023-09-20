@@ -2,7 +2,8 @@
 
 #include <fstream>
 
-#define CBE_DEBUG
+//#define CBE_DEBUG
+#undef CBE_DEBUG
 
 namespace CBE
 {
