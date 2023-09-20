@@ -150,7 +150,7 @@ long BE::ret = 0;
 
 bool BE::LoadA_ready = false, BE::LoadD_ready = false;
 bool BE::AttHasLongRange = false, BE::DefHasLongRange = false;
-string BE::GroupName = "Fleets", BE::UnitName = "Ships";
+string BE::GroupName = "Fleet", BE::UnitName = "Ship";
 
 void loadAttackingFleet(string fname)
 {
@@ -6808,13 +6808,13 @@ void be_main()
         // There are attacking ships left, list them
         // Uses same code as participating ships
         // Print name of fleet first
-        reportFile << BE::AttRaceName << ", " << BE::AttFleetName << BE::GroupName << "." << "\n";
+        reportFile << BE::AttRaceName << ", " << BE::AttFleetName << " " << BE::GroupName << "." << "\n";
         reportFile << "\n";
         writeRemainingUnits(reportFile,BE::AttShipsLeft,BE::AttShipStr,BE::CurBeamA,BE::CurShieldA,BE::CurTorpA,BE::CurHullA,BE::MaxHullA);
     }
     else {
         // There are no attacking ships left.
-        reportFile << BE::AttRaceName << ", " << BE::AttFleetName << BE::GroupName << " is gone." << "\n";
+        reportFile << BE::AttRaceName << ", " << BE::AttFleetName << " " << BE::GroupName << " is gone." << "\n";
     }
 
     reportFile << "\n";
@@ -6824,13 +6824,13 @@ void be_main()
         // There are defending ships left, list them
         // Uses same code as participating ships
         // Print name of fleet first
-        reportFile << BE::DefRaceName << ", " << BE::DefRaceName << BE::GroupName << "." << "\n";
+        reportFile << BE::DefRaceName << ", " << BE::DefRaceName << " " << BE::GroupName << "." << "\n";
         reportFile << "\n";
         writeRemainingUnits(reportFile,BE::DefShipsLeft,BE::DefShipStr,BE::CurBeamB,BE::CurShieldB,BE::CurTorpB,BE::CurHullB,BE::MaxHullB);
     }
     else {
         // There are no defending ships left.
-        reportFile << BE::DefRaceName << ", " << BE::DefRaceName << BE::GroupName << " is gone." << "\n";
+        reportFile << BE::DefRaceName << ", " << BE::DefRaceName << " " << BE::GroupName << " is gone." << "\n";
     }
 
     reportFile << "\n";
