@@ -16,7 +16,6 @@ namespace BE {
     class FleetInfo {
         private:
             string fleetStr;
-            string* unitStrs;
 
             vector<BE::UnitInfo> units;
 
@@ -90,7 +89,7 @@ BE::FleetInfo::FleetInfo(vector<string> fleetRows) {
 }
 
 void BE::FleetInfo::listUnits() {
-    for(int i = 0;i < this->units.size();i++) {
-        cout << this->units[i].name << endl;
+    for(UnitInfo& unit : this->units) {
+        cout << unit.name << endl;
     }
 }

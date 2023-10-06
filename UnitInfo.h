@@ -35,14 +35,15 @@ namespace BE {
             long hits;
             long penHits;
             long bpAttackCrit;
-            UnitInfo(string shipStr);
+            UnitInfo(const string &shipStr);
+            void printToStream(std::ostream& ostrm);
     };
 };
 
 
 
 
-BE::UnitInfo::UnitInfo(string shipStr) {
+BE::UnitInfo::UnitInfo(const string &shipStr) {
     this->shipStr = shipStr;
     cout << this->shipStr << endl;
 
@@ -76,4 +77,8 @@ BE::UnitInfo::UnitInfo(string shipStr) {
         // No, report the error
         cerr << "Unable to parse ship string.  Invalid number of parts.  Number of parts is " << parts.size() << " and should be 13!" << endl;
     }
+}
+
+void BE::UnitInfo::printToStream(std::ostream &ostrm) {
+    ostrm << this->name << "\n";
 }
