@@ -883,7 +883,7 @@ int HasAmmoWT(const string &special)
     return res;
 }
 
-bool HasArmor(const string &special, long &ar)
+/*bool HasArmor(const string &special, long &ar)
 {
     // TODO: This function needs renamed.  It checks for SR and has nothing to do with Shield points remaining.
     bool res = false;
@@ -909,6 +909,47 @@ bool HasArmor(const string &special, long &ar)
 #ifdef CBE_DEBUG
     CBE::debugFile << "[INFO] HasArmor => " << res << endl;
 #endif
+
+    return res;
+}//*/
+
+bool HasArmor(const string &special, long &ar)
+{
+    bool res = false;
+
+    // Look for `AR` in the special string
+    int start = special.find("AR");
+    if (start != string::npos)
+    {
+        string part;
+        int end;
+        try {
+            // Found it! Now get the base and the scope
+            start = special.find(" ", start);
+            end = special.find(" ", start + 1);
+            part = special.substr(start,start - end + 1);
+            if(!part.empty())
+            {
+                res = true;
+                ar = stoi(part);
+            }
+        } catch (const std::invalid_argument& e) {
+            // Handle the invalid_argument exception
+            std::cerr << "Invalid argument error: " << e.what() << std::endl;
+            // Provide a fallback value or take appropriate action
+            ar = 0; // Set a fallback value
+        } catch (const std::out_of_range& e) {
+            // Handle out-of-range exception if needed
+            std::cerr << "Out of range error: " << e.what() << std::endl;
+            // Provide a fallback value or take appropriate action
+            ar = 0; // Set a fallback value
+        } catch (...) {
+            // Handle other unexpected exceptions
+            std::cerr << "An unexpected error occurred." << std::endl;
+            // Provide a fallback value or take appropriate action
+            ar = 0; // Set a fallback value
+        }
+    }
 
     return res;
 }
