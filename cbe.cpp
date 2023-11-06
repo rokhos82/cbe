@@ -923,27 +923,34 @@ bool HasArmor(const string &special, long &ar)
     {
         string part;
         int end;
-        try {
+        try
+        {
             // Found it! Now get the base and the scope
             start = special.find(" ", start);
             end = special.find(" ", start + 1);
-            part = special.substr(start,start - end + 1);
-            if(!part.empty())
+            part = special.substr(start, start - end + 1);
+            if (!part.empty())
             {
                 res = true;
                 ar = stoi(part);
             }
-        } catch (const std::invalid_argument& e) {
+        }
+        catch (const std::invalid_argument &e)
+        {
             // Handle the invalid_argument exception
             std::cerr << "Invalid argument error: " << e.what() << std::endl;
             // Provide a fallback value or take appropriate action
             ar = 0; // Set a fallback value
-        } catch (const std::out_of_range& e) {
+        }
+        catch (const std::out_of_range &e)
+        {
             // Handle out-of-range exception if needed
             std::cerr << "Out of range error: " << e.what() << std::endl;
             // Provide a fallback value or take appropriate action
             ar = 0; // Set a fallback value
-        } catch (...) {
+        }
+        catch (...)
+        {
             // Handle other unexpected exceptions
             std::cerr << "An unexpected error occurred." << std::endl;
             // Provide a fallback value or take appropriate action
@@ -2415,12 +2422,14 @@ void writeBattleString(ofstream &iostr, const string &str)
     }
 }
 
-void writeRemainingUnits(ofstream &iostr,const int unitCount,const std::string *unitNames,const long *unitCurBeam,const long *unitCurShield,const long *unitCurTorp,const long *unitCurHull,const long *unitMaxHull) {
+void writeRemainingUnits(ofstream &iostr, const int unitCount, const std::string *unitNames, const long *unitCurBeam, const long *unitCurShield, const long *unitCurTorp, const long *unitCurHull, const long *unitMaxHull)
+{
     // This function outputs all remaining ships in a fleet
     // This is the pattern: <ship name> Bm=# Sh=# Tp=# Hl=# Hull Damage Level: #%
 
-    for(int i = 0;i < unitCount;i++) {
-        iostr << (i+1) << ": " << unitNames[i];
+    for (int i = 0; i < unitCount; i++)
+    {
+        iostr << (i + 1) << ": " << unitNames[i];
         iostr << " Bm=" << unitCurBeam[i];
         iostr << " Sh=" << unitCurShield[i];
         iostr << " Tp=" << unitCurTorp[i];
@@ -3007,13 +3016,13 @@ void be_main()
 
             // Battle finally commences!
             std::cout << "Battle Round: " << BE::CombatRound << endl;
-            reportFile << "Battle Round: " << BE::CombatRound << "\n";
+            reportFile << "# Battle Round: " << BE::CombatRound << "\n";
 
             // Write the attackers to the report file
             // {{486}}
-            reportFile << "\nAttackers are the " << BE::AttRaceName << ", " << BE::AttFleetName << " " << BE::GroupName << ".\n";
+            reportFile << "\n## Attackers are the " << BE::AttRaceName << ", " << BE::AttFleetName << " " << BE::GroupName << ".\n";
             reportFile << "Current group Break-off level is " << BE::AttBreakOff << "%\n";
-            reportFile << "The " << BE::UnitName << " are currently listed as:\n";
+            reportFile << "### The " << BE::UnitName << " are currently listed as:\n";
 
             for (int x = 0; x < BE::AttShipsLeft; x++)
             {
@@ -3022,9 +3031,9 @@ void be_main()
 
             // Write the defenders to the report file
             // {{501}}
-            reportFile << "\nDefenders are the " << BE::DefRaceName << ", " << BE::DefFleetName << " " << BE::GroupName << ".\n";
+            reportFile << "\n## Defenders are the " << BE::DefRaceName << ", " << BE::DefFleetName << " " << BE::GroupName << ".\n";
             reportFile << "Current group Break-off level is " << BE::DefBreakOff << "%\n";
-            reportFile << "The " << BE::UnitName << " are currently listed as:\n";
+            reportFile << "### The " << BE::UnitName << " are currently listed as:\n";
 
             for (int x = 0; x < BE::DefShipsLeft; x++)
             {
@@ -3032,7 +3041,7 @@ void be_main()
             }
 
             // Ok, battle actually commences NOW
-            reportFile << "\nBattle Results Commence:\n";
+            reportFile << "\n## Battle Results Commence:\n";
 
             // Clear the old damage array values
             // TODO: Change this to max array size not just ships left
@@ -3857,11 +3866,13 @@ void be_main()
                 // This checks for the break between the fleets
                 if (BE::A == 0)
                 {
-                    reportFile << BE::AttFleetName << " is manuevering" << endl;
+                    reportFile << "\n"
+                               << "### Attacking fleet " << BE::AttRaceName << " - " << BE::AttFleetName << " is maneuvering" << endl;
                 }
-                else if (BE::A == BE::AttShipsLeft) 
+                else if (BE::A == BE::AttShipsLeft)
                 {
-                    reportFile << BE::DefFleetName << " is manuevering" << endl;
+                    reportFile << "\n"
+                               << "### Defending fleet " << BE::DefRaceName << " - " << BE::DefFleetName << " is maneuvering" << endl;
                 }
 
                 Special1 = 0;
@@ -6851,45 +6862,58 @@ void be_main()
 
     // Write Out Combat Stats
     reportFile << "\n";
-    reportFile << "Surviving Ships:" << "\n";
+    reportFile << "Surviving Ships:"
+               << "\n";
     reportFile << "\n";
 
     // Deal with attacking fleet first
-    if(BE::AttShipsLeft > 0) {
+    if (BE::AttShipsLeft > 0)
+    {
         // There are attacking ships left, list them
         // Uses same code as participating ships
         // Print name of fleet first
-        reportFile << BE::AttRaceName << ", " << BE::AttFleetName << " " << BE::GroupName << "." << "\n";
+        reportFile << BE::AttRaceName << ", " << BE::AttFleetName << " " << BE::GroupName << "."
+                   << "\n";
         reportFile << "\n";
-        writeRemainingUnits(reportFile,BE::AttShipsLeft,BE::AttShipStr,BE::CurBeamA,BE::CurShieldA,BE::CurTorpA,BE::CurHullA,BE::MaxHullA);
+        writeRemainingUnits(reportFile, BE::AttShipsLeft, BE::AttShipStr, BE::CurBeamA, BE::CurShieldA, BE::CurTorpA, BE::CurHullA, BE::MaxHullA);
     }
-    else {
+    else
+    {
         // There are no attacking ships left.
-        reportFile << BE::AttRaceName << ", " << BE::AttFleetName << " " << BE::GroupName << " is gone." << "\n";
+        reportFile << BE::AttRaceName << ", " << BE::AttFleetName << " " << BE::GroupName << " is gone."
+                   << "\n";
     }
 
     reportFile << "\n";
 
     // Deel with defend fleet next
-    if(BE::DefShipsLeft > 0) {
+    if (BE::DefShipsLeft > 0)
+    {
         // There are defending ships left, list them
         // Uses same code as participating ships
         // Print name of fleet first
-        reportFile << BE::DefRaceName << ", " << BE::DefRaceName << " " << BE::GroupName << "." << "\n";
+        reportFile << BE::DefRaceName << ", " << BE::DefRaceName << " " << BE::GroupName << "."
+                   << "\n";
         reportFile << "\n";
-        writeRemainingUnits(reportFile,BE::DefShipsLeft,BE::DefShipStr,BE::CurBeamB,BE::CurShieldB,BE::CurTorpB,BE::CurHullB,BE::MaxHullB);
+        writeRemainingUnits(reportFile, BE::DefShipsLeft, BE::DefShipStr, BE::CurBeamB, BE::CurShieldB, BE::CurTorpB, BE::CurHullB, BE::MaxHullB);
     }
-    else {
+    else
+    {
         // There are no defending ships left.
-        reportFile << BE::DefRaceName << ", " << BE::DefRaceName << " " << BE::GroupName << " is gone." << "\n";
+        reportFile << BE::DefRaceName << ", " << BE::DefRaceName << " " << BE::GroupName << " is gone."
+                   << "\n";
     }
 
     reportFile << "\n";
 
     // List ships that are captured or unable to retreat
     // Only the retreating fleet needs to list captured/disabled ships
-    if(BE::AttShipsLeft == 0) {}
-    if(BE::DefShipsLeft == 0) {}
+    if (BE::AttShipsLeft == 0)
+    {
+    }
+    if (BE::DefShipsLeft == 0)
+    {
+    }
 
     cout << "Done with combat!" << endl;
 
@@ -6956,7 +6980,8 @@ int main(int argc, char *argv[])
         {
             oneStep = true;
         }
-        else if (cmd == "-n" || cmd == "--name") {
+        else if (cmd == "-n" || cmd == "--name")
+        {
             // The name for this simulation
             // Will be used for workflowing simulations
             i++;
@@ -6973,18 +6998,22 @@ int main(int argc, char *argv[])
     if (headless)
     {
         // Just run the simulation without using the GUI.
-        if(CBE::defenderLoaded && CBE::attackerLoaded) {
+        if (CBE::defenderLoaded && CBE::attackerLoaded)
+        {
             // Commence the headless execution.
             std::cout << "Running headless simulation \"" << simulationName << "\"" << endl;
             be_main();
         }
-        else {
+        else
+        {
             // Something is missing, let's see what it is
             std::cout << "Unable to continue with headless execution." << endl;
-            if(!CBE::attackerLoaded) {
+            if (!CBE::attackerLoaded)
+            {
                 std::cout << "No attacking fleet loaded." << endl;
             }
-            if(!CBE::defenderLoaded) {
+            if (!CBE::defenderLoaded)
+            {
                 std::cout << "No defending fleet loaded." << endl;
             }
         }
