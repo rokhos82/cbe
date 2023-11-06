@@ -3853,6 +3853,16 @@ void be_main()
                     // Print a space in the report file
                     reportFile << endl;
                 }
+                // Print out which fleet is attack
+                // This checks for the break between the fleets
+                if (BE::A == 0)
+                {
+                    reportFile << BE::AttFleetName << " is manuevering" << endl;
+                }
+                else if (BE::A == BE::AttShipsLeft) 
+                {
+                    reportFile << BE::DefFleetName << " is manuevering" << endl;
+                }
 
                 Special1 = 0;
                 Special2 = 0;
