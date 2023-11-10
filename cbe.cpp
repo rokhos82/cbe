@@ -3020,9 +3020,9 @@ void be_main()
 
             // Write the attackers to the report file
             // {{486}}
-            reportFile << "\n## Attackers are the " << BE::AttRaceName << ", " << BE::AttFleetName << " " << BE::GroupName << ".\n";
+            reportFile << "\n## Attackers are the " << BE::AttRaceName << ", " << BE::AttFleetName << " " << BE::GroupName << ".\n\n";
             reportFile << "Current group Break-off level is " << BE::AttBreakOff << "%\n";
-            reportFile << "### The " << BE::UnitName << " are currently listed as:\n";
+            reportFile << "### The " << BE::UnitName << " are currently listed as:\n\n";
 
             for (int x = 0; x < BE::AttShipsLeft; x++)
             {
@@ -3031,9 +3031,9 @@ void be_main()
 
             // Write the defenders to the report file
             // {{501}}
-            reportFile << "\n## Defenders are the " << BE::DefRaceName << ", " << BE::DefFleetName << " " << BE::GroupName << ".\n";
+            reportFile << "\n## Defenders are the " << BE::DefRaceName << ", " << BE::DefFleetName << " " << BE::GroupName << ".\n\n";
             reportFile << "Current group Break-off level is " << BE::DefBreakOff << "%\n";
-            reportFile << "### The " << BE::UnitName << " are currently listed as:\n";
+            reportFile << "### The " << BE::UnitName << " are currently listed as:\n\n";
 
             for (int x = 0; x < BE::DefShipsLeft; x++)
             {
@@ -3866,13 +3866,13 @@ void be_main()
                 // This checks for the break between the fleets
                 if (BE::A == 0)
                 {
-                    reportFile << "\n"
-                               << "### Attacking fleet " << BE::AttRaceName << " - " << BE::AttFleetName << " is maneuvering" << endl;
+                    reportFile << "### Attacking fleet " << BE::AttRaceName << " - " << BE::AttFleetName << " is maneuvering\n"
+                               << endl;
                 }
                 else if (BE::A == BE::AttShipsLeft)
                 {
-                    reportFile << "\n"
-                               << "### Defending fleet " << BE::DefRaceName << " - " << BE::DefFleetName << " is maneuvering" << endl;
+                    reportFile << "### Defending fleet " << BE::DefRaceName << " - " << BE::DefFleetName << " is maneuvering\n"
+                               << endl;
                 }
 
                 Special1 = 0;
