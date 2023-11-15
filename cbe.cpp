@@ -180,7 +180,8 @@ void loadAttackingFleet(string fname)
         long numUnits = 0;
         while (getline(attFile, line, '\n'))
         {
-            BE::UnitInfo unit = parseUnit(line);
+            auto fixedLine = fixEOLCharacters(line);
+            BE::UnitInfo unit = parseUnit(fixedLine);
 
             BE::AttShipStr[numUnits] = unit.UnitName;
             BE::MaxBeamA[numUnits] = unit.MaxBeam;
@@ -257,7 +258,8 @@ void loadDefendingFleet(string fname)
         long numUnits = 0;
         while (getline(defFile, line, '\n'))
         {
-            BE::UnitInfo unit = parseUnit(line);
+            auto fixedLine = fixEOLCharacters(line);
+            BE::UnitInfo unit = parseUnit(fixedLine);
 
             BE::DefShipStr[numUnits] = unit.UnitName;
             BE::MaxBeamB[numUnits] = unit.MaxBeam;

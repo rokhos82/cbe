@@ -178,25 +178,28 @@ string defShipStr(int i)
     return strm.str();
 }
 
-std::string fixEOLCharacters(const std::string & original) {
+std::string fixEOLCharacters(const std::string &original)
+{
     // This function removes all /r and /n characters from a string and replaces them with a single /r character
     std::string temp = original;
-    
+
     // Remove all end-of-line characters
     int pos = temp.find('\n');
-    while (pos != std::string::npos) {
-        temp.erase(pos, 1); // Erase one character at the found position
+    while (pos != std::string::npos)
+    {
+        temp.erase(pos, 1);         // Erase one character at the found position
         pos = temp.find('\n', pos); // Find the next occurrence
     }
 
     pos = temp.find('\r');
-    while (pos != std::string::npos) {
-        temp.erase(pos, 1); // Erase one character at the found position
+    while (pos != std::string::npos)
+    {
+        temp.erase(pos, 1);         // Erase one character at the found position
         pos = temp.find('\r', pos); // Find the next occurrence
     }
 
     // Put the correct line ending back on
-    temp += '\n';
+    // temp += '\n';
 
     return temp;
 }
