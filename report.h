@@ -1,5 +1,8 @@
 #pragma once
 
-namespace BE {
-    class report {};
+namespace BE
+{
+    class report
+    {
+    };
 };

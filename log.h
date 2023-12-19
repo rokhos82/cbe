@@ -1,5 +1,8 @@
 #pragma once
 
-namespace BE {
-    class log {};
+namespace BE
+{
+    class log
+    {
+    };
 };

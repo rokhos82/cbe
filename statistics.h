@@ -1,5 +1,8 @@
 #pragma once
 
-namespace BE {
-    class statistics {};
+namespace BE
+{
+    class statistics
+    {
+    };
 };
