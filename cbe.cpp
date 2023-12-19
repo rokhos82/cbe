@@ -17,6 +17,7 @@
 #include "cbe_lib.h"
 #include "cbe.h"
 #include "CriticalHitTable.h"
+#include "engine.h"
 
 using namespace std;
 
@@ -6836,8 +6837,8 @@ void be_main()
             if (oneStep && AttackLoop == 1)
             {
                 string tempIn;
-                cout << "Run another turn? (Y\\N): ";
-                cin >> tempIn;
+                std::cout << "Run another turn? (Y\\N): ";
+                std::cin >> tempIn;
                 if (tempIn == "N" || tempIn == "n")
                 {
                     AttackLoop = 0;
@@ -6917,7 +6918,7 @@ void be_main()
     {
     }
 
-    cout << "Done with combat!" << endl;
+    std::cout << "Done with combat!" << endl;
 
     // FIXME: Memory cleanup?
 
@@ -6947,8 +6948,13 @@ int main(int argc, char *argv[])
     string fname = "";
     bool headless = false;
     string simulationName = "";
+    std::vector<std::string_view> args(argv + 1,argv + argc);
+    BE::engine beEngine;
+    args.reserve(argc);
     while (i < argc)
     {
+        // Add the argument string to the args vector for processing by the engine
+        args.push_back(argv[i]);
         string cmd = argv[i];
         if (cmd == "-a")
         {
@@ -6995,6 +7001,8 @@ int main(int argc, char *argv[])
         }
         i++;
     }
+
+    beEngine.start(args);
 
     // Are we running headless?
     if (headless)
@@ -7086,7 +7094,7 @@ int main(int argc, char *argv[])
             case 7:
                 // Test the CriticalHitTables class
                 output = tables[5].getRandomOutput();
-                cout << output.first << endl;
+                std::cout << output.first << endl;
                 break;
             default:
                 done = true;
