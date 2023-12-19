@@ -15,7 +15,13 @@ namespace BE
         this->parseArguments(args);
     }
     void engine::printUI() {}
-    void engine::printCLI() {}
+    void engine::printCLI()
+    {
+        std::cout << "Usage: cbe.exe [-a|--attackers attack.csv][-d|--defenders defend.csv][-e|--fight][-h|--hit number][-1|--onestep][-n|--name nameOfSimulation]" << std::endl;
+        std::cout << "\t-a|--attackers filename.csv - This option loads the specified file as the attacking fleet." << std::endl;
+        std::cout << "\t-d|--defenders filename.csv - This option loads the specified file as the defending fleet." << std::endl;
+        std::cout << "\t-e|--fight - This options tells the combat engine to run headless." << std::endl;
+    }
     void engine::parseArguments(const std::vector<std::string_view> &args)
     {
         for (auto cmd = args.begin(), end = args.end(); cmd != end; cmd++)
@@ -73,6 +79,7 @@ namespace BE
             else
             {
                 std::cerr << "Unknown command: " << *cmd << std::endl;
+                this->printCLI();
             }
         }
     }
