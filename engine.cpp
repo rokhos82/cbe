@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <stdexcept>
 #include "engine.h"
 
 namespace BE
@@ -35,7 +36,7 @@ namespace BE
                 }
                 else
                 {
-                    std::cerr << "No attackers file specified with [-a|--attackers]." << std::endl;
+                    throw std::invalid_argument("No attackers file specified with [-a|--attackers]");
                 }
             }
             else if (*cmd == "-d" || *cmd == "--defenders")
@@ -47,7 +48,7 @@ namespace BE
                 }
                 else
                 {
-                    std::cerr << "No defenders file specified with [-d|--defenders]." << std::endl;
+                    throw std::invalid_argument("No defenders file specified with [-d|--defenders]");
                 }
             }
             else if (*cmd == "-e" || *cmd == "--fight")
@@ -76,6 +77,7 @@ namespace BE
             {
                 // Set simulation name here
             }
+            else if(*cmd == "-t" || *cmd == "--turns") {}
             else
             {
                 std::cerr << "Unknown command: " << *cmd << std::endl;

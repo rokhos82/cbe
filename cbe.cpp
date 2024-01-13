@@ -27,6 +27,8 @@ std::unordered_map<int, CriticalHitTable> critTables;
 
 fstream CBE::debugFile = fstream("debug.txt", ios::out | ios::binary);
 
+int BE::MaxTurns = 100;
+
 string BE::AttFleetStr = "", BE::AttRaceName = "", BE::AttFleetName = "";
 string BE::AttBattleStr = "", BE::AttDamageStr = "", BE::AttRetreatStr = "";
 string BE::DefFleetStr = "", BE::DefRaceName = "", BE::DefFleetName = "";
@@ -6794,7 +6796,7 @@ void be_main()
             writeTempFiles();
 
             // Do end of combat checks
-            if (AttGone == 1 || BE::CombatRound >= 100) // FIXME: Change the 100 to a constant that can be set
+            if (AttGone == 1 || BE::CombatRound >= BE::MaxTurns) // FIXME: Change the 100 to a constant that can be set
             {
                 if (BE::AttShipsLeft == 0)
                 {
@@ -6994,6 +6996,11 @@ int main(int argc, char *argv[])
             // Will be used for workflowing simulations
             i++;
             simulationName = argv[i];
+        }
+        else if(cmd == "-t" || cmd == "--turns")
+        {
+            i++;
+            BE::MaxTurns = stoi(argv[i]);
         }
         else
         {

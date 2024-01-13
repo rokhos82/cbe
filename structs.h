@@ -62,6 +62,7 @@ namespace BE
     };
 
     // Global Variables
+    extern int MaxTurns;
     extern string AttFleetStr, AttRaceName, AttFleetName;
     extern string AttBattleStr, AttDamageStr, AttRetreatStr;
     extern string DefFleetStr, DefRaceName, DefFleetName;
