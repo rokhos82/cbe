@@ -4059,7 +4059,13 @@ void be_main()
                             }
                             // Save the bracket string
                             BE::Salvos[sc].DataStr = temp_str.substr(start, start1 - start + 1);
-                            BE::Salvos[sc].MissileS = stoi(temp_str.substr(1));
+                            try {
+                                BE::Salvos[sc].MissileS = stoi(temp_str.substr(start+1));
+                            }
+                            catch(std::invalid_argument e) {
+                                std::cerr << "Invalid arugments passed to " << e.what() << ": " << temp_str.substr(start+1) << endl;
+                                std::cerr << "temp_str = " << temp_str << endl;
+                            }
 #ifdef CBE_DEBUG
                             CBE::debugFile << "[INFO] " << BE::AttRaceName << " " << BE::AttShipStr[B] << " has battery[" << sc << "]: " << BE::Salvos[sc].DataStr << endl;
 #endif
@@ -5057,11 +5063,19 @@ void be_main()
                                 // We are not using max damage so roll damage
                                 if (BE::dice1 > 100)
                                 {
-                                    // Calculate the good hit bonu
+                                    // Calculate the good hit bonus
                                     YieldBonus += (BE::dice1 - 100);
 #ifdef CBE_DEBUG
                                     CBE::debugFile << "[INFO] Good hit bonus!" << endl;
 #endif
+                                }
+
+                                // Cap the yield bonus between -90 and +90.
+                                if(YieldBonus < -90) {
+                                    YieldBonus = -90;
+                                }
+                                else if(YieldBonus > 90) {
+                                    YieldBonus = 90;
                                 }
 
                                 // BE::Damage3 = long(round((1 + (rand() % (firepower - 1))) * (1.0f + (float(YieldBonus) / 100.0f))));
@@ -7009,7 +7023,7 @@ int main(int argc, char *argv[])
         i++;
     }
 
-    beEngine.start(args);
+    // beEngine.start(args);
 
     // Are we running headless?
     if (headless)
@@ -7019,7 +7033,15 @@ int main(int argc, char *argv[])
         {
             // Commence the headless execution.
             std::cout << "Running headless simulation \"" << simulationName << "\"" << endl;
-            be_main();
+            try {
+                be_main();
+            }
+            catch (std::invalid_argument e) {
+                std::cerr << e.what() << std::endl;
+            }
+            catch(std::exception e) {
+                std::cerr << e.what() << std::endl;
+            }
         }
         else
         {
